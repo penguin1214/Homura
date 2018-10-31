@@ -1,0 +1,13 @@
+.idea/
+.vs/
+cmake-build-debug/
+vstudio/
+dependencies/
+scenes/*
+!scenes/scene.json
+include/thirdparty/
+bug_log/
+.DS_Store
+
+include/core/io/lodepng.h
+src/core/io/lodepng.cpp

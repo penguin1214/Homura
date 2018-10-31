@@ -1,0 +1,32 @@
+#include "renderer/IntersectInfo.h"
+#include "renderer/primitives/Primitive.h"
+#include "renderer/bxdfs/BxDF.h"
+
+namespace Homura {
+	IntersectInfo::IntersectInfo(const IntersectInfo &origin) :
+	_p(origin._p), _wo(origin._wo), _t(origin._t), _normal(origin._normal),
+	_shading(origin._shading) {
+		if (origin._bsdf)
+			_bsdf = std::make_shared<BSDF>(*origin._bsdf);
+		if (origin._primitive)
+			_primitive = origin._primitive->getShared();
+	}
+
+	IntersectInfo::IntersectInfo(const Point3f p) {
+		IntersectInfo();
+		_p = p;
+	}
+
+	void IntersectInfo::computeScatteringFunction() {
+		/// TODO: compute differential ray for anti-aliasing
+		_primitive->computeScatteringFunction(*this);
+	}
+
+	Ray IntersectInfo::spawnRay(const Vec3f &wi) const {
+		return Ray(_p, wi);
+	}
+
+	Ray IntersectInfo::spawnRayTo(const IntersectInfo &other) const {
+		return Ray(_p, (other._p - _p).normalized(), 0.f, (other._p-_p).length());
+	}
+}

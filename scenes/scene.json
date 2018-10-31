@@ -1,0 +1,117 @@
+{
+  "sensor": {
+    "type": "perspective",
+    "resolution": [
+      100,
+      100
+    ],
+    "fov": 45,
+    "screen_window": 2.0,
+    "lookat": {
+      "position": [
+        3,
+        2,
+        10
+      ],
+      "at": [
+        0,
+        2,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ]
+    }
+  },
+  "primitives": [
+    //{
+    //  "type": "obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
+    //  "material": {
+    //    "type": "matte"
+    //  }
+    //},
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
+      "material": {
+        "type": "matte"
+      }
+    },
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/open_teapot.obj",
+      "material": {
+        "type": "matte"
+      }
+    }
+  ],
+  "emitters": [
+    {
+      "type": "directional",
+      "direction": [ -1,-1,0 ],
+      "n_samples": 1,
+      "transform": {
+        "translate": [ -1, 5, 0 ],
+        "scale": [ 1, 1, 1 ]
+      },
+      "intensity": [ 1000, 1000, 1000 ]
+    }
+    //{
+    //  "type": "point",
+    //  "direction": [ 1.0, -1.0, 0.0 ],
+    //  "n_samples": 1,
+    //  "transform": {
+    //    "translate": [ 3, 3, 0 ],
+    //    "scale": [ 1, 1, 1 ]
+    //  },
+    //  "intensity": [ 500, 500, 500 ]
+    //},
+    //{
+    //  "type": "point",
+    //  "direction": [ 1.0, -1.0, 0.0 ],
+    //  "n_samples": 1,
+    //  "transform": {
+    //    "translate": [ -2, 2, -2 ],
+    //    "scale": [ 1, 1, 1 ]
+    //  },
+    //  "intensity": [ 1000, 1000, 1000 ]
+    //},
+    //{
+    //  "type": "point",
+    //  "direction": [ 1.0, -1.0, 0.0 ],
+    //  "n_samples": 1,
+    //  "transform": {
+    //    "translate": [ -2, 2, -4 ],
+    //    "scale": [ 1, 1, 1 ]
+    //  },
+    //  "intensity": [ 1000, 1000, 1000 ]
+    //}
+    //{
+    //  "type": "spotlight",
+    //  "n_samples": 1,
+    //  "tranform": {
+    //    "translate": [ 0, 0, 5 ],
+    //    "scale": [ 1, 1, 1 ]
+    //  },
+    //  "inner_cone": 10,
+    //  "outer_cone": 30
+    //}
+  ],
+  "integrator": {
+    "type": "path_trace",
+    "max_depth": 1,
+    "rr_bounce": 3,
+    "sampler": {
+      "type": "stratified",
+      "jitter": true,
+      "spp": 16,
+      "ndim": 4
+    }
+  },
+  "renderer": {
+    "output_file": "scene.png"
+  }
+}
