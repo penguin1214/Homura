@@ -1,139 +1,212 @@
-## TODO
-- [x] obj opengl viewer
-- [ ] ObjHandler still has problem when file contains texure/normal indiceis.
-- [ ] use both translate/rotate or position/lookat/up to set camera frame
-- [ ] some homogeneous coord are not normalized, may cause bugs! Homogeneous coord w may not be exactly 1 when multiplied with projection matrcies, so we need to normalize the point back to w=1. (Q: does the normalization changes the position in coord sys, if true, the point is not the same point?!)
-- [ ] row/column major matrix mechanism seems to be used unapproapiately in the system, need to check!
-- [ ] check if primitives from .obj files are located in their object spaces(at origin in world space) or already in world space. This is important since we have ["transform"] attribute in scene files.
-- [ ] Json parse exception handler
-- [ ] camera rays still have problem!!!! When to change camera ray directions? when camera.z < 0, error!(x,y become inf). is this related with screen_window? when camera.z > 0, camera ray direction opposite!!
-Also, do we flip (pos->lookat) vector, so that camera space forward vector do not account for camera ray direction (instead do flip in generateRay() function)?
-- [x] BSDF
-- [ ] Exception Class
-- [x] screen window aspect ratio? (ortho window size control?)
-- [ ] FrConductor complex number calculation?
-- [x] specular conductor & dielectric, ior spectrum or float?
-
-# Overall Design
-Rendering jobs are handled by `Renderer` instances. A `Renderer` object holds the pointer of the integrator and the pointer of the scene to be rendered.
-
-Buffers are managed by `Sensor` class objects. When write buffers to disks, `Renderer` object fetches buffers from `Sensors` objects, and call corresponding IO handler to write.
-Rendering settings are stored in `RenderingSettings` class objects.
-
-Use **Row-Major** operations!
-
-# Class References
-## Coordinate
-Use right-hand coordinate.
-x-axis ascends from left to right;
-y-axis ascends from bottom to up;
-z-axis ascends from in to out;
-
-- [ ] It seems that coordinate systems built from normals, are different from the ones build from location vectors, given the `z` direction.
-> In conclusion, it is tradition to use up vector as z-axis in shading related coordinates, while others use forward vector as z-axis.
-
-## Transform
-Always use `Vec3f` * `Mat4f` to apply transformations.
-**Tranform matrices are identical for points and vectors. The difference lies in the homogeneous coord of the points and the vectors themselves.
-Thus we do not need much attention when computing matrices.**
-- [ ] Should I distinguish points and vectors as it relates to different homogeneous coordinate?
-
-## Integrator
-`Integrator` objects hold pointer to rendered scene.
-For current compliance with pbrt-v3, put all intersection related infor, e.g. BSDF, surface info, in `isect`.
-- [ ] Is `Visibility Tester` really necessary?
-
-### Whitted Integrator
-- [ ] If whitted doesn't account indirect lighting, then why bounce?
-
-## Camera
--[ ] moving camera
-When creating `Camera` objects, default values for `_pos`, `_lookat`, `_up` are (0,0,0), (0,1,0), (0,0,1).
-
-Camera is oriented along **negative z-axis** by default, thus z-coordinates need to be divided by **-z** when doing perspective projection.
-- [ ] (ortho projection?)
-
-### Camera related spaces
-- world space(3d)
-- camera space(3d): where camera is facing **negative** z-axis. All visible points' coordinates have negative z coord.
-- screen space(2d): image plane space, it is still confusing to me *whether this space is a 3d space or 2d*. All the coord lies in screen window, i.e. [-1,1]. Note that z coords are flipped and thus positive!
-> ok. screen space is a 3d space, the z coordinates seems to be used for depth-of-field simulation. They are not considered when camera generats rays, we only considers x and y coordinates when genereating rays.
-- NDC space(2d): used to normalize coordinates in screen space to [0,1].
-- raster space(2d): unnormalize coordinates in NDC space to fit film spatial ration.
-
-`orthographic` or `perspective` projection matrix projects objects in camera space to the **near plane** in camera space, not screen space. screen space is defined on the film plane(where raster space is).
-
-### Camera Default Parameters
-- distance between `image plane` and `camera(eye)` is **1.0**.
-- screen window is set to [-1,1] at default.
-
-## Primitive
-`Primitive` class holds geometric primitive implementations. `Homura` does not distinguish between *Shapes* and *Primitives* like pbrt-v3 does, instead it place BSDF properties in `Primitive` objects.
-
-`Primitive` objects always use **world coordinate**!
-
-### TriangleMesh
-Use CCW to represent vertices.
-#### Triangle Intersection
-1. directly solve the coordinate transformation from linear equation.
-- [ ]translate-permute-shear
-- [ ]what is error bound used for?
-
-## Rays
-### Ray Differentials
-Ray differentials are just extension of `Ray` class to contain more information of original ray, including two differential rays.
-Only the routines that need to account for **antialiasing** and **texturing** require RayDifferential parameters.
-
-## BxDF & BSDF
-So it seems the bsdf coordinates are stored in `BSDF` instances, instead of `IntersectInfo`. So the `_shading` member of `IntersectInfo` stores world space vectors.
-
-- [ ] check if wo is properly handled! `pointing out` & `coord transform`.
-
-### BxDF
-Every vector manipulated by `BxDF` class instances, are in **reflection coordinate**!
-
-Note `_R` is computed by `Texture` instances.
-
-- [ ] Which classes have `Sample_f()`?
-- [ ] Why ray from whether **light source** or **camera** should be distinguished for `SpecularTransmission`?
-
-### BSDF
-- holds all BxDF instances
-- manage coordinate transforms
-
-Since every `BSDF` is linked with a specific intersection event, `Material` does not own a BSDF.
-
-As for the `MatchFlags()` function, it requires **all** attributes in queried BSDF can be found in provided flags.
-- [ ] How to decompose BSDFs? Why when part of attributes in BSDF belong to provided flags, the BSDF cannot be considered a composing BxDF?
-
-- [ ] What if I do not use `dpdu` as tangent vector? Is it ok to use any vector in the triangle plane?
-> Reﬂection computations in pbrt are evaluated in a reﬂection coordinate system where the two tangent vectors and the normal vector at the point being shaded are aligned with the x, y, and z axes, respectively. (p509, pbrt)
-
-So what the normal is not aligned with z-axis? How to transform?
-If frame basis are all exactly aligned with [x,y,z]-axis, how can z-axis represents normal? Or "aligned" just mean they are (1,0,0), (0,1,0) and (0,0,1) in the shading coord?
-
-## Material
-Represents surface shaders.
-
-So `Material` instances manage `BSDF` and `Texture` to give final shading effects.
-
-# Emitters
-Luminous efficacy
-
+# `lib` Core
 ## IO
-Note `.obj` file indicies starts from **1**!
 
-**NOTE: `Box` class is not a `Primitive`!**
+### `class` FileException
+### `class` FileUtil
+### `class` JsonObject [-]
+>`JsonObject` holds basic json objects, at any hierarchy level.
 
-## Questions
-- [ ] matrix multiplication order?
-- [ ] signed edge function, relationship with barycentric coord?
-- [ ] how does the order of ei in signed edge function matter?
-- [ ] inverse matrix Gaussian-Jordan
-- [ ] error log out
-- [ ] buffer vs film?
-- [ ] smart pointer
-- [ ] google glog library
-- [ ] ray differentials
-- [ ] C++ hierarcical classes constructor behavior
-- [ ] What is screen_window used for?
+|Member|Type|Accessibility|
+|:--:|:--:|:--:|
+|_document| const JsonDocument *| `protected` |
+|_value| const rapidjson::Value *| `protected` |
+
+|Interface|Accessibility||
+|:--:|:--:|:--:|
+|[void fill(bool&) const](#jsonobjectfillbool)|public|
+|[void fill(int&) const](#jsonobjectfillint)|public|
+|[std::string getString() const](#jsonobjectgetstring)|public|
+|[**Mat4f** JsonObject::getTransform() const](#jsonobjectgettransform)|public||
+
+> <a name="#jsonobjectfillbool"></a>**void fill(bool&) const**
+> <a name="#jsonobjectfillint"></a>**void fill(int&) const**
+
+> <a name="#jsonobjectgetstring"></a>**std::string getString() const**
+> **getInt()**
+> **getBool()**
+> **JsonObject operator[](const char \*)**
+
+> <a name="jsonobjectgettransform"></a>**Mat4f** JsonObject::getTransform() const
+- [ ] Rotation
+
+### `class` JsonDocument [JsonObject]
+`JsonDocument` stores and parse .json files.
+
+### `class` ObjHandler
+### `class` PpmHandler
+
+## math
+### template<T, Size> `class` Point
+
+|Interface|Accessibility|Test
+|:--:|:--:|:--:|
+|inline **Pointer** permute(int, int, int) const|public|`pass`|
+
+### template<T, Size> `class` Vector
+> `Vector` is row-based.
+|Interface|Accessibility|Test
+|:--:|:--:|:--:|
+|inline **ElementType** dot(**Vector** other) const|public|`pass`|
+|[inline **Vector** cross(**Vector** other) const](#vectorcorss)|public|`pass`|
+|inline **Vector** permute(int, int, int) const|public||
+
+> <a name="#vectorcross"></a>inline **Vector** cross(**Vector** other) const
+
+- [ ] x() return reference, is it good?
+- [ ] How to represent column vectors?
+
+### `class` Mat4f
+|Interface|Accessibility|Test
+|:--:|:--:|:--:|
+|[static **Mat4f** transpose(const **Mat4f&**)](#mat4ftranspose)|public|`pass`|
+|static **Mat4f** inverse(const **Mat4f&**)|public||
+|static **Mat4f** translate(**Vec3f** t)|public||
+|static **Mat4f** scale(**Vec3f** s)|public||
+|~~static **Mat4f** rotateXYZ(**Vec3f** r)~~|public||
+|[static **Mat4f** rotAxis(**Vec3f** &axis, **float** angle)](#mat4frotaxis)|public|`fixed`|
+|static **Mat4f** orthographic(**float** near, **float** far)|public||
+|static **Mat4f** perspective(**float** fov)|public|`fixed`|
+|friend **Mat4f** operator*(const **Mat4f&** a, const **Mat4f&** b)|-|`pass`|
+|friend **Vec4f** operator*(const **Vec4f&** b, const **Mat4f&** a)|-||
+|friend **Ved4f** operator*(const **Mat4f&** a, const **Vec4f&** b)|-||
+|friend **Point3f** operator*(const **Point3f** b, const **Mat4f&** a)|-|`pass`|
+|friend **Vec3f** operator*(const **Vec3f** b, const **Mat4f&** a)|-|`pass`|
+
+
+> static **Mat4f** transpose(const **Mat4f&**)
+<a name="mat4frotaxis"></a>> static **Mat4f** rotAxis(**Vec3f** &axis, **float** angle
+
+Rotate points or vectors in **counterclockwise** order in the **right-handed** coordinate system.
+- [ ] transpose() should not be static?
+
+### `class` CoordinateSystem
+> Used to represent different frames. Use **right hand coord**. 
+
+`Note`
+It is important to understand that the name convention used in a coordinate system **has nothing to do** with the handness!
+
+|x|y|z|
+|:--:|:--:|:--:|
+|u|v|w|
+|right|up|forward|
+
+#### Usage Summary
+
+|Interface|Accessibility|Test
+|:--:|:--:|:--:|
+|[CoordinateSystem(const **Vec3f&** pos, const **Vec3f&** lookat, **Vec3f&** up)](#coordinatesystemlconstructorlookat)|public||
+
+
+1. BRDF local coordinate (normal space)
+
+    When dealing with intersection and shading, since we can compute derivatives at intersection point, we can obtain normal by their cross product. And construct a local coordinate with this given normal vector.
+
+    Also note that in shading coordinate systems, z is always the `up` vector by convention.
+
+![normal space](./figs/normal.png)
+
+2. intersection?
+
+> <a name="coordinatesystemconstructorlookat"></a> CoordinateSystem(const **Vec3f&** pos, const **Vec3f&** lookat, **Vec3f&** up)
+- [ ] Need to verify if it is necessary that camera is facing the -z axis in its own local coordinate.
+
+- [ ] So, for some circumstances, like the BRDF coord, z points upward. This is different from the definition of this class, how to handle?
+- [ ] Why constructing normal space do not use the intersected triangle's normal directly? Is that because this is actually computing a shading normal(via derivatives)?
+
+### `class` Bound
+
+## sampler
+
+### `class` Sampler
+> Generate n-dimensional samples for pixels.
+
+|Interface|Accessibility|Status|
+|:--:|:--:|:--:|
+|[**void** startPixel(const **Vec2i&** p)](#samplerstartpixel)|public||
+|[**void** startNextSample()](#samplerstartnextsample)|public||
+|**void** setSampleIdx(int64_t)|public||
+|[**float** get1D()=0](#samplerget1d)|public||
+|[**Vec2f** get2D()=0](#samplerget2d)|public||
+|[**void** request1DArray(int n)](#samplerrequest1darray)|public||
+|**void** request2DArray(int n)|public||
+|[**const float\*** get1DArray(int n)](#samplerget1darray)|public||
+|**const Vec2f\*** get2DArray(int n)|public||
+|**PixelSample** getSensorSample(Vec2i p)|public||
+
+|Member|Accessibility|
+|--:|:--:|
+|**const int64_t** _spp| `public` |
+|**Vec2i** _current_pixel| `protected` |
+|**int64_t** _current_pixel_sample_idx|`protected`|
+|**std::vector\<int\>** _samples1DArraySizes|`protected`|
+|**std::vector\<int\>** _samples2DArraySizes|`protected`|
+|**std::vector\<std::vector\<float\>\>** _sampleArray1D|`protected`|
+|**std::vector\<std::vector\<Vec2f\>\>** _sampleArray2D|`protected`|
+|**size_t** _array1DOffset|`protected`|
+|**size_t** _array2DOffset|`protected`|
+
+> <a name="samplerstartpixel"></a>**void** startPixel(const **Vec2i&** p)
+When sampler instances start to draw samples for a pixel (multiple samples may be genereated for a singel pixel), it calls this function.
+
+> <a name="samplerget1d"></a> **float** get1D()=0
+Fetch next 1 dimension random variable value in current n-dimensional sample of current pixel.
+
+> <a name="samplerrequest1darray"></a> **void** request1DArray(int n)
+Called when integrator requires additional dimensions of samples. Must be called before render().
+
+> <a name="samplerget1darray"></a>**const float\*** get1DArray(int n)
+
+- [ ] When exactly will request sample arrays be considered? For which integrators?
+
+### `class` PixelSampler : **public** Sampler
+|Member|Accessibility|
+|--:|:--:|
+|[**std::vector\<std::vector\<float\>\>**](#pixelsamplersamples1d) _samples1D| `protected` |
+
+> <a name="pixelsamplersamples1d"></a> `_samples1D`
+
+Samples in `_samples1D` includes the ones used by sensor. When pixel_sample is been generated, film sample, shutter time and lens sample are fetched from `_samples1D`.
+
+### `class` StratifiedSampler : **public** PixelSampler
+### `class` UniformSampler : **public** PixelSampler
+
+# `exe` renderer
+
+## integrators
+### `class` Integrator
+### `class` Whitted
+
+### `class` PathTraceIntegrator
+
+## primitives
+### `class` Primitives
+### `class` TriangleMesh
+
+## sensors
+### `class` Sensor
+
+- [ ] Now use **LookAt** matrix to place the camera. This has a limit that the camera could not be looking straight up or down. TODO: quaternion.
+
+### `class` Orthographic
+### `class` Perspective
+- [ ] **Kown bug!**
+
+## Emitters
+|Interface|Accessibility|Status|
+|:--:|:--:|:--:|
+|[**Vec3f** sample_Li(const **IntersectInfo&** isect_info, **Vec3f&** &wi, **float&** pdf, const **Point2f&** u) const](#emittersampleli)
+|public||
+
+> <a name="emittersampleli"></a> **Vec3f** sample_Li(const **IntersectInfo&** isect_info, **Vec3f&** &wi, **float&** pdf, const **Point2f&** u) const
+- [ ] What exactly this function measure? Irradiance or radiance? (From its implementation, seems to be irradiance, but shouldn't radiance be evaluated here?)
+
+### SpotlightEmitter
+Pointing to `(0,-1,0)` at default.
+`_cos_inner`: from center to falloff point.
+
+`_cos_outer`: from center to full width point.
+
+### `class` Box
+### `class` Buffer
+### `class` Ray
+### `class` Scene
