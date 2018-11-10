@@ -48,23 +48,21 @@ namespace Homura {
 	}
 
     bool Scene::intersect(Ray &r, IntersectInfo &isect_info) const {
+		bool flag = false;
         for (auto &shape_ptr : _shapes) {
-			if (shape_ptr->intersect(r, isect_info)) {
-				r._tmax = isect_info._t;
-			}
+			if (shape_ptr->intersect(r, isect_info))
+				flag = true;
         }
 
-		if (r._tmax < INFINITY)
-			return true;
-		else
-			return false;
+		return flag;
     }
 
 	bool Scene::intersectP(const Ray &r) const {
+		bool flag = false;
 		for (auto &shape_ptr : _shapes) {
 			if (shape_ptr->intersectP(r))
-				return true;
+				flag = true;
 		}
-		return false;
+		return flag;
 	}
 }

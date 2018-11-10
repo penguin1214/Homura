@@ -9,6 +9,7 @@
 #include "core/math/CoordinateSystem.h"
 #include <string>
 #include "renderer/Ray.h"
+#include "renderer/emitters/Emitter.h"
 
 using namespace Homura;
 
@@ -42,4 +43,24 @@ int main() {
 //	std::cout << lookat << std::endl;
 //	Point3f cam = lookat * Point3f(0, 0, 0);
 //	std::cout << cam << std::endl;
+
+	//std::vector<Point3f> _verts = {Point3f(-1, -1, -1), Point3f(1, -1, -1), Point3f(1, 1, -1), Point3f(-1,1,-1)};
+	//std::vector<Vec3i> _idx = {Vec3i(0,1,2), Vec3i(0,2,3)};
+	//TriangleMesh tri(_verts, _idx);
+	//Point3f origin(0, 0, 0);
+	//int sz = 500;
+	//float d = 3.f / float(sz);
+	//Buffer buffer(sz, sz);
+	//for (int j = 0; j < sz; j++) {
+	//	for (int i = 0; i < sz; i++) {
+	//		Point3f p(-1.5 + d * i, 1.5 - d * j, -1);
+	//		Ray r(origin, ((p - origin).normalized()));
+	//		//std::cout << b << std::endl;
+	//		IntersectInfo I1(origin);
+	//		IntersectInfo I2(p);
+	//		bool b = tri.intersectP(I1.spawnRayTo(I2));
+	//		buffer.addSample(j * sz + i, b*100);
+	//	}
+	//}
+	//PPMHandler::writePPM("test.ppm", buffer._data, sz, sz);
 }

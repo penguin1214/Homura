@@ -9,6 +9,7 @@
 #include "../core/io/PpmHandler.h"
 #include "core/io/JsonDocument.h"
 #include "renderer/integrators/Whitted.h"
+#include "renderer/integrators/DirectIntegrator.h"
 #include "renderer/integrators/PathTraceIntegrator.h"
 
 namespace Homura {
@@ -29,6 +30,8 @@ namespace Homura {
 
 			if (integrator_type == "whitted")
 				_integrator = std::unique_ptr<Integrator>(new Whitted(std::shared_ptr<Scene>(_scene), integrator_json));
+			else if (integrator_type == "direct")
+				_integrator = std::unique_ptr<Integrator>(new DirectIntegrator(std::shared_ptr<Scene>(_scene), integrator_json));
 			else if (integrator_type == "path_trace")
 				_integrator = std::unique_ptr<Integrator>(new PathTraceIntegrator(std::shared_ptr<Scene>(_scene), integrator_json));
 			else

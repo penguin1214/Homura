@@ -12,7 +12,7 @@ namespace Homura {
 		_vertIdx = vertIdx;
 	}
 
-    bool Triangle::intersect(const Ray &r, float tmax, Point3f p0, Point3f p1, Point3f p2, IntersectInfo &isect_info) const {
+    bool Triangle::intersect(const Ray &r, Point3f p0, Point3f p1, Point3f p2, IntersectInfo &isect_info) const {
         // translate
         Point3f p0_ = p0 - r._o;
         Point3f p1_ = p1 - r._o;
@@ -76,8 +76,8 @@ namespace Homura {
         p2_[2] *= Sz;
 
         float tScaled = e0*p0_.z() + e1*p1_.z() + e2*p2_.z();
-        if (det < 0 && (tScaled >= 0 || tScaled < r._tmax*det) ) return false;
-        else if (det > 0 && (tScaled <= 0 || tScaled > r._tmax*det) ) return false;
+        if (det < 0 && (tScaled > 0 || tScaled < r._tmax*det) ) return false;
+        else if (det > 0 && (tScaled < 0 || tScaled > r._tmax*det) ) return false;
 
         float invDet = 1.0f / det;
         float t = tScaled * invDet;
@@ -90,6 +90,7 @@ namespace Homura {
         // TODO: error bounds
         // TODO: partial derivative
         // TODO: UV value
+		r._tmax = t;
         // TODO: intersect info class
 		isect_info._t = t;
 //		isect_info._d = r._d;
@@ -106,7 +107,7 @@ namespace Homura {
         return true;
     }
 
-	bool Triangle::intersectP(const Ray &r, float tmax, Point3f p0, Point3f p1, Point3f p2) const {
+	bool Triangle::intersectP(const Ray &r, Point3f p0, Point3f p1, Point3f p2) const {
         // translate
         Point3f p0_ = p0 - r._o;
         Point3f p1_ = p1 - r._o;
@@ -170,8 +171,12 @@ namespace Homura {
         p2_[2] *= Sz;
 
         float tScaled = e0*p0_.z() + e1*p1_.z() + e2*p2_.z();
-        if (det < 0 && (tScaled >= 0 || tScaled < r._tmax*det) ) return false;
-        else if (det > 0 && (tScaled <= 0 || tScaled > r._tmax*det) ) return false;
+        if (det < 0 && (tScaled > 0 || tScaled < r._tmax*det) ) return false;
+        else if (det > 0 && (tScaled < 0 || tScaled > r._tmax*det) ) return false;
+
+		float invDet = 1.0f / det;
+		float t = tScaled * invDet;
+		r._tmax = t;
 
         return true;
 	}
@@ -187,28 +192,26 @@ namespace Homura {
     }
 
 	bool TriangleMesh::intersect(const Ray &r, IntersectInfo &info) {
+		bool flag = false;
         for (int i = 0; i < _indecies.size(); i++) {
             Triangle t(_indecies[i]);
-			if (t.intersect(r, r._tmax, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], info)) {
+			if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], info)) {
 				info._primitive = getShared();
-				r._tmax = info._t;
+				flag = true;
 			}
         }
 
-		if (r._tmax < INFINITY) {
-			return true;
-		}
-		else
-			return false;
+		return flag;
 	}
 
 	bool TriangleMesh::intersectP(const Ray &r) const {
+		bool flag = false;
 		for (int i = 0; i < _indecies.size(); i++) {
 			Triangle t(_indecies[i]);
-			if (t.intersectP(r, r._tmax, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
-				return true;
+			if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
+				flag = true;
 		}
-		return false;
+		return flag;
 	}
 
 }

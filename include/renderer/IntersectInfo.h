@@ -11,7 +11,7 @@ namespace Homura {
 	struct IntersectInfo {
 		Point3f _p;
 		Vec3f _wo;
-		float _t;
+		float _t = INFINITY;
 		Vec3f _normal;
 		std::shared_ptr<Primitive> _primitive;
 		std::shared_ptr<BSDF> _bsdf;

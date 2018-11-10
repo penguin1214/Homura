@@ -15,8 +15,8 @@ namespace Homura {
 
 		//Triangle(std::shared_ptr<TriangleMesh> m, Vec3i vertidx);
 		Triangle(Vec3i vertidx);
-		inline bool intersect(const Ray &r, float tmax, Point3f p0, Point3f p1, Point3f p2, IntersectInfo &isect_info) const;
-		inline bool intersectP(const Ray &r, float tmax, Point3f p0, Point3f p1, Point3f p2) const;
+		inline bool intersect(const Ray &r, Point3f p0, Point3f p1, Point3f p2, IntersectInfo &isect_info) const;
+		inline bool intersectP(const Ray &r, Point3f p0, Point3f p1, Point3f p2) const;
 	};
 
 	class TriangleMesh :public Primitive {

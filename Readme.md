@@ -214,6 +214,22 @@ Samples in `_samples1D` includes the ones used by sensor. When pixel_sample is b
 > <a name="emittersampleli"></a> **Vec3f** sample_Li(const **IntersectInfo&** isect_info, **Vec3f&** &wi, **float&** pdf, const **Point2f&** u) const
 - [ ] What exactly this function measure? Irradiance or radiance? (From its implementation, seems to be irradiance, but shouldn't radiance be evaluated here?)
 
+### PointEmitter
+|Member|Accessibility|
+|--:|:--:|
+|[**const Vec3f** _I](#pointemitteri)| `public` |
+
+|Interface|Accessibility|Status|
+|:--:|:--:|:--:|
+|[**void** startPixel(const **Vec2i&** p)](#samplerstartpixel)|public||
+
+
+> <a name="pointemitteri"></a> **const Vec3f** _I
+_I denotes the **raidant intensity** of point emitters. It represents the power per unit solid angle emitted by the point emitter. Thus the **power** of this emitter is computed by integral over the sphere of solid angles by this randiant intensity.
+
+> sample_Li()
+Since `_I` represents the radiant intensity, i.e. flux per unit solid angle, and that we want to measure the **radiance**, i.e. flux per unit solid angle per unit area on the surface receiving light, we need to devide `_I` by squared length in order to compute the radiance. (squared length is due to the fact that we need to measure flux on a certain sphere whose radius is the length to the origin, and thus compute the area of the sphere, and thus the flux on unit area.)
+
 ### SpotlightEmitter
 Pointing to `(0,-1,0)` at default.
 `_cos_inner`: from center to falloff point.
