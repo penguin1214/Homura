@@ -27,6 +27,6 @@ namespace Homura {
 	}
 
 	Ray IntersectInfo::spawnRayTo(const IntersectInfo &other) const {
-		return Ray(_p, (other._p - _p).normalized(), 0.f, (other._p-_p).length());
+		return Ray(_p+_normal*1e-6, (other._p - _p).normalized(), 0.f, (other._p-_p).length());
 	}
 }

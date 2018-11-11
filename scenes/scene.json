@@ -11,7 +11,7 @@
       "position": [
         0,
         5,
-        30
+        25
       ],
       "at": [
         0,
@@ -42,7 +42,7 @@
     //},
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/open_teapot.obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
       "material": {
         "type": "matte"
       }
@@ -54,10 +54,10 @@
       "direction": [ -1,-1,0 ],
       "n_samples": 1,
       "transform": {
-        "translate": [ 0, 8, 0 ],
+        "translate": [ 0, 8, 3 ],
         "scale": [ 1, 1, 1 ]
       },
-      "intensity": [ 10000, 10000, 10000 ]
+      "intensity": [ 30000, 30000, 30000 ]
     }
     //{
     //  "type": "point",

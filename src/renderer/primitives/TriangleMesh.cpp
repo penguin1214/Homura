@@ -171,8 +171,8 @@ namespace Homura {
         p2_[2] *= Sz;
 
         float tScaled = e0*p0_.z() + e1*p1_.z() + e2*p2_.z();
-        if (det < 0 && (tScaled > 0 || tScaled < r._tmax*det) ) return false;
-        else if (det > 0 && (tScaled < 0 || tScaled > r._tmax*det) ) return false;
+        if (det < 0 && (tScaled >= 0 || tScaled < r._tmax*det) ) return false;
+        else if (det > 0 && (tScaled <= 0 || tScaled > r._tmax*det) ) return false;
 
 		float invDet = 1.0f / det;
 		float t = tScaled * invDet;

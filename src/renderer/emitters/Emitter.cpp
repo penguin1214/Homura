@@ -1,6 +1,7 @@
 #include "renderer/emitters/Emitter.h"
 #include "core/Common.h"
 #include "renderer/bxdfs/BxDF.h"
+#include <fstream>
 
 namespace Homura {
 
@@ -24,7 +25,7 @@ namespace Homura {
 	Vec3f PointEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
 		wi = (_p - isect_info._p).normalized();
 		pdf = 1.f;
-		vt = VisibilityTester(IntersectInfo(_p), isect_info);
+		vt = VisibilityTester(isect_info, IntersectInfo(_p));
 		return _I / (_p - isect_info._p).squareLength();
 	}
 
