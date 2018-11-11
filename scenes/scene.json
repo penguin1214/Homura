@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      500,
-      500
+      800,
+      800
     ],
     "fov": 45,
     "screen_window": 2.0,
@@ -33,13 +33,13 @@
     //    "type": "matte"
     //  }
     //},
-    //{
-    //  "type": "obj",
-    //  "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
-    //  "material": {
-    //    "type": "matte"
-    //  }
-    //},
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/plane.obj",
+      "material": {
+        "type": "matte"
+      }
+    },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
@@ -50,14 +50,14 @@
   ],
   "emitters": [
     {
-      "type": "point",
-      "direction": [ -1,-1,0 ],
+      "type": "directional",
+      "direction": [ 0,-1,-1 ],
       "n_samples": 1,
       "transform": {
         "translate": [ 0, 8, 3 ],
         "scale": [ 1, 1, 1 ]
       },
-      "intensity": [ 30000, 30000, 30000 ]
+      "intensity": [ 1000, 1000, 1000 ]
     }
     //{
     //  "type": "point",

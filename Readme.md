@@ -1,16 +1,12 @@
 # Current results
 
-> Direct Lighting (only account for first bouce)
+> DirectIntegrator
 
-Triangle normals computation error?
+![direct](figs/direct+directional_light.jpg)
 
-![direct](figs/direct.jpg)
+> Shadow
+![shadow](figs/direct_plane_teapot.jpg)
 
-> Second Scattering (slightly different scene settings, used for debugging)
-
-Seems too bright. High variance when added to total radiance.
-
-![second](figs/2nd_scattering.jpg)
 
 # `lib` Core
 ## IO
