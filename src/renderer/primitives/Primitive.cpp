@@ -7,6 +7,9 @@ namespace Homura {
 			if (mat["type"].getString() == "matte") {
 				_material = std::unique_ptr<MatteMaterial>(new MatteMaterial());
 			}
+			else if (mat["type"].getString() == "mirror") {
+				_material = std::unique_ptr<Mirror>(new Mirror());
+			}
 		}
 	}
 
