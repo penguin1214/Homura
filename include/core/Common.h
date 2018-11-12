@@ -4,6 +4,8 @@
 namespace Homura {
 
 static constexpr float PI = 3.1415926536f;
+static constexpr float TWOPI = 6.28318530718f;
+static constexpr float INVPI = 0.31830988618379067154;
 static constexpr float INV2PI = 0.15915494309189533577f;
 
 

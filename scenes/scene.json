@@ -2,20 +2,20 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      800,
-      800
+      30,
+      30
     ],
     "fov": 45,
     "screen_window": 2.0,
     "lookat": {
       "position": [
-        0,
-        5,
-        25
+        -0.5,
+        1,
+        1.5
       ],
       "at": [
-        0,
-        5,
+        -0.5,
+        1,
         0
       ],
       "up": [
@@ -26,38 +26,59 @@
     }
   },
   "primitives": [
-    //{
-    //  "type": "obj",
-    //  "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
-    //  "material": {
-    //    "type": "matte"
-    //  }
-    //},
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/plane.obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj",
       "material": {
         "type": "matte"
       }
     },
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj",
+      "material": {
+        "type": "matte"
+      }
+    },
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj",
+      "material": {
+        "type": "matte"
+      }
+    },
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/left.obj",
+      "material": {
+        "type": "matte"
+      }
+    },
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj",
       "material": {
         "type": "matte"
       }
     }
+    //{
+    //  "type": "obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
+    //  "material": {
+    //    "type": "matte"
+    //  }
+    //}
   ],
   "emitters": [
     {
-      "type": "directional",
-      "direction": [ 0,-1,-1 ],
+      "type": "point",
+      "direction": [ -1,-1,-0.5 ],
       "n_samples": 1,
       "transform": {
-        "translate": [ 0, 8, 3 ],
+        "translate": [ 1, 3, 0 ],
         "scale": [ 1, 1, 1 ]
       },
-      "intensity": [ 1000, 1000, 1000 ]
+      "intensity": [1,1,1]
     }
     //{
     //  "type": "point",
@@ -101,13 +122,13 @@
     //}
   ],
   "integrator": {
-    "type": "direct",
-    "max_depth": 4,
+    "type": "path_trace",
+    "max_depth": 1,
     "rr_bounce": 3,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 4,
+      "spp": 1,
       "ndim": 4
     }
   },

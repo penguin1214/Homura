@@ -31,6 +31,9 @@ namespace Homura {
 		void writeColorBuffer(char *fn);
 		int width() { return _width; }
 		int height() { return _height; }
+
+	private:
+		Vec3f tonemap(Vec3f c) const;
 	};
 
 	class Sensor {

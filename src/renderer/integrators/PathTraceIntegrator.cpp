@@ -41,9 +41,10 @@ namespace Homura {
 			L += throughput * evaluateDirect(isect_info);
 
 			Vec3f wi;
+			Vec3f wo = -ray._d;
 			float bsdf_pdf;
 			BxDFType sampled_bxdf_type_flags;
-			Vec3f f = isect_info._bsdf->sample_f(ray._d, wi, bsdf_pdf, _sampler->get2D(), sampled_bxdf_type_flags);
+			Vec3f f = isect_info._bsdf->sample_f(wo, wi, bsdf_pdf, _sampler->get2D(), sampled_bxdf_type_flags);
 			throughput *= f * std::abs(wi.dot(isect_info._shading._n)) / bsdf_pdf;
 
 			if (throughput.max() < 1e-3)	break;	// too small contribution
@@ -60,14 +61,4 @@ namespace Homura {
 		}
 		return L;
 	}
-
-	Vec3f PathTraceIntegrator::evaluateDirect(const IntersectInfo &isect_info) const {
-		Vec3f L(0.f);
-		for (auto light : _scene->_emitters) {
-			L += light->evalDirect(_scene, isect_info, _sampler->get2D());
-		}
-		return L;
-	}
-
-	//Vec3f PathTraceIntegrator::evaluateInfinite() const {}
 }

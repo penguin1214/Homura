@@ -1,10 +1,5 @@
-/**
- * Created by Jinglei Yang on 3/11/18.
- * jinglei.yang.96@gmail.com
- * Copyright © 2018 Jinglei Yang. All rights reserved.
- */
 #include "renderer/integrators/Integrator.h"
-#include <fstream>
+#include "renderer/emitters/Emitter.h"
 
 namespace Homura {
     Integrator::~Integrator() {}
@@ -27,11 +22,10 @@ namespace Homura {
 	except for their different implementations of interfaces used in it.
 	*/
 	void SamplerIntegrator::render() {
-		std::ofstream myfile;
-		myfile.open("sampler_data.txt");
 		float Li_weight = 1.0f / _sampler->_spp;
 		float invH = 1.f / _scene->_cam->_film->height();
 
+//#pragma omp parallel for
 		for (int y = 0; y < _scene->_cam->_film->height(); y++) {
 			fprintf(stderr, "\rRendering %5.2f%%", invH*y);
 			for (int x = 0; x < _scene->_cam->_film->width(); x++) {
@@ -40,9 +34,6 @@ namespace Homura {
 
 				do {
 					PixelSample pixel_sample = _sampler->getSensorSample(current_pixel);
-#if 0
-					myfile << pixel_sample._p_film.x() << " " << pixel_sample._p_film.y() << std::endl;
-#endif
 					
 					Ray ray;
 					float ray_weight = _scene->_cam->generatePrimaryRay(pixel_sample, ray);
@@ -52,10 +43,17 @@ namespace Homura {
 				} while (_sampler->startNextSample());
 			}
 		}
-		myfile.close();
 
 		char fn[1024];
 		sprintf(fn, "test.ppm");
 		_scene->_cam->_film->writeColorBuffer(fn);
+	}
+
+	Vec3f SamplerIntegrator::evaluateDirect(const IntersectInfo &isect_info) const {
+		Vec3f L(0.0f);
+		for (auto light : _scene->_emitters) {
+			L += light->evalDirect(_scene, isect_info, _sampler->get2D());
+		}
+		return L;
 	}
 }

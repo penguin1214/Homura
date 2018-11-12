@@ -1,5 +1,4 @@
 #include "renderer/integrators/DirectIntegrator.h"
-#include "renderer/emitters/Emitter.h"
 #include "renderer/bxdfs/BxDF.h"
 #include "renderer/IntersectInfo.h"
 
@@ -28,14 +27,6 @@ namespace Homura {
 
 		L += evaluateDirect(isect_info);
 
-		return L;
-	}
-
-	Vec3f DirectIntegrator::evaluateDirect(const IntersectInfo &isect_info) const {
-		Vec3f L(0.0f);
-		for (auto light : _scene->_emitters) {
-			L += light->evalDirect(_scene, isect_info, _sampler->get2D());
-		}
 		return L;
 	}
 }

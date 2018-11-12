@@ -23,6 +23,8 @@ namespace Homura {
 	}
 
 	Vec3f uniformSampleHemisphereSolidAngle(const Point2f &u);
+
+	Vec3f cosineSampleHemisphereSolidAngle(const Point2f &u);
 }
 
 #endif // !HOMURA_SAMPLING_H_

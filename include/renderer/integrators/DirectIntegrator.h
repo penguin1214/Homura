@@ -10,8 +10,6 @@ namespace Homura {
 
 		virtual Vec3f Li(const Ray &r, std::unique_ptr<PixelSampler> sampler) const override;
 
-		Vec3f evaluateDirect(const IntersectInfo &isect_info) const;
-
 	private:
 		//const int _max_depth;	// for specular
 	};

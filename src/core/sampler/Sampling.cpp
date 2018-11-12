@@ -44,4 +44,10 @@ namespace Homura {
 		float phi = 2 * PI * u[1];
 		return Vec3f(r*std::cos(phi), r*std::sin(phi), z);
 	}
+
+	Vec3f cosineSampleHemisphereSolidAngle(const Point2f &u) {
+		float sqrt = std::sqrt(u[0]);
+		float d = TWOPI * u[1];
+		return Vec3f(std::cos(d)*sqrt, std::sin(d)*sqrt, std::sqrt(std::max(1.f - u[0], 0.f)));
+	}
 }

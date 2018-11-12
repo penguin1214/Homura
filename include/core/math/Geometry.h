@@ -236,7 +236,7 @@ namespace Homura {
 		inline Vector operator/(const Vector &other) const {
 			Vector ret;
 			for (unsigned i = 0; i < Size; i++) {
-				ASSERT(other._v[i] != 0);
+				//ASSERT(other._v[i] != 0);
 				ret._v[i] = _v[i] / other._v[i];    // do I need to handle exception if divide zero?
 			}
 			return ret;

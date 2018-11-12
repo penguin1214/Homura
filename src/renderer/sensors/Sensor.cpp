@@ -10,9 +10,16 @@ namespace Homura {
 		_cbuffer->addSample(idx, L*ray_weight);
 	}
 
+	Vec3f Film::tonemap(Vec3f c) const {
+		Vec3f x = c - 0.004f;
+		for (unsigned i = 0; i < 3; i++)
+			x[i] = std::max(x[i], 0.f);
+		return (x*(x*6.2f + 0.5f)) / (x*(x*6.2f + 1.7f) + 0.06f);
+	}
+
 	void Film::writeColorBuffer(char *fn) {
-		/// TODO: clamp
-		for (auto v : _cbuffer->_data) {
+		for (auto &v : _cbuffer->_data) {
+			v = tonemap(v)*255;
 			v[0] = clamp(v[0], 0.f, 255.f);
 			v[1] = clamp(v[1], 0.f, 255.f);
 			v[2] = clamp(v[2], 0.f, 255.f);

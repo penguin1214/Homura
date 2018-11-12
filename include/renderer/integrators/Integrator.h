@@ -28,7 +28,8 @@ namespace Homura {
 		std::shared_ptr<Scene> _scene;
 		std::unique_ptr<PixelSampler> _sampler;
 
-		std::vector<Vec2f> _debug_data;
+	protected:
+		virtual Vec3f evaluateDirect(const IntersectInfo &isect_info) const;
 	};
 }
 
