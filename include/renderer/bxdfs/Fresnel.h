@@ -63,6 +63,12 @@ namespace Homura {
         /// TODO: Vec3f _k/*absorption*/;
     };
 
+	class FresnelNoop : public Fresnel {
+	public:
+		FresnelNoop() = default;
+		Vec3f evaluate(float cosI) const override { return Vec3f(1.f); }
+	};
+
     class FresnelSpecularReflection : public BxDF {
     public:
         FresnelSpecularReflection(const Vec3f &R, std::unique_ptr<Fresnel> fresnel)

@@ -31,6 +31,7 @@ namespace Homura {
 		void writeColorBuffer(char *fn);
 		int width() { return _width; }
 		int height() { return _height; }
+		Vec3f fetch(int x, int y) const { return tonemap(_cbuffer->_data[y*_width+x])*255; }
 
 	private:
 		Vec3f tonemap(Vec3f c) const;
