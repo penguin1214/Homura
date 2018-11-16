@@ -353,6 +353,13 @@ namespace Homura {
 		inline T &operator[](unsigned i) { return _p[i]; }
 		inline const T& operator[](unsigned i) const { return _p[i]; }
 
+		inline Point operator*(const float s) const {
+			Point ret;
+			for (int i = 0; i < Size; i++)
+				ret._p[i] = _p[i] * s;
+			return ret;
+		}
+
 		inline Point operator+(const Point &other) const {
 			Point ret;
 			for (int i = 0; i < Size; i++) {

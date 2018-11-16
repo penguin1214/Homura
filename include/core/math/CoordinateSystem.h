@@ -14,20 +14,6 @@ namespace Homura {
 			_forward = Vec3f(0.f, 0.f, 1.f);
 		}
 
-		/// TODO: comprehensive test
-		/// The code now is for left-handed system, we need right-handed.
-		/*CoordinateSystem(Vec3f &v_) {
-			assert(v_.length() != 0);
-			u = Vec3f(v_);
-			if (std::abs(u[0]) > std::abs(u[1])) {
-				v = Vec3f(-v_.z(), 0, v_.x()); v.normalize();
-			}
-			else {
-				v = Vec3f(0, v_.z(), -v_.y()); v.normalize();
-			}
-			w = u.cross(v);
-		}*/
-
 		CoordinateSystem(const Vec3f &pos, const Vec3f &lookat, const Vec3f &up) {
 			//Vec3f forward = (lookat - pos).normalized();
 			_forward = (pos - lookat).normalized();	// camera facing opposite of z-axis of its coordinate system
@@ -40,6 +26,18 @@ namespace Homura {
 		friend inline std::ostream& operator<<(std::ostream &os, const CoordinateSystem& frame) {
 			os << "right: " << frame._right << std::endl << "up: " << frame._up << std::endl << "forward: " << frame._forward << std::endl;
 			return os;
+		}
+	};
+
+	class ShadingCoordinateSystem : public CoordinateSystem {
+	public:
+		/// TODO: comprehensive test
+		ShadingCoordinateSystem(const Vec3f &n, Vec3f &t, Vec3f &bi) {
+			float sign = copysignf(1.0f, n.z());
+			const float a = -1.0f / (sign + n.z());
+			const float b = n.x()*n.y()*a;
+			t = Vec3f(1.0f + sign * n.x()*n.x()*a, sign*b, -sign * n.x());
+			bi = Vec3f(b, sign + n.y()*n.y()*a, -n.y());
 		}
 	};
 }
