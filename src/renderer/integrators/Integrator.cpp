@@ -26,9 +26,22 @@ namespace Homura {
 		float invH = 1.f / _scene->_cam->_film->height();
 
 //#pragma omp parallel for
+#define DBG 0
+#if DBG
+		int xx =3;
+		int yy = 31;
+		int x_region = 1;
+		int y_region = 1;
+		float inv_region = 1.f / float(y_region);
+		for (int y = yy; y < yy + y_region; y++) {
+			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);
+			for (int x = xx; x < xx + x_region; x++) {
+				//std::cout << "(" << x << ", " << y << "):" << std::endl;
+#else
 		for (int y = 0; y < _scene->_cam->_film->height(); y++) {
 			fprintf(stderr, "\rRendering %5.2f%%", invH*y);
 			for (int x = 0; x < _scene->_cam->_film->width(); x++) {
+#endif
 				Vec2i current_pixel(x, y);
 				_sampler->startPixel(current_pixel);
 
@@ -43,6 +56,15 @@ namespace Homura {
 				} while (_sampler->startNextSample());
 			}
 		}
+#define DBG_OUT 1
+#if DBG && DBG_OUT
+		for (int y = yy; y < yy + y_region; y++) {
+			for (int x = xx; x < xx + x_region; x++) {
+				std::cout << "(" << x << ", " << y << "): " <<  _scene->_cam->_film->fetch(x, y) << std::endl;
+			}
+		}
+#endif
+
 
 		char fn[1024];
 		sprintf(fn, "test.ppm");
@@ -54,6 +76,7 @@ namespace Homura {
 		for (auto light : _scene->_emitters) {
 			L += light->evalDirect(_scene, isect_info, _sampler->get2D());
 		}
+		//std::cout << L << std::endl;
 		return L;
 	}
 }

@@ -2,26 +2,25 @@
 #define HOMURA_MATERIAL_H_
 
 #include "renderer/IntersectInfo.h"
+#include "core/io/JsonObject.h"
 
 namespace Homura {
     class Material {
     public:
-		Material(const JsonObject &json) : _R(json["R"].getVec3()) {}
-        virtual void computeScatteringFunction(IntersectInfo &isect_info) const;
-
-	protected:
-		Vec3f _R;
+		virtual void computeScatteringFunction(IntersectInfo &isect_info) const = 0;
     };
 
     class MatteMaterial : public Material {
     public:
-		MatteMaterial(const JsonObject &json) : Material(json) {}
+		MatteMaterial(const JsonObject &json) : _R(json["R"].getVec3()) {}
         void computeScatteringFunction(IntersectInfo &isect_info) const override;
+	private:
+		Vec3f _R;
     };
 
 	class Mirror : public Material {
 	public:
-		Mirror(const JsonObject &json) : Material(json) {}
+		Mirror() = default;
 		void computeScatteringFunction(IntersectInfo &isect_info) const override;
 	};
 }

@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      30,
-      30
+      50,
+      50
     ],
     "fov": 45,
     "screen_window": 2.0,
@@ -30,35 +30,44 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj",
       "material": {
-        "type": "matte"
+        "type": "matte",
+        "R": [0.8, 0.8, 0.8]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj",
       "material": {
-        "type": "matte"
+        "type": "matte",
+        "R": [ 0.8, 0.8, 0.8 ]
+        //"R": [ 0.1, 0.8, 0.4 ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj",
       "material": {
-        "type": "matte"
+        "type": "matte",
+        "R": [ 0.8, 0.8, 0.8 ]
+        //"R": [ 0.1, 0.8, 0.4 ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/left.obj",
       "material": {
-        "type": "matte"
+        "type": "matte",
+        "R": [ 0.8, 0.8, 0.8 ]
+        //"R": [ 0.1, 0.8, 0.4 ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj",
       "material": {
-        "type": "matte"
+        "type": "matte",
+        "R": [ 0.8, 0.8, 0.8 ]
+        //"R": [ 0.1, 0.8, 0.4 ]
       }
     }
     //{
@@ -124,7 +133,7 @@
   "integrator": {
     "type": "path_trace",
     "max_depth": 1,
-    "rr_bounce": 3,
+    "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,

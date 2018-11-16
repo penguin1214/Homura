@@ -5,7 +5,7 @@ namespace Homura {
 	Primitive::Primitive(const JsonObject &json) {
 		if (auto mat = json["material"]) {
 			if (mat["type"].getString() == "matte") {
-				_material = std::unique_ptr<MatteMaterial>(new MatteMaterial());
+				_material = std::unique_ptr<MatteMaterial>(new MatteMaterial(mat));
 			}
 			else if (mat["type"].getString() == "mirror") {
 				_material = std::unique_ptr<Mirror>(new Mirror());

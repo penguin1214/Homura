@@ -7,6 +7,7 @@
 #include "renderer/IntersectInfo.h"
 #include <vector>
 #include <memory>
+#include <iostream>
 
 namespace Homura {
     /////////////////////////// Utility Functions ///////////////////////////
@@ -94,23 +95,37 @@ namespace Homura {
             _bxdfs.push_back(std::move(bxdf));
         }
 
-        Vec3f world2local(const Vec3f &v) const {
+		Vec3f world2local(const Vec3f &v) const {
+			return Vec3f(
+				_ts.dot(v),
+				_bs.dot(v),
+				_ns.dot(v)
+			);
+		}
+
+		Vec3f local2world(const Vec3f &v) const {
+			return _ts * v.x() * _bs*v.y() + _ns * v.z();
+		}
+
+        /*Vec3f world2local(const Vec3f &v) const {
             return Vec3f(
-                    v.x()*_ss.x()+v.y()*_ts.x()+v.z()*_ns.x(),
-                    v.x()*_ss.y()+v.y()*_ts.y()+v.z()*_ns.y(),
-                    v.x()*_ss.z()+v.y()*_ts.z()+v.z()*_ns.z());
+                    v.x()*_bs.x()+v.y()*_ts.x()+v.z()*_ns.x(),
+                    v.x()*_bs.y()+v.y()*_ts.y()+v.z()*_ns.y(),
+                    v.x()*_bs.z()+v.y()*_ts.z()+v.z()*_ns.z());
         }
 
         Vec3f local2world(const Vec3f &v) const {
             return Vec3f(
-                    v.dot(_ss),
+                    v.dot(_bs),
                     v.dot(_ts),
                     v.dot(_ns)
                     );
         }
-
+*/
         Vec3f f(const Vec3f &wo_w, const Vec3f &wi_w, BxDFType types=BSDF_ALL) const {
             Vec3f wi = world2local(wi_w);
+			//std::cout << "wi_w(light ray): " << wi_w << std::endl;
+			//std::cout << "wi: " <<wi << std::endl;
             Vec3f wo = world2local(wo_w);
             bool reflect = (_ng.dot(wi_w) * _ng.dot(wo_w)) > 0.f;
             Vec3f f(0.f);
@@ -127,7 +142,8 @@ namespace Homura {
 		Vec3f sample_f(const Vec3f &wo_w, Vec3f &wi_w, float &pdf, const Point2f &u, BxDFType &sampled_types/*TODO*/) const {
 			const Vec3f wo(world2local(wo_w));
 			Vec3f wi;
-			// choose the first bxdf as sample for naive implement now, TODO: sample which bxdf to use
+			/// TODO: sample which bxdf to use
+			// choose the first bxdf as sample for naive implement now
 			Vec3f f = _bxdfs[0]->sample_f(wo, wi, u, pdf/*, type*/);
 			wi_w = local2world(wi);
 			return f;
@@ -137,12 +153,21 @@ namespace Homura {
 			return _bxdfs[0]->Pdf(world2local(wo_w), world2local(wi_w));
 		}
 
+		inline int numComponents(BxDFType flags) const {
+			int n = 0;
+			for (int i = 0; i < _bxdfs.size(); i++) {
+				if (_bxdfs[i]->matchType(flags))
+					n++;
+			}
+			return n;
+		}
+
         /// TODO: rho()
 
     private:
         float _eta; // TODO: should store two eta?
         Vec3f _ng;  // store geometry normal to avoid problems caused by shading normals.
-        Vec3f _ns, _ts, _ss;   // normal, tangent, second tangent
+        Vec3f _ns, _ts, _bs;   // normal, tangent, bitangent
         std::vector<std::shared_ptr<BxDF>> _bxdfs;
     };
 }

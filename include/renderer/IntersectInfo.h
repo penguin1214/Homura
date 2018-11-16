@@ -17,9 +17,10 @@ namespace Homura {
 		std::shared_ptr<BSDF> _bsdf;
 		struct {
 			Vec3f _n;
-			Vec3f _ss;	// tangent
-			Vec3f _ts;	// bitangent
+			Vec3f _tangent;
+			Vec3f _bitangent;
 		} _shading;
+		Vec3f _dpdu, _dpdv;
 
 		IntersectInfo() = default;
 		IntersectInfo(const IntersectInfo &origin);

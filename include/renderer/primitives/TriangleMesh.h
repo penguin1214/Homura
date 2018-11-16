@@ -17,6 +17,9 @@ namespace Homura {
 		Triangle(Vec3i vertidx);
 		inline bool intersect(const Ray &r, Point3f p0, Point3f p1, Point3f p2, IntersectInfo &isect_info) const;
 		inline bool intersectP(const Ray &r, Point3f p0, Point3f p1, Point3f p2) const;
+
+	private:
+		void getUV(Point2f uv[3]) const;
 	};
 
 	class TriangleMesh :public Primitive {
