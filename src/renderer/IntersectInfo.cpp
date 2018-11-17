@@ -23,7 +23,7 @@ namespace Homura {
 	}
 
 	Ray IntersectInfo::spawnRay(const Vec3f &wi) const {
-		return Ray(_p, wi);
+		return Ray(_p+_normal*1e-5, wi);
 	}
 
 	Ray IntersectInfo::spawnRayTo(const IntersectInfo &other) const {

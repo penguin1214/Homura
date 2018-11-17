@@ -1,4 +1,5 @@
 #include "core/sampler/Sampling.h"
+#include <iostream>
 
 namespace Homura {
 	void StratifiedSample1D(float *samples, int n_sample, RNG &rng, bool jitter) {
@@ -46,8 +47,8 @@ namespace Homura {
 	}
 
 	Vec3f cosineSampleHemisphereSolidAngle(const Point2f &u) {
-		float sqrt = std::sqrt(u[0]);
-		float d = TWOPI * u[1];
-		return Vec3f(std::cos(d)*sqrt, std::sin(d)*sqrt, std::sqrt(std::max(1.f - u[0], 0.f)));
+		float sqrt = std::sqrt(u[1]);
+		float d = TWOPI * u[0];
+		return Vec3f(std::cos(d)*sqrt, std::sin(d)*sqrt, std::sqrt(std::max(1.f - u[1], 0.f)));
 	}
 }

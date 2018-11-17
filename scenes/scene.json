@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      50,
-      50
+      100,
+      100
     ],
     "fov": 45,
     "screen_window": 2.0,
@@ -132,12 +132,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 1,
+    "max_depth": 5,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 1,
+      "spp": 16,
       "ndim": 4
     }
   },

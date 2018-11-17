@@ -104,24 +104,9 @@ namespace Homura {
 		}
 
 		Vec3f local2world(const Vec3f &v) const {
-			return _ts * v.x() * _bs*v.y() + _ns * v.z();
+			return _ts * v.x() + _bs*v.y() + _ns * v.z();
 		}
 
-        /*Vec3f world2local(const Vec3f &v) const {
-            return Vec3f(
-                    v.x()*_bs.x()+v.y()*_ts.x()+v.z()*_ns.x(),
-                    v.x()*_bs.y()+v.y()*_ts.y()+v.z()*_ns.y(),
-                    v.x()*_bs.z()+v.y()*_ts.z()+v.z()*_ns.z());
-        }
-
-        Vec3f local2world(const Vec3f &v) const {
-            return Vec3f(
-                    v.dot(_bs),
-                    v.dot(_ts),
-                    v.dot(_ns)
-                    );
-        }
-*/
         Vec3f f(const Vec3f &wo_w, const Vec3f &wi_w, BxDFType types=BSDF_ALL) const {
             Vec3f wi = world2local(wi_w);
 			//std::cout << "wi_w(light ray): " << wi_w << std::endl;
