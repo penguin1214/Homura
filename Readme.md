@@ -1,12 +1,7 @@
 # Current results
 
-> DirectIntegrator
-
-![direct](figs/direct+directional_light.jpg)
-
-> Shadow
-![shadow](figs/direct_plane_teapot.jpg)
-
+> PT on specular reflection (mirror)
+![bunny_mirror](figs/bunny_mirror.jpg)
 
 # `lib` Core
 ## IO

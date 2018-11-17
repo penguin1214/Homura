@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      100,
-      100
+      200,
+      200
     ],
     "fov": 45,
     "screen_window": 2.0,
