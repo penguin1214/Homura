@@ -13,6 +13,9 @@ namespace Homura {
 		Vec3f _wo;
 		float _t = INFINITY;
 		Vec3f _normal;
+
+		/// TODO: not handled at present, not suitable for two adjacent specular object
+		//float _etaI = 1.f;	// everytime rays inter a medium(transmission), update _etaI.
 		std::shared_ptr<Primitive> _primitive;
 		std::shared_ptr<BSDF> _bsdf;
 		struct {

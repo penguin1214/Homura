@@ -54,7 +54,10 @@ namespace Homura {
 			Vec3f wo = -ray._d;
 			float bsdf_pdf;
 			BxDFType sampled_bxdf_type_flags;
-			Vec3f f = isect_info._bsdf->sample_f(wo, wi, bsdf_pdf, _sampler->get2D(), sampled_bxdf_type_flags);
+			Vec3f f = isect_info._bsdf->sample_f(wo, wi, bsdf_pdf, _sampler->get1D(), _sampler->get2D(), BSDF_ALL, &sampled_bxdf_type_flags);
+
+			if ((f.max() < 1e-6) || (bsdf_pdf < 1e-6)) break;
+
 			throughput *= f * std::abs(wi.dot(isect_info._shading._n)) / bsdf_pdf;
 			specular_bounce = (sampled_bxdf_type_flags & BSDF_SPECULAR) != 0;
 

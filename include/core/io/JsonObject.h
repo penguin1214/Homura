@@ -76,14 +76,18 @@ public:
 	}
 
 	JsonObject operator[](const char *field) const {
-		if (!_value->IsObject())
-			return JsonObject();
+		if (_value->HasMember(field)) {
+			if (!_value->IsObject())
+				return JsonObject();
 
-		auto object = _value->FindMember(field);
-		if (object == _value->MemberEnd())
-			return JsonObject();
+			auto object = _value->FindMember(field);
+			if (object == _value->MemberEnd())
+				return JsonObject();
 
-		return JsonObject(_document, &object->value);
+			return JsonObject(_document, &object->value);
+		}
+		else
+			return JsonObject();
 	}
 
 	JsonObject operator[](unsigned i) const {

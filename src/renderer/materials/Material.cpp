@@ -13,27 +13,7 @@ namespace Homura {
 	}
 
 	void Material::computeScatteringFunction(IntersectInfo &isect_info) const {
-		_bsdf->update_isect(isect_info);
+		_bsdf->prepareForRender(isect_info);
 		isect_info._bsdf = _bsdf;
-		/// TODO: prepare bxdfs for this intersection
 	}
-	/*
-	MatteMaterial::MatteMaterial(const JsonObject &json) : _R(json["R"].getVec3()) {
-		_bsdf = std::shared_ptr<BSDF>();
-	}
-
-	void MatteMaterial::computeScatteringFunction(IntersectInfo &isect_info) const {
-        isect_info._bsdf.reset((new BSDF(isect_info)));
-        isect_info._bsdf->add(std::unique_ptr<BxDF>(new LambertReflection(_R)));  /// TODO: textures
-    }
-
-	void Mirror::computeScatteringFunction(IntersectInfo &isect_info) const {
-		isect_info._bsdf.reset((new BSDF(isect_info)));
-		isect_info._bsdf->add(
-			std::unique_ptr<BxDF>(new FresnelSpecularReflection(
-				1.0f, std::unique_ptr<Fresnel>(new FresnelNoop()))));
-	}
-
-	void GlassMaterial::computeScatteringFunction(IntersectInfo &isect_info) const {
-	}*/
 }

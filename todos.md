@@ -1,4 +1,5 @@
 ## TODO
+- [ ] How to handle outter and inner ita at surface?
 - [x] obj opengl viewer
 - [ ] ObjHandler still has problem when file contains texure/normal indiceis.
 - [ ] use both translate/rotate or position/lookat/up to set camera frame

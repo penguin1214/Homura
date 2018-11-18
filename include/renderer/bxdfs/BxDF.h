@@ -49,7 +49,7 @@ namespace Homura {
         BSDF_DIFFUSE = 1 << 2,
         BSDF_GLOSSY =  1 << 3,
         BSDF_SPECULAR = 1 << 4,
-        BSDF_ALL = BSDF_REFLECTION || BSDF_TRANSMISSION || BSDF_DIFFUSE || BSDF_GLOSSY || BSDF_SPECULAR,
+        BSDF_ALL = BSDF_REFLECTION | BSDF_TRANSMISSION | BSDF_DIFFUSE | BSDF_GLOSSY | BSDF_SPECULAR,
     };
 
     enum TransportMode {
@@ -59,13 +59,13 @@ namespace Homura {
     class BxDF {
     public:
 		BxDF(BxDFType type);
-        bool matchType(BxDFType t) const {
-			return _type&t == _type;
-		}  // match exactly
+		bool matchType(BxDFType t) const { return (_type & t) == _type; }
 
-        virtual Vec3f f(const Vec3f &wo, const Vec3f &wi) const = 0;    // wo, wi are in local coord
-		virtual Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const { return Vec3f(0.f); }; // used for MC Integrators
-		virtual float Pdf(const Vec3f &wo, const Vec3f &wi) const { return 1.f;/*TODO*/ }
+		virtual void prepareForRender(const IntersectInfo &isect_info) {}
+
+		virtual Vec3f f(const Vec3f &wo, const Vec3f &wi) const { return Vec3f(0.f); }    // wo, wi are in local coord
+		virtual Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr) const { return Vec3f(0.f); }
+		virtual float Pdf(const Vec3f &wo, const Vec3f &wi) const { return 0.f; }
 
         /// TODO: hemispherical reflection distribution
 //        virtual rho();
@@ -93,6 +93,7 @@ namespace Homura {
     public:
 		//BSDF(IntersectInfo &isect_info, const float eta = 1.f);
 		BSDF() = default;
+		//BSDF(const float eta = 1.f) {}
 		BSDF(const BSDF &origin);
 
         void add(std::shared_ptr<BxDF> bxdf) {
@@ -111,11 +112,14 @@ namespace Homura {
 			return _ts * v.x() + _bs*v.y() + _ns * v.z();
 		}
 
-		void update_isect(const IntersectInfo &isect_info) {
+		void prepareForRender(const IntersectInfo &isect_info) {
 			_ng = isect_info._normal;
 			_ns = isect_info._shading._n;
 			_ts = isect_info._shading._tangent;
 			_bs = isect_info._shading._bitangent;
+
+			//for (auto &bxdf : _bxdfs)
+			//	bxdf->prepareForRender(isect_info);
 		}
 
         Vec3f f(const Vec3f &wo_w, const Vec3f &wi_w, BxDFType types=BSDF_ALL) const {
@@ -135,13 +139,50 @@ namespace Homura {
             return f;
         }
 
-		Vec3f sample_f(const Vec3f &wo_w, Vec3f &wi_w, float &pdf, const Point2f &u, BxDFType &sampled_types/*TODO*/) const {
+		Vec3f sample_f(const Vec3f &wo_w, Vec3f &wi_w, float &pdf, const float u0, const Point2f &u, const BxDFType &expected_types, BxDFType *sampled_types) const {
+			// choose bxdf
+			int n_matching_bxdf = numComponents(expected_types);
+			if (n_matching_bxdf == 0) {
+				pdf = 0;	// TODO: will cause divide error?
+				*sampled_types = BxDFType(0);
+				return Vec3f(0.f);
+			}
+
+			int sampled_idx = std::floor(u0 * n_matching_bxdf);
+			std::shared_ptr<BxDF> sampled_bxdf = nullptr;
+
+			int cnt = sampled_idx;
+			for (int i = 0; i < _bxdfs.size(); i++) {
+				if (_bxdfs[i]->matchType(expected_types) && (cnt-- == 0))
+					sampled_bxdf = _bxdfs[i];
+			}
+
+			*sampled_types = sampled_bxdf->_type;
 			const Vec3f wo(world2local(wo_w));
 			Vec3f wi;
-			/// TODO: sample which bxdf to use
-			// choose the first bxdf as sample for naive implement now
-			Vec3f f = _bxdfs[0]->sample_f(wo, wi, u, pdf/*, type*/);
+			Vec3f f = sampled_bxdf->sample_f(wo, wi, u, pdf, sampled_types);
 			wi_w = local2world(wi);
+
+			// use average pdf
+			if (!(sampled_bxdf->_type & BSDF_SPECULAR) && n_matching_bxdf > 1) {
+				for (int i = 0; i < _bxdfs.size(); i++) {
+					if (sampled_bxdf != _bxdfs[i] && _bxdfs[i]->matchType(expected_types))
+						pdf += _bxdfs[i]->Pdf(wo, wi);
+				}
+			}
+			if (n_matching_bxdf > 1) pdf /= n_matching_bxdf;
+
+			// also use average f
+			if (!(sampled_bxdf->_type & BSDF_SPECULAR) && n_matching_bxdf > 1) {
+				f = 0.f;
+				bool reflect = (wo.z() * wi.z()) > 0;
+				for (int i = 0; i < _bxdfs.size(); i++) {
+					if (_bxdfs[i]->matchType(expected_types) &&
+						(reflect && _bxdfs[i]->_type&BSDF_REFLECTION) || ((!reflect) && _bxdfs[i]->_type&BSDF_TRANSMISSION))
+						f += _bxdfs[i]->f(wo, wi);
+				}
+			}
+
 			return f;
 		}
 
@@ -161,7 +202,7 @@ namespace Homura {
         /// TODO: rho()
 
     private:
-        //float _eta; // TODO: should store two eta?
+		//float _eta;
         Vec3f _ng;  // store geometry normal to avoid problems caused by shading normals.
         Vec3f _ns, _ts, _bs;   // normal, tangent, bitangent
         std::vector<std::shared_ptr<BxDF>> _bxdfs;

@@ -4,6 +4,9 @@
 #include "BxDF.h"
 
 namespace Homura {
+	Vec3f FrDielectric(float cosI, const float &_etaI, const float &_etaT);
+	Vec3f FrConductor(float cosI, const float &_etaI, const float &_etaT, const float &_k);
+
     class Fresnel {
         /* Fresnel abstract class interfaces for computing Fresnel reflectance. */
     public:
@@ -14,20 +17,7 @@ namespace Homura {
     public:
         FresnelDielectric(const float &etaI, const float &etaT) : _etaI(etaI), _etaT(etaT) {}
         Vec3f evaluate(float cosI) const override {
-            cosI = clamp(cosI, -1.0f, 1.0f);
-            float etaI = _etaI, etaT = _etaT;
-            if (cosI < 0.0f) {
-                std::swap(etaI, etaT);
-                cosI = std::abs(cosI);
-            }
-            float sinI = std::sqrt(std::max(0.f, 1.f - cosI*cosI));
-            float sinT = etaI / (etaT * sinI);
-            if (sinT >= 1.f)
-                return Vec3f(1.f);
-            float cosT = std::sqrt(std::max(0.f, 1.0f - sinT*sinT));
-            float rParl = (etaT*cosI - etaI*cosT) / (etaT*cosI + etaI*cosT);
-            float rPerp = (etaI*cosI - etaT*cosT) / (etaI*cosI + etaT*cosT);
-            return Vec3f(0.5 * (rParl*rParl + rPerp * rPerp));
+			return FrDielectric(cosI, _etaI, _etaT);
         }
 
     private:
@@ -38,24 +28,7 @@ namespace Homura {
     public:
         FresnelConductor(const float &etaI, const float &etaT, const float &k) : _etaI(etaI), _etaT(etaT), _k(k) {}
         Vec3f evaluate(float cosI) const override {
-            cosI = clamp(cosI, -1.0f, 1.0f);
-            float cosI2 = cosI * cosI;
-            float sinI2 = 1.f - cosI2;
-            float etaI = _etaI, etaT = _etaT;
-            float eta = etaT / etaI;
-            float eta2 = eta*eta;
-            float etak = _k / etaI;
-            float etak2 = etak * etak;
-            float t0 = eta2 - etak2 - sinI2;
-            float a2pb2 = std::sqrt(t0*t0 + 4*eta2*etak2);
-            float t1 = a2pb2 + cosI2;
-            float a = std::sqrt(0.5f * (a2pb2 + t0));
-            float t2 = 2.0f * cosI * a;
-            float Rs = (t1 - t2) / (t1+t2);
-            float t3 = cosI2 * a2pb2 + sinI2*sinI2;
-            float t4 = t2 * sinI2;
-            float Rp = Rs * (t3-t4) / (t3+t4);
-            return Vec3f(0.5f * (Rs+Rp));
+			return FrConductor(cosI, _etaI, _etaT, _k);
         }
 
     private:
@@ -72,42 +45,62 @@ namespace Homura {
     class FresnelSpecularReflection : public BxDF {
     public:
         FresnelSpecularReflection(const Vec3f &R, const float &eta)
-        : BxDF(BxDFType(BSDF_REFLECTION|BSDF_SPECULAR)), _R(R), _eta(eta) {}
+        : BxDF(BxDFType(BSDF_REFLECTION|BSDF_SPECULAR)), _R(R), _eta(eta) {
+			if (_R.max() > (1.f - 1e-6))
+				_fresnel = std::unique_ptr<FresnelNoop>(new FresnelNoop());
+			else {
+				_fresnel = std::unique_ptr<FresnelDielectric>(new FresnelDielectric(_eta, 1.0f));
+			}
+		}
+
+		//void prepareForRender(const IntersectInfo &isect_info) override;
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
-		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const override;
+		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr) const override;
 
     private:
 		const float _eta;
-        const Vec3f _R;  // incoming radiance
+        const Vec3f _R;
         std::unique_ptr<Fresnel> _fresnel;
     };
 
     class FresnelSpecularTransmission: public BxDF {
     public:
-        FresnelSpecularTransmission(Vec3f T, float eta)
-        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _eta(eta) {}
-        //: BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _etaI(etaI), _etaT(etaT), _fresnel(new FresnelDielectric(etaI, etaT)) {}
+        FresnelSpecularTransmission(const Vec3f &T, const float &eta)
+        //: BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _eta(eta) {}
+        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _etaI(eta), _etaT(1.f),
+		_fresnel(new FresnelDielectric(_etaI, _etaT)) {}
+
+		//void prepareForRender(const IntersectInfo &isect_info) override {
+		//	_fresnel = std::unique_ptr<FresnelDielectric>(new FresnelDielectric(_eta, 1.0f));
+		//}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
-		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const override;
+		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr) const override;
 		//float Pdf(const Vec3f &wo, const Vec3f &wi) const override;
 
     private:
-		const float _eta;
         Vec3f _T;
-        float _etaI, _etaT;
+        const float _etaI, _etaT;
         std::unique_ptr<FresnelDielectric> _fresnel;
     };
 
     class FresnelSpecular : public BxDF {
 	public:
-		FresnelSpecular();
+		FresnelSpecular(const Vec3f &R, const Vec3f &T, const float &eta)
+		: BxDF(BxDFType(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR)),
+		_R(R), _T(T), _eta(eta), _fresnel(new FresnelDielectric(_eta, 1.f)) {}
+
+		//void prepareForRender(const IntersectInfo &isect_info) override;
+
+		Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
+		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr) const override;
 
 	private:
+		const float _eta;
 		Vec3f _R;
 		Vec3f _T;
-		const float _etaI, _etaT;
+		std::unique_ptr<Fresnel> _fresnel;
 	};
 }
 
