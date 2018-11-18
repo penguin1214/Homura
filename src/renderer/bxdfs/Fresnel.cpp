@@ -19,6 +19,8 @@ namespace Homura {
         pdf = 1.f;
         Vec3f Ft = _T * (Vec3f(1.f) - _fresnel->evaluate(CosTheta(wi)));
         /// TODO: from camera or light source
+		/// Since haven't do bidirectional methods, just account for the energe transmitted
+		Ft *= (etaI*etaI) / (etaT*etaT);
         return Ft / AbsCosTheta(wi);
     }
 }

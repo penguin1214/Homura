@@ -63,6 +63,17 @@ public:
 	float getFloat() const { return _value->GetFloat(); }
 	Vec3f getVec3() const;
 	Mat4f getTransform() const;
+	template<typename T>
+	std::vector<T> getVector() const {
+		std::vector<T> ret;
+		if (!_value->IsArray())
+			;
+		else {
+			for (unsigned i = 0; i < size(); i++)
+				ret.push_back(operator[](i).cast<T>());
+		}
+		return ret;
+	}
 
 	JsonObject operator[](const char *field) const {
 		if (!_value->IsObject())
@@ -91,7 +102,7 @@ public:
 		return false;
 	}
 
-	unsigned size() { return _value->Size(); }
+	unsigned size() const { return _value->Size(); }
 	operator bool() const { return _value != nullptr; }
 };
 

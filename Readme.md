@@ -1,7 +1,12 @@
 # Current results
 
 > PT on specular reflection (mirror)
+
 ![bunny_mirror](figs/bunny_mirror.jpg)
+
+> PT on specular reflection (mirror)
+
+![bunny_matte](figs/bunny_matte.jpg)
 
 # `lib` Core
 ## IO

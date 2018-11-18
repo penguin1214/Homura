@@ -2,6 +2,8 @@
 #include "renderer/Scene.h"
 #include "renderer/primitives/TriangleMesh.h"
 #include "renderer/emitters/Emitter.h"
+#include "renderer/bxdfs/Lambert.h"
+#include "renderer/bxdfs/Fresnel.h"
 
 namespace Homura {
     //Scene::Scene(Sensor *cam) :_cam(cam) {}
@@ -20,11 +22,24 @@ namespace Homura {
 			    std::cerr << "ERROR::SCENE::SENSOR_CREATE_ERROR" << std::endl;
 		}
 
+		if (auto bxdfs = scene_document["bxdfs"]) {
+			for (unsigned i = 0; i < bxdfs.size(); i++) {
+				JsonObject bxdf = bxdfs[i];
+				std::string type = bxdf["type"].getString();
+				if (type == "matte")
+					_bxdfs[bxdf["name"].getString()] = std::make_shared<LambertReflection>(bxdf["R"].getVec3());
+				else if (type == "specref")
+					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecularReflection>(bxdf["R"].getVec3(), bxdf["eta"].getFloat());
+				else if (type == "spectrans")
+					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecularTransmission>(bxdf["T"].getVec3(), bxdf["eta"].getFloat());
+			}
+		}
+
 		if (auto primitives = scene_document["primitives"]) {
             for (unsigned i = 0; i < primitives.size(); i++) {
 				JsonObject primitive = primitives[i];
 				if (primitive["type"].getString() == "obj")
-					_shapes.push_back(std::make_shared<TriangleMesh>(primitive));
+					_shapes.push_back(std::make_shared<TriangleMesh>(primitive, _bxdfs));
 			}
 		}
 

@@ -59,7 +59,9 @@ namespace Homura {
     class BxDF {
     public:
 		BxDF(BxDFType type);
-        bool matchType(BxDFType t) const { return _type&t == _type; }  // match exactly
+        bool matchType(BxDFType t) const {
+			return _type&t == _type;
+		}  // match exactly
 
         virtual Vec3f f(const Vec3f &wo, const Vec3f &wi) const = 0;    // wo, wi are in local coord
 		virtual Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const { return Vec3f(0.f); }; // used for MC Integrators
@@ -70,6 +72,7 @@ namespace Homura {
 //        virtual rhh()
 
         BxDFType  _type;
+		//std::string _name;
     };
 
     class ScaledBxDF: public BxDF {
@@ -88,11 +91,12 @@ namespace Homura {
 
     class BSDF {
     public:
-		BSDF(IntersectInfo &isect_info, const float eta = 1.f);
+		//BSDF(IntersectInfo &isect_info, const float eta = 1.f);
+		BSDF() = default;
 		BSDF(const BSDF &origin);
 
-        void add(std::unique_ptr<BxDF> bxdf) {
-            _bxdfs.push_back(std::move(bxdf));
+        void add(std::shared_ptr<BxDF> bxdf) {
+            _bxdfs.push_back(bxdf);
         }
 
 		Vec3f world2local(const Vec3f &v) const {
@@ -105,6 +109,13 @@ namespace Homura {
 
 		Vec3f local2world(const Vec3f &v) const {
 			return _ts * v.x() + _bs*v.y() + _ns * v.z();
+		}
+
+		void update_isect(const IntersectInfo &isect_info) {
+			_ng = isect_info._normal;
+			_ns = isect_info._shading._n;
+			_ts = isect_info._shading._tangent;
+			_bs = isect_info._shading._bitangent;
 		}
 
         Vec3f f(const Vec3f &wo_w, const Vec3f &wi_w, BxDFType types=BSDF_ALL) const {
@@ -150,7 +161,7 @@ namespace Homura {
         /// TODO: rho()
 
     private:
-        float _eta; // TODO: should store two eta?
+        //float _eta; // TODO: should store two eta?
         Vec3f _ng;  // store geometry normal to avoid problems caused by shading normals.
         Vec3f _ns, _ts, _bs;   // normal, tangent, bitangent
         std::vector<std::shared_ptr<BxDF>> _bxdfs;

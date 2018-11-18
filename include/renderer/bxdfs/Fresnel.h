@@ -71,33 +71,44 @@ namespace Homura {
 
     class FresnelSpecularReflection : public BxDF {
     public:
-        FresnelSpecularReflection(const Vec3f &R, std::unique_ptr<Fresnel> fresnel)
-        : BxDF(BxDFType(BSDF_REFLECTION|BSDF_SPECULAR)), _R(R), _fresnel(std::move(fresnel)) {}
+        FresnelSpecularReflection(const Vec3f &R, const float &eta)
+        : BxDF(BxDFType(BSDF_REFLECTION|BSDF_SPECULAR)), _R(R), _eta(eta) {}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
 		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const override;
 
     private:
+		const float _eta;
         const Vec3f _R;  // incoming radiance
-        const std::unique_ptr<Fresnel> _fresnel;
+        std::unique_ptr<Fresnel> _fresnel;
     };
 
     class FresnelSpecularTransmission: public BxDF {
     public:
-        FresnelSpecularTransmission(Vec3f T, float etaI, float etaT)
-        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _etaI(etaI), _etaT(etaT), _fresnel(new FresnelDielectric(etaI, etaT)) {}
+        FresnelSpecularTransmission(Vec3f T, float eta)
+        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _eta(eta) {}
+        //: BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _etaI(etaI), _etaT(etaT), _fresnel(new FresnelDielectric(etaI, etaT)) {}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
 		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const override;
 		//float Pdf(const Vec3f &wo, const Vec3f &wi) const override;
 
     private:
+		const float _eta;
         Vec3f _T;
-        const float _etaI, _etaT;
-        const std::unique_ptr<FresnelDielectric> _fresnel;
+        float _etaI, _etaT;
+        std::unique_ptr<FresnelDielectric> _fresnel;
     };
 
-    class FresnelSpecular : public BxDF {}; /// TODO
+    class FresnelSpecular : public BxDF {
+	public:
+		FresnelSpecular();
+
+	private:
+		Vec3f _R;
+		Vec3f _T;
+		const float _etaI, _etaT;
+	};
 }
 
 #endif //HOMURA_FRESNEL_H_

@@ -29,7 +29,7 @@ namespace Homura {
 		std::vector<Vec3f> _normals;
 
         TriangleMesh(std::vector<Point3f> verts, std::vector<Vec3i> idxs);
-		TriangleMesh(const JsonObject &json);
+		TriangleMesh(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
 
 		/// TODO: first check intersect, only compute closesest point intersect info
 		bool intersect(const Ray &r, IntersectInfo &info) override;

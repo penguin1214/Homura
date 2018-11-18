@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      200,
-      200
+      50,
+      50
     ],
     "fov": 45,
     "screen_window": 2.0,
@@ -25,119 +25,70 @@
       ]
     }
   },
+  "bxdfs": [
+    {
+      "name": "Matte",
+      "type": "matte",
+      "R": [ 0.8, 0.8, 0.8 ]
+    }
+  ],
   "primitives": [
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj",
       "material": {
-        "type": "matte",
-        "R": [0.8, 0.8, 0.8]
-      }
-    },
-    {
-      "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj",
-      "material": {
-        "type": "matte",
-        "R": [ 0.8, 0.8, 0.8 ]
-        //"R": [ 0.1, 0.8, 0.4 ]
-      }
-    },
-    {
-      "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj",
-      "material": {
-        "type": "matte",
-        "R": [ 0.8, 0.8, 0.8 ]
-        //"R": [ 0.1, 0.8, 0.4 ]
-      }
-    },
-    {
-      "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/left.obj",
-      "material": {
-        "type": "matte",
-        "R": [ 0.8, 0.8, 0.8 ]
-        //"R": [ 0.1, 0.8, 0.4 ]
-      }
-    },
-    {
-      "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj",
-      "material": {
-        "type": "matte",
-        "R": [ 0.8, 0.8, 0.8 ]
-        //"R": [ 0.1, 0.8, 0.4 ]
+        "bsdf": [ "Matte" ]
       }
     }
     //{
     //  "type": "obj",
-    //  "path": "C:/Users/Jingl/Code/Scenes/obj/teapot.obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj",
     //  "material": {
-    //    "type": "matte"
+    //    "bsdf": [ "Matte" ]
+    //  }
+    //},
+    //{
+    //  "type": "obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj",
+    //  "material": {
+    //    "bsdf": [ "Matte" ]
+    //  }
+    //},
+    //{
+    //  "type": "obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/left.obj",
+    //  "material": {
+    //    "bsdf": [ "Matte" ]
+    //  }
+    //},
+    //{
+    //  "type": "obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj",
+    //  "material": {
+    //    "bsdf": [ "Matte" ]
     //  }
     //}
   ],
   "emitters": [
     {
       "type": "point",
-      "direction": [ -1,-1,-0.5 ],
+      "direction": [ -1, -1, -0.5 ],
       "n_samples": 1,
       "transform": {
         "translate": [ 1, 3, 0 ],
         "scale": [ 1, 1, 1 ]
       },
-      "intensity": [1,1,1]
+      "intensity": [ 1,1,1 ]
     }
-    //{
-    //  "type": "point",
-    //  "direction": [ 1.0, -1.0, 0.0 ],
-    //  "n_samples": 1,
-    //  "transform": {
-    //    "translate": [ 3, 3, 0 ],
-    //    "scale": [ 1, 1, 1 ]
-    //  },
-    //  "intensity": [ 500, 500, 500 ]
-    //},
-    //{
-    //  "type": "point",
-    //  "direction": [ 1.0, -1.0, 0.0 ],
-    //  "n_samples": 1,
-    //  "transform": {
-    //    "translate": [ -2, 2, -2 ],
-    //    "scale": [ 1, 1, 1 ]
-    //  },
-    //  "intensity": [ 1000, 1000, 1000 ]
-    //},
-    //{
-    //  "type": "point",
-    //  "direction": [ 1.0, -1.0, 0.0 ],
-    //  "n_samples": 1,
-    //  "transform": {
-    //    "translate": [ -2, 2, -4 ],
-    //    "scale": [ 1, 1, 1 ]
-    //  },
-    //  "intensity": [ 1000, 1000, 1000 ]
-    //}
-    //{
-    //  "type": "spotlight",
-    //  "n_samples": 1,
-    //  "tranform": {
-    //    "translate": [ 0, 0, 5 ],
-    //    "scale": [ 1, 1, 1 ]
-    //  },
-    //  "inner_cone": 10,
-    //  "outer_cone": 30
-    //}
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 5,
+    "max_depth": 1,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 16,
+      "spp": 1,
       "ndim": 4
     }
   },

@@ -3,11 +3,13 @@
 
 #include "sensors/Orthographic.h"
 #include "Ray.h"
+#include "renderer/bxdfs/BxDF.h"
 #include "primitives/Primitive.h"
 #include "core/io/JsonDocument.h"
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 namespace Homura {
 	class Emitter;
@@ -15,6 +17,7 @@ namespace Homura {
 	class Scene {
 	public:
 		std::shared_ptr<Sensor> _cam;
+		std::unordered_map<std::string, std::shared_ptr<BxDF>> _bxdfs;
 		std::vector<std::shared_ptr<Primitive>> _shapes;
 		std::vector<std::shared_ptr<Emitter>> _emitters;
 	public:

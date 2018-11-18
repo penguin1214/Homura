@@ -213,8 +213,8 @@ namespace Homura {
 
 	TriangleMesh::TriangleMesh(std::vector<Point3f> verts, std::vector<Vec3i> idxs) : Primitive(), _vertices(verts), _indecies(idxs) {}
 
-	TriangleMesh::TriangleMesh(const JsonObject &json) :
-		Primitive(json) {
+	TriangleMesh::TriangleMesh(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs) :
+		Primitive(json, bsdfs) {
 		std::string obj_path = json["path"].getString();
 		ObjHandler::readObj(obj_path.c_str(), _vertices, _indecies, _normals);
 	}
