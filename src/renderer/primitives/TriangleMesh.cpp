@@ -89,6 +89,10 @@ namespace Homura {
 
 		float invDet = 1.0f / det;
 		float t = tScaled * invDet;
+
+		if (t > r._tmax) return false;
+		r._tmax = t;
+
 		/// TODO: compute barycentric coord for texture mapping
 		float b0 = e0 * invDet;
 		float b1 = e1 * invDet;
@@ -115,7 +119,6 @@ namespace Homura {
 		// TODO: ensure computed t conservatively greater than zero
 		// TODO: error bounds
 
-		r._tmax = t;
 		// TODO: intersect info class
 		isect_info._t = t;
 		//		isect_info._d = r._d;
@@ -204,6 +207,8 @@ namespace Homura {
 
 		float invDet = 1.0f / det;
 		float t = tScaled * invDet;
+
+		if (t > r._tmax) return false;
 		r._tmax = t;
 
 		return true;

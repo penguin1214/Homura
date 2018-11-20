@@ -95,7 +95,7 @@ namespace Homura {
 			}
 		}
 
-		inline Vector normalized() {
+		inline Vector normalized() const {
 			Vector ret;
 			float len = 0.0f;
 			for (unsigned i = 0; i < Size; i++) {

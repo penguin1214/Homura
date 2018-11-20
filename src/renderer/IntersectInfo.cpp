@@ -23,10 +23,11 @@ namespace Homura {
 	}
 
 	Ray IntersectInfo::spawnRay(const Vec3f &wi) const {
-		return Ray(_p+_normal*1e-5, wi);
+		return Ray(_p + ((_normal.dot(wi)>0.f) ? (_normal*1e-5):(-_normal*1e-5) ), wi);
 	}
 
 	Ray IntersectInfo::spawnRayTo(const IntersectInfo &other) const {
-		return Ray(_p+_normal*1e-5, (other._p - _p).normalized(), 0.f, (other._p-_p).length());
+		Vec3f d = (other._p - _p).normalized();
+		return Ray(_p + ((_normal.dot(d) > 0.f) ? (_normal*1e-5) : (-_normal * 1e-5)), d, 0.f, (other._p-_p).length());
 	}
 }

@@ -28,14 +28,15 @@ namespace Homura {
 //#pragma omp parallel for
 #define DBG 0
 #if DBG
-		int xx =0;
+		int xx = 50;
 		int yy = 50;
 		int x_region = 40;
-		int y_region = 30;
+		int y_region = 40;
 		float inv_region = 1.f / float(y_region);
 		for (int y = yy; y < yy + y_region; y++) {
 			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);
 			for (int x = xx; x < xx + x_region; x++) {
+				//std::cout << "(" << x << ", " << y << "):" << std::endl;
 #else
 		for (int y = 0; y < _scene->_cam->_film->height(); y++) {
 			fprintf(stderr, "\rRendering %5.2f%%", invH*y);
@@ -55,7 +56,7 @@ namespace Homura {
 				} while (_sampler->startNextSample());
 			}
 		}
-#define DBG_OUT 1
+#define DBG_OUT 0
 #if DBG && DBG_OUT
 		std::cout << "\n===============Summary================" << std::endl;
 		for (int y = yy; y < yy + y_region; y++) {

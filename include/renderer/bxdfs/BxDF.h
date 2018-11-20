@@ -35,8 +35,9 @@ namespace Homura {
     inline bool Refract(const Vec3f &wi, const Vec3f &n, float eta, Vec3f &wt) {
         float cosi = n.dot(wi);
         float sin2thetai = std::max(0.f, 1.f - cosi*cosi);
-        if (sin2thetai >= 1) return false;
-        float cost = std::sqrt(1.f - eta*eta*sin2thetai);
+		float sin2thetat = eta * eta*sin2thetai;
+        if (sin2thetat >= 1) return false;
+        float cost = std::sqrt(1.f - sin2thetat);
         wt = -wi*eta + n*(eta*cosi-cost);
         return true;
     }
@@ -158,10 +159,18 @@ namespace Homura {
 			}
 
 			*sampled_types = sampled_bxdf->_type;
+
 			const Vec3f wo(world2local(wo_w));
 			Vec3f wi;
 			Vec3f f = sampled_bxdf->sample_f(wo, wi, u, pdf, sampled_types);
 			wi_w = local2world(wi);
+
+			//std::cout << "frame: " << std::endl;
+			//std::cout << _ns << std::endl;
+			//std::cout << _ts << std::endl;
+			//std::cout << _bs << std::endl;
+			//std::cout << "sampled direction(local): " << wi << std::endl;
+			//std::cout << "sampled direction: " << wi_w << std::endl;
 
 			// use average pdf
 			if (!(sampled_bxdf->_type & BSDF_SPECULAR) && n_matching_bxdf > 1) {

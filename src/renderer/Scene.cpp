@@ -32,6 +32,8 @@ namespace Homura {
 					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecularReflection>(bxdf["R"].getVec3(), bxdf["eta"].getFloat());
 				else if (type == "spectrans")
 					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecularTransmission>(bxdf["T"].getVec3(), bxdf["eta"].getFloat());
+				else if (type == "specular")
+					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecular>(bxdf["R"].getVec3(), bxdf["T"].getVec3(), bxdf["eta"].getFloat());
 			}
 		}
 

@@ -10,6 +10,7 @@ namespace Homura {
 	SamplerIntegrator(sc, json), _max_depth(json["max_depth"].getInt()), _rr_bounce(json["rr_bounce"].getInt()) {}
 
 	Vec3f PathTraceIntegrator::Li(const Ray &r, std::unique_ptr<PixelSampler> sampler) const {
+		//std::cout << "=========" << std::endl;
 		Vec3f L(0.0f), throughput(1.0f);
 		int depth = 0;
 		Ray ray(r);	ray.setPrimary(true);
@@ -19,15 +20,17 @@ namespace Homura {
 		while (depth < _max_depth) {
 			depth++;
 			IntersectInfo isect_info;
-			bool intersected = _scene->intersect(ray, isect_info);
-
 			//std::cout << "ray: " << ray._o << "->" << ray._d << std::endl;
-			//std::cout << "Ng: " << isect_info._normal << std::endl;
-			//std::cout << "Ns: " << isect_info._shading._n << std::endl;
-			//std::cout << "depth" << depth << ": " << intersected << std::endl;
+			bool intersected = _scene->intersect(ray, isect_info);
+			//std::cout << "hit point: " << isect_info._p << std::endl;
 
 			if (!intersected)
 				break;
+
+			//std::cout << "point: " << isect_info._p << std::endl;
+			//std::cout << "Ng: " << isect_info._normal << std::endl;
+			//std::cout << "Ns: " << isect_info._shading._n << std::endl;
+			//std::cout << "depth" << depth << ": " << intersected << std::endl;
 
 			// compute emitted light if first bounce / previous is specular.
 			if (depth == 1 || specular_bounce) {
@@ -54,12 +57,18 @@ namespace Homura {
 			Vec3f wo = -ray._d;
 			float bsdf_pdf;
 			BxDFType sampled_bxdf_type_flags;
+			//Vec3f f = isect_info._bsdf->sample_f(wo, wi, bsdf_pdf, 0.5f, Point2f(0.5f, 0.5f), BSDF_ALL, &sampled_bxdf_type_flags);
 			Vec3f f = isect_info._bsdf->sample_f(wo, wi, bsdf_pdf, _sampler->get1D(), _sampler->get2D(), BSDF_ALL, &sampled_bxdf_type_flags);
+			//std::cout << "bounce" << depth << " wi: " << wi << std::endl;
+			//std::cout << "bouce" << depth << " f: " << f << std::endl;
+			//std::cout << "bouce" << depth << " bsdf_pdf: " << bsdf_pdf << std::endl;
 
 			if ((f.max() < 1e-6) || (bsdf_pdf < 1e-6)) break;
 
 			throughput *= f * std::abs(wi.dot(isect_info._shading._n)) / bsdf_pdf;
 			specular_bounce = (sampled_bxdf_type_flags & BSDF_SPECULAR) != 0;
+
+			//std::cout << "bouce" << depth << " throughput: " << throughput << std::endl;
 
 			if (throughput.max() < 1e-3)	break;	// too small contribution
 

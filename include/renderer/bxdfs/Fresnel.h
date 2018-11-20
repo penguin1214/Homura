@@ -68,7 +68,7 @@ namespace Homura {
     public:
         FresnelSpecularTransmission(const Vec3f &T, const float &eta)
         //: BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _eta(eta) {}
-        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _etaI(eta), _etaT(1.f),
+        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _etaT(eta), _etaI(1.f),
 		_fresnel(new FresnelDielectric(_etaI, _etaT)) {}
 
 		//void prepareForRender(const IntersectInfo &isect_info) override {
@@ -89,7 +89,7 @@ namespace Homura {
 	public:
 		FresnelSpecular(const Vec3f &R, const Vec3f &T, const float &eta)
 		: BxDF(BxDFType(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR)),
-		_R(R), _T(T), _eta(eta), _fresnel(new FresnelDielectric(_eta, 1.f)) {}
+		_R(R), _T(T), _eta(eta), _fresnel(new FresnelDielectric(1.f, _eta)) {}
 
 		//void prepareForRender(const IntersectInfo &isect_info) override;
 

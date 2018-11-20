@@ -2,20 +2,20 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      100,
-      100
+      200,
+      200
     ],
     "fov": 45,
     "screen_window": 2.0,
     "lookat": {
       "position": [
-        -0.5,
-        1,
-        1.5
+        0,
+        0,
+        4
       ],
       "at": [
-        -0.5,
-        1,
+        0,
+        0,
         0
       ],
       "up": [
@@ -29,12 +29,19 @@
     {
       "name": "Matte",
       "type": "matte",
-      "R": [ 0.8, 0.8, 0.8 ]
+      "R": [ 0.1, 0.8, 0.4 ]
     },
     {
       "name": "Mirror",
       "type": "specref",
       "R": [ 1, 1, 1 ],
+      "eta": 1.33
+    },
+    {
+      "name": "Glass",
+      "type": "specular",
+      "R": [ 1, 1, 1 ],
+      "T": [ 1, 1, 1 ],
       "eta": 1.33
     }
   ],
@@ -43,8 +50,7 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj",
       "material": {
-        "eta": 1.33,
-        "bsdf": [ "Mirror" ]
+        "bsdf": [ "Glass" ]
       }
     },
     {
@@ -90,12 +96,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 2,
+    "max_depth": 8,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 1,
+      "spp": 32,
       "ndim": 4
     }
   },
