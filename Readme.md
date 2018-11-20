@@ -1,12 +1,15 @@
 # Current results
 
+> PT on Lambertian reflection
+
+![bunny_matte](figs/bunny_matte.jpg)
+
 > PT on specular reflection (mirror)
 
 ![bunny_mirror](figs/bunny_mirror.jpg)
 
-> PT on specular reflection (mirror)
-
-![bunny_matte](figs/bunny_matte.jpg)
+> PT on specular object (glass)
+![bunny_glass](figs/bunny_glass.jpg)
 
 # `lib` Core
 ## IO
