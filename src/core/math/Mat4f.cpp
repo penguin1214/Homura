@@ -1,6 +1,8 @@
 #include "core/math/Mat4f.h"
 
 #include "core/Common.h"
+#include "renderer/Bound.h"
+#include "renderer/Ray.h"
 
 namespace Homura {
 	Mat4f::Mat4f() {
@@ -167,5 +169,13 @@ namespace Homura {
 			0.0f, 0.0f, far / (far - near), -1.0f,
 			0.0f, 0.0f, -(far * near) /(far - near), 0.0f
 		);*/
+	}
+
+	Bound3f operator*(const Bound3f &bound, const Mat4f &m) {
+		return Bound3f(bound._min*m, bound._max*m);
+	}
+
+	Ray operator*(const Ray &ray, const Mat4f &m) {
+		return Ray(ray._o*m, ray._d*m);
 	}
 }

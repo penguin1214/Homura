@@ -46,7 +46,7 @@ namespace Homura {
      * `screen_window` is same as canvas, defining the area visible on image plane.
      * By default, its value is [-1, 1] on both axes.
      */
-	ProjectiveSensor::ProjectiveSensor(const Mat4f &ctw, const Mat4f &cts, Film *film, Bound2f screen_window)
+	ProjectiveSensor::ProjectiveSensor(const Mat4f &ctw, const Mat4f &cts, Film *film, Bound3f screen_window)
     : Sensor(ctw, film), _cam2screen(cts) {
         _screen2raster =
                 Mat4f::scale(Vec3f(_film->width(), _film->height(), 1)) * // NDC -> raster(final image)
@@ -61,7 +61,7 @@ namespace Homura {
 	: Sensor(json) {
 	    /// TODO: screen window aspect ratio should be same as film?
 		json.getField("screen_window", _screen_window);
-		Bound2f screen_window(Point3f(-_aspect_ratio*0.5f*_screen_window, -0.5f*_screen_window, 0), Point3f(_aspect_ratio*0.5f*_screen_window, 0.5f*_screen_window, 0));
+		Bound3f screen_window(Point3f(-_aspect_ratio*0.5f*_screen_window, -0.5f*_screen_window, 0), Point3f(_aspect_ratio*0.5f*_screen_window, 0.5f*_screen_window, 0));
 
 		_screen2raster =
 			Mat4f::translate(Vec3f(-screen_window._min.x(), -screen_window._max.y(), -1)) * // NDC -> raster(final image)

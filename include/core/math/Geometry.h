@@ -369,7 +369,7 @@ namespace Homura {
 				if (_p[i] == other._p[i])
 					cnt++;
 			}
-			return _cnt == size;
+			return cnt == size;
 		}
 
 		inline Point operator*(const float s) const {

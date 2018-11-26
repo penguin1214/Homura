@@ -3,11 +3,11 @@
 
 #include "core/math/Geometry.h"
 #include "core/math/Mat4f.h"
-#include "core/math/Bound.h"
 #include "core/io/PpmHandler.h"
 #include "core/io/JsonObject.h"
 #include "renderer/Ray.h"
 #include "renderer/Buffer.h"
+#include "renderer/Bound.h"
 #include <memory>
 
 namespace Homura {
@@ -58,7 +58,7 @@ namespace Homura {
 	* set screen_window to (Point3f(-1,-1,0), Point3f(1,1,0)) as default.
 	*/
     public:
-        ProjectiveSensor(const Mat4f &ctw, const Mat4f &cts, Film *film, Bound2f screen_window);
+        ProjectiveSensor(const Mat4f &ctw, const Mat4f &cts, Film *film, Bound3f screen_window);
 		ProjectiveSensor(const JsonObject json);
 
     protected:

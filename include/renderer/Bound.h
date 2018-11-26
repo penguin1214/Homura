@@ -28,11 +28,11 @@ namespace Homura {
 		inline bool operator==(const Bound3f &b) const { return (b._min == _min) && (b._max == _max); }
 
 		inline bool intersectP(const Ray &ray, float &hitt0, float &hitt1) const {
-			float tmin = 0.0f; float tmax = r._tmax;
+			float tmin = 0.0f; float tmax = ray._tmax;
 			for (unsigned i = 0; i < 3; i++) {
-				float inv_d = 1.0f / r._d[i];
-				float tmp_t0 = (_min.x - r._o[i]) * inv_d;
-				float tmp_t1 = (_max.x - r._o[i]) * inv_d;
+				float inv_d = 1.0f / ray._d[i];
+				float tmp_t0 = (_min.x() - ray._o[i]) * inv_d;
+				float tmp_t1 = (_max.x() - ray._o[i]) * inv_d;
 				if (tmp_t0 > tmp_t1) std::swap(tmp_t0, tmp_t1);
 
 				if (tmp_t0 > tmin) tmin = tmp_t0;

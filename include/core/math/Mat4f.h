@@ -141,13 +141,9 @@ namespace Homura {
 				a.e13*v.x() + a.e32*v.y() + a.e33*v.z());
 		}
 
-		friend Bound3f operator*(const Bound3f &bound, const Mat4f &m) {
-			return Bound3f(bound._min*m, bound._max*m);
-		}
+		friend Bound3f operator*(const Bound3f &bound, const Mat4f &m);
 
-		friend Ray operator*(const Ray &ray, const Mat4f &m) {
-			return Ray(ray._o*m, ray._d*m);
-		}
+		friend Ray operator*(const Ray &ray, const Mat4f &m);
 
 		friend std::ostream& operator<<(std::ostream &os, const Mat4f &m) {
 			std::cout << "(" << std::endl;

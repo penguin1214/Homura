@@ -6,7 +6,7 @@
 #include "renderer/sensors/Orthographic.h"
 
 namespace Homura {
-    OrthographicSensor::OrthographicSensor(const Mat4f &ctw, Film *film, Bound2f screen_window)
+    OrthographicSensor::OrthographicSensor(const Mat4f &ctw, Film *film, Bound3f screen_window)
             : ProjectiveSensor(ctw, Mat4f::orthographic(0,1/*TODO*/), film, screen_window) {
         // TODO: compute differential changes
         _dxSensor = Vec3f(1, 0, 0)*_raster2cam;
