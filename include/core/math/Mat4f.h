@@ -5,6 +5,8 @@
 #include "Geometry.h"
 
 namespace Homura {
+	class Bound3f;
+	class Ray;
 
 	class Mat4f {
 	private:
@@ -83,6 +85,10 @@ namespace Homura {
 			return ret;
 		}
 
+		inline Mat4f forNormal() const {
+			return transpose(inverse(*this));
+		}
+
 		friend Mat4f operator*(const Mat4f &a, const Mat4f &b) {
 			Mat4f ret;
 			for (unsigned i = 0; i < 4; i++) {
@@ -133,6 +139,14 @@ namespace Homura {
 				a.e11*v.x() + a.e21*v.y() + a.e31*v.z(),
 				a.e12*v.x() + a.e22*v.y() + a.e32*v.z(),
 				a.e13*v.x() + a.e32*v.y() + a.e33*v.z());
+		}
+
+		friend Bound3f operator*(const Bound3f &bound, const Mat4f &m) {
+			return Bound3f(bound._min*m, bound._max*m);
+		}
+
+		friend Ray operator*(const Ray &ray, const Mat4f &m) {
+			return Ray(ray._o*m, ray._d*m);
 		}
 
 		friend std::ostream& operator<<(std::ostream &os, const Mat4f &m) {

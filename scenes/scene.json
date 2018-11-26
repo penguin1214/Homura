@@ -32,6 +32,16 @@
       "R": [ 0.1, 0.8, 0.4 ]
     },
     {
+      "name": "Matte2",
+      "type": "matte",
+      "R": [ 0.1, 0.4, 0.8 ]
+    },
+    {
+      "name": "MatteBunny",
+      "type": "matte",
+      "R": [ 0.9, 0.9, 0.9 ]
+    },
+    {
       "name": "Mirror",
       "type": "specref",
       "R": [ 1, 1, 1 ],
@@ -41,7 +51,7 @@
       "name": "Glass",
       "type": "specular",
       "R": [ 1, 1, 1 ],
-      "T": [ 1, 1, 1 ],
+      "T": [ 1, 0.5, 1 ],
       "eta": 1.33
     }
   ],
@@ -50,7 +60,7 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj",
       "material": {
-        "bsdf": [ "Glass" ]
+        "bsdf": [ "MatteBunny" ]
       }
     },
     {
@@ -64,7 +74,7 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj",
       "material": {
-        "bsdf": [ "Matte" ]
+        "bsdf": [ "Matte2" ]
       }
     },
     {
@@ -78,7 +88,7 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj",
       "material": {
-        "bsdf": [ "Matte" ]
+        "bsdf": [ "Matte2" ]
       }
     }
   ],
@@ -96,12 +106,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 8,
+    "max_depth": 5,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 32,
+      "spp": 16,
       "ndim": 4
     }
   },

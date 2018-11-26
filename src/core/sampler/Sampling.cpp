@@ -51,4 +51,11 @@ namespace Homura {
 		float d = TWOPI * u[0];
 		return Vec3f(std::cos(d)*sqrt, std::sin(d)*sqrt, std::sqrt(std::max(1.f - u[1], 0.f)));
 	}
+
+	Vec3f uniformSampleSphereArea(const Point2f &u) {
+		float z = 1.f - 2.f * u[0];
+		float r = std::sqrt(std::max(0.f, 1.f - z * z));
+		float phi = TWOPI * u[1];
+		return Vec3f(r*std::cos(phi), r*std::sin(phi), z);
+	}
 }

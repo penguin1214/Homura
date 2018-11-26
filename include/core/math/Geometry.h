@@ -282,6 +282,14 @@ namespace Homura {
 			}
 			return os;
 		}
+
+		friend Vector operator*(const ElementType &a, const Vector &v) {
+			Vector ret;
+			for (unsigned i = 0; i < Size; i++) {
+				ret._v[i] = v[i] * a;
+			}
+			return ret;
+		}
 	};
 
 	typedef Vector<double, 4> Vec4d;
@@ -352,6 +360,17 @@ namespace Homura {
 
 		inline T &operator[](unsigned i) { return _p[i]; }
 		inline const T& operator[](unsigned i) const { return _p[i]; }
+
+		inline bool operator==(const Point &other) const {
+			int cnt = 0;
+			if (size != other.size)
+				return false;
+			for (int i = 0; i < size; i++) {
+				if (_p[i] == other._p[i])
+					cnt++;
+			}
+			return _cnt == size;
+		}
 
 		inline Point operator*(const float s) const {
 			Point ret;
