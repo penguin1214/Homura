@@ -8,7 +8,6 @@
 #include "renderer/Bound.h"
 #include "renderer/Ray.h"
 #include "renderer/IntersectInfo.h"
-#include "renderer/emitters/Emitter.h"
 
 namespace Homura {
 	inline bool solveQuadratic(float a, float b, float c, float &t0, float &t1);
@@ -16,7 +15,7 @@ namespace Homura {
 
 	class Shape {
 	public:
-		Shape(const Mat4f &local2world) : _local2world(local2world), _world2local(Mat4f::inverse(_local2world)) {}
+		Shape(const Mat4f &local2world) : _local2world(local2world), _world2local(Mat4f::inverse(_local2world)), _p(Point3f(0)*_local2world) {}
 
 		virtual Bound3f localBound() const = 0;
 		virtual Bound3f worldBound() const {
@@ -29,9 +28,10 @@ namespace Homura {
 		virtual float area() const = 0;
 
 		virtual IntersectInfo sample(const Point2f &u) const = 0;
-		virtual float pdf_Li(const IntersectInfo &isect_info, const Vec3f &wi) const = 0;
-		virtual float pdfUniformArea() const { return 1.f / area(); }
+		virtual float pdf() const { return 1.f / area(); }
+		//virtual float pdf_Li(const IntersectInfo &isect_info, const Vec3f &wi) const = 0;
 
+		Point3f _p;
 		const Mat4f _local2world, _world2local;
 	};
 

@@ -9,6 +9,7 @@
 #include "renderer/textures/MIPMap.h"
 #include "renderer/Scene.h"
 #include "core/sampler/Sampler.h"
+#include "renderer/shapes/Shape.h"
 
 namespace Homura {
 
@@ -37,8 +38,8 @@ namespace Homura {
 
     class Emitter {
 	public:
-		Emitter(int flags, const Mat4f &local2world, const Vec3f p = Vec3f(0.f), int n_samples=1)
-			: _flags(flags), _local2world(local2world), _world2local(Mat4f::inverse(local2world)), _p(p), _n_samples(n_samples) {}
+		Emitter(int flags, int n_samples=1)
+			: _flags(flags), _n_samples(n_samples) {}
 
 		virtual Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const = 0;
 		virtual Vec3f Le(const Ray &r) const { return Vec3f(0.f); }	// background radiance
@@ -46,43 +47,31 @@ namespace Homura {
 		virtual Vec3f power() const = 0;
 		virtual void preprocess() {}
 
+		virtual Point3f pos() const = 0;
+
 		inline bool isDelta() const {
 			return (_flags & EmitterFlags::DeltaPosition) || (_flags & EmitterFlags::DeltaDirection);
 		}
 
-		const Point3f _p;
 		const int _flags;
 		const int _n_samples;
-		const Mat4f _local2world, _world2local;
 	};
 
 	class PointEmitter : public Emitter {
 	public:
-		PointEmitter(const Mat4f &local2world, const Vec3f &I)
-			: Emitter(EmitterFlags::DeltaPosition, local2world, Vec3f(0.f)), _I(I) {}
+		PointEmitter(const Point3f &p, const Vec3f &I, const Mat4f &local2world)
+			: Emitter(EmitterFlags::DeltaPosition), _p(p), _I(I), _local2world(local2world), _world2local(Mat4f::inverse(local2world)) {}
 
 		PointEmitter(const JsonObject &json);
 
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
-		Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const override;
 		Vec3f power() const override;
 
+		Point3f pos() const override { return _p; }
+
+		const Point3f _p;
 		const Vec3f _I;
-	};
-
-	class SpotlightEmitter : public Emitter {
-	public:
-		SpotlightEmitter(const JsonObject &json);
-
-		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
-		Vec3f power() const override;
-
-		const Vec3f _d;
-		const Vec3f _I;
-		const float _cos_inner, _cos_outer;
-
-	private:
-		float falloff(const Vec3f &wi) const;
+		const Mat4f _local2world, _world2local;
 	};
 
 	class DirectionalEmitter : public Emitter {
@@ -91,8 +80,9 @@ namespace Homura {
 
 		void preprocess() override;	/// TODO: bounds of scene?
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const override;
-		Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const override;
 		Vec3f power() const override;
+
+		Point3f pos() const override { return Point3f(0); }
 
 		const Vec3f _d;
 		const Vec3f _L;
@@ -106,7 +96,22 @@ namespace Homura {
 	public:
 		AreaEmitter::AreaEmitter(const JsonObject &json);
 
-		virtual Vec3f L(const IntersectInfo &isect_info, const Vec3f &wo) const = 0;
+		virtual Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const = 0;
+
+		Point3f pos() const override { return _shape->_p; }
+
+		std::shared_ptr<Shape> _shape;
+		const Vec3f _I;
+		float _area;
+	};
+
+	class DiffuseAreaEmitter : public AreaEmitter {
+	public:
+		DiffuseAreaEmitter(const JsonObject &json);
+
+		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
+		Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const override;
+		Vec3f power() const override;
 	};
 
 	//class DiffuseAreaEmitter: public AreaEmitter {
@@ -132,11 +137,31 @@ namespace Homura {
 		Vec3f power() const override;
 		Vec3f Le(const Ray &r) const override;
 
+		Point3f pos() const override { return _p; }
+
+		const Point3f _p;
+		const Vec3f _I;
+		const Mat4f _local2world, _world2local;
 	private:
 		std::unique_ptr<MIPMap<float, 3>> _Lmap;
 		Point3f _world_center;
 		float _world_radius;
 	};
+
+	//class SpotlightEmitter : public Emitter {
+	//public:
+	//	SpotlightEmitter(const JsonObject &json);
+
+	//	Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
+	//	Vec3f power() const override;
+
+	//	const Vec3f _d;
+	//	const Vec3f _I;
+	//	const float _cos_inner, _cos_outer;
+
+	//private:
+	//	float falloff(const Vec3f &wi) const;
+	//};
 }
 
 #endif //HOMURA_EMITTER_H_

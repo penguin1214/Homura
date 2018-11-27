@@ -27,7 +27,7 @@ namespace Homura {
 				Vec3f wi;
 				float pdf;
 				/// TODO: visibility tester?
-				VisibilityTester vt(isect_info, IntersectInfo(light->_p));
+				VisibilityTester vt(isect_info, IntersectInfo(light->pos()));
 				Vec3f Li = light->sample_Li(isect_info, wi, pdf, vt, Point2f(1,1)/*TODO*/);
 				Vec3f f = isect_info._bsdf->f(wo, wi);
 				L += f*Li*(std::abs(wi.dot(normal)))/pdf;

@@ -6,14 +6,6 @@
 namespace Homura {
 
 	Vec3f Emitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const {
-		return Vec3f(0.f);	/// TODO: should be pure virtual
-	}
-
-	PointEmitter::PointEmitter(const Homura::JsonObject &json) :
-	Emitter(EmitterFlags::DeltaPosition, json["transform"].getTransform(), json["transform"]["translate"].getVec3(), json["n_samples"].getInt()),
-	_I(json["intensity"].getVec3()) {}
-
-	Vec3f PointEmitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const {
 		Vec3f wi;
 		float light_pdf;
 		VisibilityTester vt;
@@ -21,6 +13,10 @@ namespace Homura {
 		Vec3f f = isect_info._bsdf->f(isect_info._wo, wi)*std::abs(isect_info._shading._n.dot(wi));
 		return (vt.unoccluded(*scene)) ? (f*Li_sampled) / light_pdf : Vec3f(0.f);
 	}
+
+	PointEmitter::PointEmitter(const Homura::JsonObject &json) :
+		Emitter(EmitterFlags::DeltaPosition, json["n_samples"].getInt()),
+		_p(json["transform"]["translate"].getVec3()), _I(json["intensity"].getVec3()), _local2world(json["transform"].getTransform()), _world2local(Mat4f::inverse(_local2world)) {}
 
 	Vec3f PointEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
 		//std::cout << "intersection point: " << isect_info._p << std::endl;
@@ -37,36 +33,36 @@ namespace Homura {
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 
-	SpotlightEmitter::SpotlightEmitter(const JsonObject &json) :
-	Emitter(EmitterFlags::DeltaPosition, json["transform"].getTransform(), json["transform"]["traslate"].getVec3(), json["n_samples"].getInt()),
-	_d(Vec3f(0,-1,0)/*default value*/*_local2world), _I(json["intensity"].getVec3()),
-	_cos_inner(std::cos(json["inner_cone"].getFloat())), _cos_outer(std::cos(json["outer_cone"].getFloat())) {}
+	//SpotlightEmitter::SpotlightEmitter(const JsonObject &json) :
+	//Emitter(EmitterFlags::DeltaPosition, json["transform"].getTransform(), json["transform"]["traslate"].getVec3(), json["n_samples"].getInt()),
+	//_d(Vec3f(0,-1,0)/*default value*/*_local2world), _I(json["intensity"].getVec3()),
+	//_cos_inner(std::cos(json["inner_cone"].getFloat())), _cos_outer(std::cos(json["outer_cone"].getFloat())) {}
 
-	float SpotlightEmitter::falloff(const Vec3f &wi) const {
-		float cos_wi = wi.dot(_d);
-		if (cos_wi < _cos_outer)	return 0.f;
-		else if (cos_wi > _cos_inner)	return 1.f;
-		else {
-			float delta = (cos_wi - _cos_outer) / (_cos_inner - _cos_outer);
-			return (delta*delta) * (delta*delta);	/// TODO: why?
-		}
-	}
+	//float SpotlightEmitter::falloff(const Vec3f &wi) const {
+	//	float cos_wi = wi.dot(_d);
+	//	if (cos_wi < _cos_outer)	return 0.f;
+	//	else if (cos_wi > _cos_inner)	return 1.f;
+	//	else {
+	//		float delta = (cos_wi - _cos_outer) / (_cos_inner - _cos_outer);
+	//		return (delta*delta) * (delta*delta);	/// TODO: why?
+	//	}
+	//}
 
-	Vec3f SpotlightEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
-		wi = (_p - isect_info._p).normalized();
-		pdf = 1.f;
-		return _I * falloff(wi) / (_p - isect_info._p).squareLength();
-	}
+	//Vec3f SpotlightEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
+	//	wi = (_p - isect_info._p).normalized();
+	//	pdf = 1.f;
+	//	return _I * falloff(wi) / (_p - isect_info._p).squareLength();
+	//}
 
-	Vec3f SpotlightEmitter::power() const {
-		return _I * 2.f * PI * (1.f - 0.5f*(_cos_outer + _cos_inner));
-	}
+	//Vec3f SpotlightEmitter::power() const {
+	//	return _I * 2.f * PI * (1.f - 0.5f*(_cos_outer + _cos_inner));
+	//}
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 
 	DirectionalEmitter::DirectionalEmitter(const JsonObject &json) :
-	Emitter(EmitterFlags::DeltaDirection, json["transform"].getTransform(), json["n_samples"].getInt()),
-	_d(json["direction"].getVec3().normalized()), _L(json["intensity"].getVec3()) {}
+		Emitter(EmitterFlags::DeltaDirection, json["n_samples"].getInt()),
+		_d(json["direction"].getVec3().normalized()), _L(json["intensity"].getVec3()) {}
 
 	Vec3f DirectionalEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const {
 		wi = -_d;
@@ -74,15 +70,6 @@ namespace Homura {
 		Point3f p_out = isect_info._p - _d * (2 * _world_radius);
 		vt = VisibilityTester(isect_info, IntersectInfo(p_out));
 		return _L;
-	}
-
-	Vec3f DirectionalEmitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const {
-		Vec3f wi;
-		float light_pdf;
-		VisibilityTester vt;
-		Vec3f Li_sampled = sample_Li(isect_info, wi, light_pdf, vt, u);
-		Vec3f f = isect_info._bsdf->f(isect_info._wo, wi)*std::abs(isect_info._shading._n.dot(wi));
-		return (vt.unoccluded(*scene)) ? ((f*Li_sampled) / light_pdf) : Vec3f(0.f);
 	}
 
 	Vec3f DirectionalEmitter::power() const {
@@ -99,19 +86,41 @@ namespace Homura {
 	///////////////////////////////////////////////////////////////////////////////////////////
 
 	AreaEmitter::AreaEmitter(const JsonObject &json) :
-	Emitter(EmitterFlags::Area, json["transform"].getTransform(), json["transform"]["traslate"].getVec3(), json["n_samples"].getInt()) {}
+	Emitter(EmitterFlags::Area, json["n_samples"].getInt()),
+	_I(json["intensity"].getVec3()) {
+		// _shape
+		auto shape = json["shape"];
+		auto type = shape["type"].getString();
+		if (type == "sphere") {
+			_shape = std::make_shared<Sphere>(shape);
+		}
+		_area = _shape->area();
+	}
 
-	//DiffuseAreaEmitter::DiffuseAreaEmitter(const JsonObject &json) :
-	//AreaEmitter(json), _L(json["intensity"].getVec3()), _shape() {}
-	//
-	//Vec3f DirectionalEmitter::power() const {
-	//	return _L * _area * PI;
-	//}
+	DiffuseAreaEmitter::DiffuseAreaEmitter(const JsonObject &json) :
+		AreaEmitter(json) {}
+
+	Vec3f DiffuseAreaEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
+		IntersectInfo isect_emitter = _shape->sample(u);
+		wi = (isect_emitter._p - isect_info._p).normalized();
+		pdf = _shape->pdf();
+		vt = VisibilityTester(isect_info, isect_emitter);
+		return L(isect_emitter, -wi);
+	}
+
+	Vec3f DiffuseAreaEmitter::L(const IntersectInfo &isect_info, const Vec3f &w) const {
+		return isect_info._normal.dot(w) > 0.f ? _I : Vec3f(0.f);
+	}
+
+	Vec3f DiffuseAreaEmitter::power() const {
+		return _I * _area * PI;
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 
 	InfiniteEmitter::InfiniteEmitter(const JsonObject &json) :
-	Emitter(EmitterFlags::Infinite, json["transform"].getTransform(), json["n_samples"].getInt()) {
+	Emitter(EmitterFlags::Infinite, json["n_samples"].getInt()),
+	_p(json["transform"]["translate"].getVec3()), _I(json["intensity"].getVec3()), _local2world(json["transform"].getTransform()), _world2local(Mat4f::inverse(_local2world)) {
 		_Lmap.reset(new MIPMap<float, 3>(json["path"].getString(), json["wrap_mode"].getInt()));
 	}
 

@@ -48,10 +48,13 @@ namespace Homura {
 		if (auto emitters = scene_document["emitters"]) {
 			for (unsigned i = 0; i < emitters.size(); i++) {
 				JsonObject emitter = emitters[i];
-				if (emitter["type"].getString() == "point")
+				auto type = emitter["type"].getString();
+				if (type == "point")
 					_emitters.push_back(std::unique_ptr<PointEmitter>(new PointEmitter(emitter)));
-				else if (emitter["type"].getString() == "directional")
+				else if (type == "directional")
 					_emitters.push_back(std::unique_ptr<DirectionalEmitter>(new DirectionalEmitter(emitter)));
+				else if (type == "diffuse_area")
+					_emitters.push_back(std::unique_ptr<DiffuseAreaEmitter>(new DiffuseAreaEmitter(emitter)));
 				//else if (emitter["type"].getString() == "environment")
 					//_emitters.push_back(std::unique_ptr<EnvironmentEmitter>(new EnvironmentEmitter(emitter)));
 				else
