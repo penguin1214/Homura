@@ -67,7 +67,7 @@ namespace Homura {
 		inline ElementType &w() { return _v[3]; }
 		inline const ElementType &w() const { return _v[3]; }
 
-		float length() {
+		float length() const {
 			float l = 0;
 			for (unsigned i = 0; i < Size; i++) {
 				l += _v[i] * _v[i];

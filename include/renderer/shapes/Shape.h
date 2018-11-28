@@ -58,6 +58,29 @@ namespace Homura {
 		//const float _z_min, _z_max;
 		//const float _theta_min, _theta_max, _phi_max;
 	};
+
+	class Quad : public Shape {
+	public:
+		Quad(const JsonObject &json)
+		: Shape(json["transform"].getTransform()),
+		_base(json["transform"]["translate"].getVec3()), _edge0(json["edge0"].getVec3()), _edge1(json["edge1"].getVec3()), _normal(_edge0.cross(_edge1).normalized()) {
+			if (std::abs(_edge0.dot(_edge1)) > 1e-6f)
+				std::cout << "QUAD::EDGE_NOT_ORTHO_ERROR" << std::endl;
+		}
+
+		Bound3f localBound() const override {
+			return Bound3f(_base, _base+_edge0+_edge1);
+		}
+
+		bool intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
+		IntersectInfo sample(const Point2f &u) const override;
+
+		float area() const override { return _edge0.length() * _edge1.length(); }
+
+		const Point3f _base;
+		const Vec3f _edge0, _edge1;
+		const Vec3f _normal;
+	};
 }
 
 #endif // !HOMURA_SHAPE_H_

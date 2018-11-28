@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      300,
-      300
+      200,
+      200
     ],
     "fov": 45,
     "screen_window": 2.0,
@@ -58,7 +58,7 @@
   "primitives": [
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/teapot.obj",
       "material": {
         "bsdf": [ "MatteBunny" ]
       }
@@ -98,7 +98,7 @@
     //  "direction": [ -1, -1, -0.5 ],
     //  "n_samples": 1,
     //  "transform": {
-    //    "translate": [ 1, 3, 0 ],
+    //    "translate": [ 0, 2, 0 ],
     //    "scale": [ 1, 1, 1 ]
     //  },
     //  "intensity": [ 1, 1, 1 ]
@@ -108,23 +108,25 @@
       "n_samples": 1,
       "intensity": [0.5, 0.5, 0.5],
       "shape": {
-        "type": "sphere",
+        "type": "quad",
         "transform": {
-          "translate": [ 1, 3, 0 ],
+          "translate": [ -0.5, 2, 0.5 ],
           "scale": [ 1, 1, 1 ]
         },
-        "radius": 0.5
+        "radius": 0.5,
+        "edge0": [ 0, 0, -1 ],
+        "edge1": [ 1, 0, 0 ]
       }
     }
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 3,
+    "max_depth": 5,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 32,
+      "spp": 64,
       "ndim": 4
     }
   },

@@ -34,13 +34,38 @@ namespace Homura {
 		if (t0 < 0.f || t1 > ray._tmax)
 			return false;
 		/// TODO: intersection info
+		return true;
 	}
 
 	IntersectInfo Sphere::sample(const Point2f &u) const {
 		Point3f p = Point3f(0, 0, 0) + _radius * uniformSampleSphereArea(u);
 		IntersectInfo isect_info;
-		/// TODO
 		isect_info._normal = Vec3f(p)*(_local2world.forNormal());
+		isect_info._p = p * _local2world;
+		return isect_info;
+	}
+
+	bool Quad::intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
+		float NdotD = r._d.dot(_normal);
+		if (std::abs(NdotD) < 1e-6f)
+			return false;
+
+		float t = (_normal.dot(_base - r._o)) / NdotD;
+
+		if (t < 0.f || t > r._tmax)
+			return false;
+
+		Point3f p = r._o + t * r._d;
+		/// TODO: intersect info
+
+		r._tmax = t;
+		return true;
+	}
+
+	IntersectInfo Quad::sample(const Point2f &u) const {
+		Point3f p = _base + _edge0 * u[0] + _edge1 * u[1];
+		IntersectInfo isect_info;
+		isect_info._normal = _normal * (_local2world.forNormal());
 		isect_info._p = p * _local2world;
 		return isect_info;
 	}

@@ -94,6 +94,10 @@ namespace Homura {
 		if (type == "sphere") {
 			_shape = std::make_shared<Sphere>(shape);
 		}
+		else if (type == "quad") {
+			_shape = std::make_shared<Quad>(shape);
+		}
+
 		_area = _shape->area();
 	}
 

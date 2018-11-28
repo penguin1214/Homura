@@ -9,7 +9,13 @@
 ![bunny_mirror](figs/bunny_mirror.jpg)
 
 > PT on specular object (glass)
+
 ![bunny_glass](figs/bunny_glass.jpg)
+
+> PT with area (quad) light on matte objects. See soft shadows and color bleeding.
+
+![teapot_area](figs/teapot_quad_light.jpg)
+
 
 # `lib` Core
 ## IO
