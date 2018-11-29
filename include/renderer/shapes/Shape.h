@@ -26,6 +26,7 @@ namespace Homura {
 		virtual bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const { return intersectP(r, nullptr, nullptr); }
 
 		virtual float area() const = 0;
+		virtual inline Vec3f normal(const IntersectInfo &ref) const = 0;
 
 		virtual IntersectInfo sample(const Point2f &u) const = 0;
 		virtual float pdf() const { return 1.f / area(); }
@@ -49,6 +50,7 @@ namespace Homura {
 		bool intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
 
 		float area() const override { return 4 * PI*_radius*_radius; }
+		inline Vec3f normal(const IntersectInfo &ref) const override { return Vec3f(ref._p).normalized(); }
 
 		IntersectInfo sample(const Point2f &u) const override;
 
@@ -76,6 +78,7 @@ namespace Homura {
 		IntersectInfo sample(const Point2f &u) const override;
 
 		float area() const override { return _edge0.length() * _edge1.length(); }
+		inline Vec3f normal(const IntersectInfo &ref) const override { return _normal; }
 
 		const Point3f _base;
 		const Vec3f _edge0, _edge1;

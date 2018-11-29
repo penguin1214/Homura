@@ -22,7 +22,7 @@ namespace Homura {
 		//std::cout << "intersection point: " << isect_info._p << std::endl;
 		wi = (_p - isect_info._p).normalized();
 		//std::cout << "out direction: " << wi << std::endl;
-		pdf = 1.f;
+		pdf = Pdf();
 		vt = VisibilityTester(isect_info, IntersectInfo(_p));
 		return _I / (_p - isect_info._p).squareLength();
 	}
@@ -66,7 +66,7 @@ namespace Homura {
 
 	Vec3f DirectionalEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const {
 		wi = -_d;
-		pdf = 1.f;
+		pdf = Pdf();
 		Point3f p_out = isect_info._p - _d * (2 * _world_radius);
 		vt = VisibilityTester(isect_info, IntersectInfo(p_out));
 		return _L;
@@ -107,9 +107,9 @@ namespace Homura {
 	Vec3f DiffuseAreaEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
 		IntersectInfo isect_emitter = _shape->sample(u);
 		wi = (isect_emitter._p - isect_info._p).normalized();
-		pdf = _shape->pdf();
+		pdf = Pdf();
 		vt = VisibilityTester(isect_info, isect_emitter);
-		return L(isect_emitter, -wi);
+		return L(isect_emitter, -wi) * std::abs(_shape->normal(isect_emitter).dot(-wi)) / (isect_emitter._p - isect_info._p).squareLength();
 	}
 
 	Vec3f DiffuseAreaEmitter::L(const IntersectInfo &isect_info, const Vec3f &w) const {

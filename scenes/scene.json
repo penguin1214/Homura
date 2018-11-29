@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      200,
-      200
+      100,
+      100
     ],
     "fov": 45,
     "screen_window": 2.0,
@@ -11,7 +11,7 @@
       "position": [
         0,
         0,
-        4
+        6
       ],
       "at": [
         0,
@@ -51,23 +51,23 @@
       "name": "Glass",
       "type": "specular",
       "R": [ 1, 1, 1 ],
-      "T": [ 1, 0.5, 1 ],
+      "T": [ 1, 1, 1 ],
       "eta": 1.33
     }
   ],
   "primitives": [
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/teapot.obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere.obj",
       "material": {
-        "bsdf": [ "MatteBunny" ]
+        "bsdf": [ "Glass" ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj",
       "material": {
-        "bsdf": [ "Matte" ]
+        "bsdf": [ "Matte2" ]
       }
     },
     {
@@ -106,7 +106,7 @@
     {
       "type": "diffuse_area",
       "n_samples": 1,
-      "intensity": [0.5, 0.5, 0.5],
+      "intensity": [8,8,8],
       "shape": {
         "type": "quad",
         "transform": {
@@ -121,12 +121,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 5,
+    "max_depth": 4,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 64,
+      "spp": 4,
       "ndim": 4
     }
   },

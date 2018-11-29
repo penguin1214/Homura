@@ -42,6 +42,7 @@ namespace Homura {
 			: _flags(flags), _n_samples(n_samples) {}
 
 		virtual Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const = 0;
+		virtual float Pdf() const = 0;
 		virtual Vec3f Le(const Ray &r) const { return Vec3f(0.f); }	// background radiance
 		virtual Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const;
 		virtual Vec3f power() const = 0;
@@ -65,6 +66,7 @@ namespace Homura {
 		PointEmitter(const JsonObject &json);
 
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
+		float Pdf() const override { return 1.f; }
 		Vec3f power() const override;
 
 		Point3f pos() const override { return _p; }
@@ -80,6 +82,7 @@ namespace Homura {
 
 		void preprocess() override;	/// TODO: bounds of scene?
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const override;
+		float Pdf() const override { return 1.f; }
 		Vec3f power() const override;
 
 		Point3f pos() const override { return Point3f(0); }
@@ -110,6 +113,7 @@ namespace Homura {
 		DiffuseAreaEmitter(const JsonObject &json);
 
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
+		float Pdf() const override { return _shape->pdf(); }
 		Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const override;
 		Vec3f power() const override;
 	};
