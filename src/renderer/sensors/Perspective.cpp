@@ -11,16 +11,15 @@ namespace Homura {
     : ProjectiveSensor(json) {
 		json.getField("fov", _vfov);	/// for vertical window_size, TODO: degree to radius
         _cam2screen = Mat4f::perspective(_vfov);
-		/// TODO: right now z value is not able to be recovered, since they are all projected to z=1 in screen space
         _raster2cam = _raster2screen * Mat4f::inverse(_cam2screen);
-		_raster2cam[11]=0.0f, _raster2cam[15] = 1.0f;	// no divide
     }
 
     float PerspectiveSensor::generatePrimaryRay(const PixelSample &sample, Ray &r) const {
         Point3f pSample(sample._p_film.x(), sample._p_film.y(), 0);
         Point3f p_cam = pSample * _raster2cam;
 		r._o = Point3f(0.0f) * _cam2world;
-        r._d = (Vec3f(p_cam) * _cam2world).normalized();
+        r._d = Vec3f(Point3f(p_cam) * _cam2world).normalized();
+
         return 1.0f;
     }
 }

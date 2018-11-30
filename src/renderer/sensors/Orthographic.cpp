@@ -33,7 +33,7 @@ namespace Homura {
 
     float OrthographicSensor::generatePrimaryRay(const PixelSample &sample, Ray &r) const {
         Point3f pSample(sample._p_film.x(), sample._p_film.y(), 0);
-		std::cout << pSample << std::endl;
+		//std::cout << pSample << std::endl;
 		//std::cout << _raster2screen * pSample << std::endl;
         Point3f p_cam = pSample*_raster2cam;
 		//std::cout << p_cam << std::endl;

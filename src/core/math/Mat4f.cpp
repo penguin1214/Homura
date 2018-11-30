@@ -150,25 +150,15 @@ namespace Homura {
 	}
 
 	Mat4f Mat4f::perspective(float fov) {
-		// consider screen space as a 2D space now!
-		// thus z-value of projected points are not important!
-		// also don't consider aspect ratio now.
 		float scale = 1.0f / std::tan(deg2rad(0.5*fov));
+		float near = 0.1, far = 10000;
+
 		return Mat4f(
 			scale, 0.0f, 0.0f, 0.0f,
 			0.0f, scale, 0.0f, 0.0f,
-			0.0f, 0.0f, -1.0f, -1.0f,
-			0.0f, 0.0f, 1e-6, 0.0f);
-		// after perspective divide, z=1.
-		//However, it actually doesn't matter if z = 1 or -1,
-		//since we then only deal with 2D.
-		/*float scale = 1.0f / std::tan(deg2rad(0.5*fov));
-		return Mat4f(
-			scale, 0.0f, 0.0f, 0.0f,
-			0.0f, scale, 0.0f, 0.0f,
-			0.0f, 0.0f, far / (far - near), -1.0f,
-			0.0f, 0.0f, -(far * near) /(far - near), 0.0f
-		);*/
+			0.0f, 0.0f, -far / (far - near), -1.f,
+			0.0f, 0.0f, -(far * near) / (far - near), 0.0f
+		);
 	}
 
 	Bound3f operator*(const Bound3f &bound, const Mat4f &m) {

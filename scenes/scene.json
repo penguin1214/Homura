@@ -9,13 +9,13 @@
     "screen_window": 2.0,
     "lookat": {
       "position": [
-        0,
-        0,
-        6
+        -2,
+        5,
+        10
       ],
       "at": [
-        0,
-        0,
+        2,
+        -1,
         0
       ],
       "up": [
@@ -60,7 +60,7 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere.obj",
       "material": {
-        "bsdf": [ "Glass" ]
+        "bsdf": [ "MatteBunny" ]
       }
     },
     {
@@ -121,12 +121,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 4,
+    "max_depth": 1,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 4,
+      "spp": 1,
       "ndim": 4
     }
   },
