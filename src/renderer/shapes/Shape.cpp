@@ -33,7 +33,38 @@ namespace Homura {
 
 		if (t0 < 0.f || t1 > ray._tmax)
 			return false;
-		/// TODO: intersection info
+
+		if (hitt)
+			*hitt = t0;
+
+		Point3f phit = r._o + t0 * r._d;
+		float phi = std::atan2(phit.y(), phit.x());
+		if (phi < 0.f) phi += TWOPI;
+
+		float u = phi / _phi_max;
+		float theta = std::acos(clamp(phit.z() / _radius, -1.f, 1.f));
+		float v = (theta - _theta_min) / (_theta_max - _theta_min);
+
+		float zRadius = std::sqrt(phit.x() * phit.x() + phit.y() + phit.y());
+		float invzradius = 1.f / zRadius;
+		float cosPhi = phit.x() * invzradius;
+		float sinPhi = phit.y() * invzradius;
+		Vec3f dpdu(-_phi_max * phit.y(), _phi_max*phit.x(), 0);
+		Vec3f dpdv = (_theta_max - _theta_min) * 
+			Vec3f(phit.z() * cosPhi, phit.z() * sinPhi, -_radius * std::sin(theta));
+
+		if (isect_info) {
+			isect_info->_t = t0;
+			isect_info->_wo = -r._d;
+			isect_info->_p = phit;
+			isect_info->_normal = (phit - _p).normalized();
+			isect_info->_shading._n = isect_info->_normal;
+			isect_info->_dpdu = dpdu;
+			isect_info->_dpdv = dpdv;
+			isect_info->_shading._tangent = dpdu.normalized();
+			isect_info->_shading._bitangent = dpdv.normalized();
+		}
+
 		return true;
 	}
 
@@ -66,6 +97,21 @@ namespace Homura {
 		/// TODO: intersect info
 
 		r._tmax = t;
+
+		if (hitt)
+			*hitt = t;
+
+		if (isect_info) {
+			isect_info->_t = t;
+			isect_info->_wo = -r._d;
+			isect_info->_p = p;
+			isect_info->_normal = _normal;
+			isect_info->_shading._n = _normal;
+			isect_info->_shading._tangent = _edge0;
+			isect_info->_shading._bitangent = _edge1;
+			/// TODO: dpdu, dpdv??
+		}
+
 		return true;
 	}
 

@@ -58,7 +58,7 @@ namespace Homura {
 		const float _radius;
 		/// TODO: partial sphere
 		//const float _z_min, _z_max;
-		//const float _theta_min, _theta_max, _phi_max;
+		const float _theta_min = 0, _theta_max = PI, _phi_max = TWOPI;
 	};
 
 	class Quad : public Shape {

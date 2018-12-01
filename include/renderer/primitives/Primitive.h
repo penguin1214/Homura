@@ -10,6 +10,7 @@
 
 namespace Homura {
 	class Scene;
+	class Sphere;
 
 	class Primitive : public std::enable_shared_from_this<Primitive> {
 	public:
@@ -22,6 +23,18 @@ namespace Homura {
 
 	protected:
 	    std::unique_ptr<Material> _material;
+	};
+
+	class SpherePrimitive : public Primitive {
+	public:
+		SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
+
+		bool intersect(const Ray &r, IntersectInfo &info) override;
+		bool intersectP(const Ray &r) const override;
+
+
+	private:
+		std::unique_ptr<Sphere> _shape;
 	};
 }
 #endif // HOMURA_PRIMITIVE_H_
