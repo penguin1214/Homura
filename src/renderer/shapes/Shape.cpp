@@ -56,6 +56,13 @@ namespace Homura {
 			return false;
 
 		Point3f p = r._o + t * r._d;
+
+		Vec3f v = p - _base;
+		float l0 = _edge0.dot(v);
+		float l1 = _edge1.dot(v);
+
+		if (l0 < 0.0f || l0 > _edge0.length() || l1 < 0.0f || l1 > _edge1.length() )
+			return false;
 		/// TODO: intersect info
 
 		r._tmax = t;
@@ -65,8 +72,8 @@ namespace Homura {
 	IntersectInfo Quad::sample(const Point2f &u) const {
 		Point3f p = _base + _edge0 * u[0] + _edge1 * u[1];
 		IntersectInfo isect_info;
-		isect_info._normal = _normal * (_local2world.forNormal());
-		isect_info._p = p * _local2world;
+		isect_info._normal = _normal;
+		isect_info._p = p;
 		return isect_info;
 	}
 }

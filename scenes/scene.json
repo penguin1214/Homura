@@ -2,20 +2,20 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      100,
-      100
+      200,
+      200
     ],
-    "fov": 45,
+    "fov": 19.5,
     "screen_window": 2.0,
     "lookat": {
       "position": [
-        -2,
-        5,
-        10
+        0,
+        1,
+        6.8
       ],
       "at": [
-        2,
-        -1,
+        0,
+        1,
         0
       ],
       "up": [
@@ -27,19 +27,29 @@
   },
   "bxdfs": [
     {
-      "name": "Matte",
+      "name": "LeftWall",
       "type": "matte",
-      "R": [ 0.1, 0.8, 0.4 ]
+      "R": [ 0.63, 0.065, 0.05 ]
     },
     {
-      "name": "Matte2",
+      "name": "RightWall",
       "type": "matte",
-      "R": [ 0.1, 0.4, 0.8 ]
+      "R": [ 0.14, 0.45, 0.091 ]
     },
     {
-      "name": "MatteBunny",
+      "name": "Floor",
       "type": "matte",
-      "R": [ 0.9, 0.9, 0.9 ]
+      "R": [ 0.725, 0.71, 0.68 ]
+    },
+    {
+      "name": "Ceil",
+      "type": "matte",
+      "R": [ 0.725, 0.71, 0.68 ]
+    },
+    {
+      "name": "Back",
+      "type": "matte",
+      "R": [ 0.725, 0.71, 0.68 ]
     },
     {
       "name": "Mirror",
@@ -58,37 +68,51 @@
   "primitives": [
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere.obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_front.obj",
       "material": {
-        "bsdf": [ "MatteBunny" ]
+        "bsdf": [ "Mirror" ]
+      }
+    },
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj",
+      "material": {
+        "bsdf": [ "Mirror" ]
+      }
+    },
+    {
+      "type": "obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/ceil.obj",
+      "material": {
+        "bsdf": [ "Ceil" ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj",
       "material": {
-        "bsdf": [ "Matte2" ]
+        "bsdf": [ "Back" ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj",
       "material": {
-        "bsdf": [ "Matte" ]
+        "bsdf": [ "Floor" ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/left.obj",
       "material": {
-        "bsdf": [ "Matte" ]
+        "bsdf": [ "LeftWall" ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj",
       "material": {
-        "bsdf": [ "Matte" ]
+        "bsdf": [ "RightWall" ]
       }
     }
   ],
@@ -103,30 +127,45 @@
     //  },
     //  "intensity": [ 1, 1, 1 ]
     //},
+    //{
+    //  "type": "diffuse_area",
+    //  "n_samples": 1,
+    //  "intensity": [8,8,8],
+    //  "shape": {
+    //    "type": "quad",
+    //    "transform": {
+    //      "translate": [ -0.5, 2, 0.5 ],
+    //      "scale": [ 1, 1, 1 ]
+    //    },
+    //    "radius": 0.5,
+    //    "edge0": [ 0, 0, -1 ],
+    //    "edge1": [ 1, 0, 0 ]
+    //  }
+    //}
     {
       "type": "diffuse_area",
       "n_samples": 1,
-      "intensity": [8,8,8],
+      "intensity": [ 15, 15, 15 ],
       "shape": {
         "type": "quad",
         "transform": {
-          "translate": [ -0.5, 2, 0.5 ],
+          "translate": [ -0.24, 1.97, 0.16 ],
           "scale": [ 1, 1, 1 ]
         },
         "radius": 0.5,
-        "edge0": [ 0, 0, -1 ],
-        "edge1": [ 1, 0, 0 ]
+        "edge0": [ 0, 0, -0.38 ],
+        "edge1": [ 0.45, 0, 0 ]
       }
     }
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 1,
+    "max_depth": 5,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 1,
+      "spp": 16,
       "ndim": 4
     }
   },
