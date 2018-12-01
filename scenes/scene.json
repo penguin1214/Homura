@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      400,
-      400
+      200,
+      200
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -83,14 +83,14 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj",
       "material": {
-        "bsdf": [ "Mirror" ]
+        "bsdf": [ "Glass" ]
       }
     },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj",
       "material": {
-        "bsdf": [ "Ceil" ]
+        "bsdf": [ "Mirror" ]
       }
     },
     {
@@ -173,12 +173,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 4,
+    "max_depth": 8,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 1,
+      "spp": 128,
       "ndim": 4
     }
   },

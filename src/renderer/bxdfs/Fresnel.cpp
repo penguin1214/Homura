@@ -65,21 +65,18 @@ namespace Homura {
     }
 
 	Vec3f FresnelSpecular::sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type) const {
-		float f = FrDielectric(CosTheta(wo), _eta, 1.f).max();
+		float f = FrDielectric(CosTheta(wo), 1.f, _eta).max();
 		//std::cout << "F: " << f << std::endl;
-		if (sample[1] < f) {
+		if (sample[0] < f) {
 			// reflection
 			//std::cout << "reflection" << std::endl;
-			*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_SPECULAR);
+			*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_REFLECTION);
 			wi = Vec3f(-wo.x(), -wo.y(), wo.z());
 			pdf = f;
 			return _R * f / AbsCosTheta(wi);
 		}
 		else {
 			// transmit
-			*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION);
-
-			Vec3f ft = _T * (1.f - f);
 			// compute ray direction
 			bool entering = CosTheta(wo) > 0.f;
 			float etaI = entering ? 1.f : _eta;
@@ -87,14 +84,18 @@ namespace Homura {
 			Vec3f normal = Vec3f(0, 0, 1).dot(wo) > 0.f ? Vec3f(0, 0, 1) : -Vec3f(0, 0, 1);
 			//std::cout << "transmit wi: " << wo << std::endl;
 			if (!Refract(wo, normal, etaI / etaT, wi)) {
+				*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_REFLECTION);
 				wi = Vec3f(-wo.x(), -wo.y(), wo.z());
 				pdf = 1.f;
 				return Vec3f(1.f);
+				//return Vec3f(0.f);
 			}
 			//std::cout << "transmission" << std::endl;
 			//std::cout << "transmit wo: " << wi << std::endl;
 			/// TODO: from camera or light source
 			/// Since haven't do bidirectional methods, just account for the energe transmitted
+			Vec3f ft = _T * (1.f - f);
+			*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION);
 			pdf = 1.f - f;
 			ft *= (etaI*etaI) / (etaT*etaT);
 			//std::cout << "transmit BTDF" << (ft) << std::endl;

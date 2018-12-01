@@ -72,16 +72,15 @@ namespace Homura {
 
 			if (throughput.max() < 1e-3)	break;	// too small contribution
 
-			specular_bounce = (sampled_bxdf_type_flags & BSDF_SPECULAR);
 			ray = isect_info.spawnRay(wi);
 			//std::cout << "sampled direction: " << wi << std::endl;
 
-			//if (depth > _rr_bounce) {
-			//	float q = std::max(0.05f/*rr*/, 1.f - throughput.y()/*?*/);
-			//	if (_sampler->get1D() < q)
-			//		break;
-			//	throughput /= (1.f - q);
-			//}
+			if (depth > _rr_bounce) {
+				float q = std::max(0.05f/*rr*/, 1.f - throughput.y()/*?*/);
+				if (_sampler->get1D() < q)
+					break;
+				throughput /= (1.f - q);
+			}
 		}
 		//std::cout << "original L: " << L << std::endl;
 		return L;
