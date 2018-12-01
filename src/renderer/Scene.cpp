@@ -43,8 +43,8 @@ namespace Homura {
 				auto type = primitive["type"].getString();
 				if (type == "obj")
 					_shapes.push_back(std::make_shared<TriangleMesh>(primitive, _bxdfs));
-				else if (type == "sphere")
-					_shapes.push_back(std::make_shared<SpherePrimitive>(primitive, _bxdfs));
+				else if (type == "sphere" || type == "quad")
+					_shapes.push_back(std::make_shared<ShapePrimitive>(primitive, _bxdfs));
 			}
 		}
 

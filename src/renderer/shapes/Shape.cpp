@@ -19,7 +19,7 @@ namespace Homura {
 		return true;
 	}
 
-	bool Sphere::intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
+	bool Sphere::intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
 		Ray ray = r * _world2local;	/// TODO
 		float ox = ray._o.x(); float oy = ray._o.y(); float oz = ray._o.z();
 		float dx = ray._d.x(); float dy = ray._d.y(); float dz = ray._d.z();
@@ -33,6 +33,7 @@ namespace Homura {
 
 		if (t0 < 0.f || t1 > ray._tmax)
 			return false;
+		ray._tmax = t0;
 
 		if (hitt)
 			*hitt = t0;
@@ -76,7 +77,7 @@ namespace Homura {
 		return isect_info;
 	}
 
-	bool Quad::intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
+	bool Quad::intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
 		float NdotD = r._d.dot(_normal);
 		if (std::abs(NdotD) < 1e-6f)
 			return false;

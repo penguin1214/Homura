@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      200,
-      200
+      100,
+      100
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -66,33 +66,35 @@
     }
   ],
   "primitives": [
+    {
+      "type": "quad",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0.2, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "radius": 0.5,
+        "edge1": [ 0, 0, -0.38 ],
+        "edge0": [ 0.45, 0, 0 ]
+      },
+      "material": {
+        "bsdf": [ "RightWall" ]
+      }
+    },
     //{
-    //  "type": "sphere",
-    //  "shape": {
-    //    "radius": 0.5,
-    //    "transform": {
-    //      "translate": [ 0, 0.5, -0.5 ],
-    //      "scale": [ 1, 1, 1 ]
-    //    }
-    //  },
+    //  "type": "obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj",
+    //  "material": {
+    //    "bsdf": [ "Glass" ]
+    //  }
+    //},
+    //{
+    //  "type": "obj",
+    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj",
     //  "material": {
     //    "bsdf": [ "Mirror" ]
     //  }
     //},
-    {
-      "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj",
-      "material": {
-        "bsdf": [ "Glass" ]
-      }
-    },
-    {
-      "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj",
-      "material": {
-        "bsdf": [ "Mirror" ]
-      }
-    },
     {
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/ceil.obj",
@@ -173,12 +175,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 8,
+    "max_depth": 2,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 128,
+      "spp": 1,
       "ndim": 4
     }
   },

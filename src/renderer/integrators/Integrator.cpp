@@ -28,10 +28,10 @@ namespace Homura {
 //#pragma omp parallel for
 #define DBG 0
 #if DBG
-		int xx = 20;
-		int yy = 300;
-		int x_region = 40;
-		int y_region = 40;
+		int xx = 50;
+		int yy = 70;
+		int x_region = 1;
+		int y_region = 1;
 		float inv_region = 1.f / float(y_region);
 		for (int y = yy; y < yy + y_region; y++) {
 			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);

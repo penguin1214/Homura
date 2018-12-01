@@ -15,15 +15,17 @@ namespace Homura {
 
 	class Shape {
 	public:
-		Shape(const Mat4f &local2world) : _local2world(local2world), _world2local(Mat4f::inverse(_local2world)), _p(Point3f(0)*_local2world) {}
+		Shape(const Mat4f &local2world) : _local2world(local2world), _world2local(Mat4f::inverse(_local2world))/*, _p(Point3f(0.f)*_local2world)*/ {
+			_p = Point3f(0.f)*_local2world;
+		}
 
 		virtual Bound3f localBound() const = 0;
 		virtual Bound3f worldBound() const {
 			return localBound() * _local2world;	/// TODO
 		}
 
-		virtual bool intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const = 0;
-		virtual bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const { return intersectP(r, nullptr, nullptr); }
+		virtual bool intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const { return intersect(r, nullptr, nullptr); };
+		virtual bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const = 0;
 
 		virtual float area() const = 0;
 		virtual inline Vec3f normal(const IntersectInfo &ref) const = 0;
@@ -32,7 +34,7 @@ namespace Homura {
 		virtual float pdf() const { return 1.f / area(); }
 		//virtual float pdf_Li(const IntersectInfo &isect_info, const Vec3f &wi) const = 0;
 
-		Point3f _p;
+		Vec3f _p;
 		const Mat4f _local2world, _world2local;
 	};
 
@@ -47,7 +49,7 @@ namespace Homura {
 			return Bound3f(Point3f(-_radius, -_radius, -_radius), Point3f(_radius, _radius, _radius));
 		}
 
-		bool intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
+		bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
 
 		float area() const override { return 4 * PI*_radius*_radius; }
 		inline Vec3f normal(const IntersectInfo &ref) const override { return Vec3f(ref._p).normalized(); }
@@ -74,7 +76,7 @@ namespace Homura {
 			return Bound3f(_base, _base+_edge0+_edge1);
 		}
 
-		bool intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
+		bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
 		IntersectInfo sample(const Point2f &u) const override;
 
 		float area() const override { return _edge0.length() * _edge1.length(); }

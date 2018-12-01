@@ -19,12 +19,19 @@ namespace Homura {
         }
     }
 
-	SpherePrimitive::SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs)
+	ShapePrimitive::ShapePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs)
 	: Primitive(json, bsdfs) {
-		_shape = std::unique_ptr<Sphere>(new Sphere(json["shape"]));
+		auto type = json["type"].getString();
+		if (type == "sphere")
+			_shape = std::unique_ptr<Sphere>(new Sphere(json["shape"]));
+		else if (type == "quad")
+			_shape = std::unique_ptr<Quad>(new Quad(json["shape"]));
+		else
+			;
+
 	}
 
-	bool SpherePrimitive::intersect(const Ray &r, IntersectInfo &info) {
+	bool ShapePrimitive::intersect(const Ray &r, IntersectInfo &info) {
 		if (_shape->intersect(r, nullptr, &info)) {
 			info._primitive = getShared();
 			return true;
@@ -33,7 +40,13 @@ namespace Homura {
 			return false;
 	}
 
-	bool SpherePrimitive::intersectP(const Ray &r) const {
+	bool ShapePrimitive::intersectP(const Ray &r) const {
 		return _shape->intersectP(r, nullptr, nullptr);
 	}
+
+	SpherePrimitive::SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs)
+	: ShapePrimitive(json, bsdfs) {}
+
+	QuadPrimitive::QuadPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs)
+	: ShapePrimitive(json, bsdfs) {}
 }

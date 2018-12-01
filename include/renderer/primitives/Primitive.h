@@ -10,7 +10,9 @@
 
 namespace Homura {
 	class Scene;
+	class Shape;
 	class Sphere;
+	class Quad;
 
 	class Primitive : public std::enable_shared_from_this<Primitive> {
 	public:
@@ -25,16 +27,25 @@ namespace Homura {
 	    std::unique_ptr<Material> _material;
 	};
 
-	class SpherePrimitive : public Primitive {
+	class ShapePrimitive : public Primitive {
 	public:
-		SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
+		ShapePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
 
-		bool intersect(const Ray &r, IntersectInfo &info) override;
-		bool intersectP(const Ray &r) const override;
-
+		virtual bool intersect(const Ray &r, IntersectInfo &info) override;
+		virtual bool intersectP(const Ray &r) const override;
 
 	private:
-		std::unique_ptr<Sphere> _shape;
+		std::unique_ptr<Shape> _shape;
+	};
+
+	class SpherePrimitive : public ShapePrimitive {
+	public:
+		SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
+	};
+
+	class QuadPrimitive : public ShapePrimitive {
+	public:
+		QuadPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
 	};
 }
 #endif // HOMURA_PRIMITIVE_H_
