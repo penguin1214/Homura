@@ -59,7 +59,8 @@ int main() {
 	std::vector<Point3f> verts;
 	std::vector<Vec3i> indecies;
 	std::vector<Vec3f> normals;
-	ObjHandler::readObj("D:/Scenes/teddy_bear.obj", verts, indecies, normals);
+	std::vector<Vec3i> normalidx;
+	ObjHandler::readObj("D:/Scenes/teddy_bear.obj", verts, indecies, normals, normalidx);
 	TriangleMesh obj(verts, indecies);
 
 	GLuint VBO, VAO;

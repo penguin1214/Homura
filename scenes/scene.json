@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      200,
-      200
+      400,
+      400
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -66,9 +66,22 @@
     }
   ],
   "primitives": [
+    //{
+    //  "type": "sphere",
+    //  "shape": {
+    //    "radius": 0.5,
+    //    "transform": {
+    //      "translate": [ 0, 0.5, -0.5 ],
+    //      "scale": [ 1, 1, 1 ]
+    //    }
+    //  },
+    //  "material": {
+    //    "bsdf": [ "Mirror" ]
+    //  }
+    //},
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_front.obj",
+      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj",
       "material": {
         "bsdf": [ "Mirror" ]
       }
@@ -77,7 +90,7 @@
       "type": "obj",
       "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj",
       "material": {
-        "bsdf": [ "Mirror" ]
+        "bsdf": [ "Ceil" ]
       }
     },
     {
@@ -160,12 +173,12 @@
   ],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 5,
+    "max_depth": 4,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 16,
+      "spp": 1,
       "ndim": 4
     }
   },

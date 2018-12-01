@@ -5,6 +5,20 @@
 #include <sstream>
 
 namespace Homura {
+	std::vector<std::string> split(const char *phrase, std::string delimiter) {
+		std::vector<std::string> list;
+		std::string s = std::string(phrase);
+		size_t pos = 0;
+		std::string token;
+		while ((pos = s.find(delimiter)) != std::string::npos) {
+			token = s.substr(0, pos);
+			list.push_back(token);
+			s.erase(0, pos + delimiter.length());
+		}
+		list.push_back(s);
+		return list;
+	}
+
 	ObjLoader::ObjLoader(std::ifstream &file) {
 		std::string line;
 		while (!file.eof()) {
@@ -19,8 +33,35 @@ namespace Homura {
 		skipWhitespaces(line);
 		if (hasPrefix(line, "v"))
 			_verts.push_back(loadVec<float, 3>(line + 2));
-		else if (hasPrefix(line, "f"))
-			_indecies.push_back((loadVec<int, 3>(line + 2)-1));	// since .obj file index starts from 1, substitute 1 to make sure no access violation.
+		else if (hasPrefix(line, "f")) {
+			/// TODO: vertex normals
+			if (strstr(line, "//")) {
+				// face//normal
+			}
+			else if (strstr(line, "/")) {
+				// face/texture/normal
+				Vec3i face, normal;
+				std::vector<std::string> values = split(line, " ");
+				if (values.size() != 4)
+					std::cout << "OBJ_INDEX_ERROR::INDEX_NOT_3" << std::endl;
+				else {
+					for (unsigned i = 0; i < 3; i++) {
+						std::vector<std::string> idxs = split(values[i+1].c_str(), "/");
+						if (idxs.size() == 2) {}
+						else if (idxs.size() == 3) {
+							face[i] = std::stoi(idxs[0]) - 1;
+							/// TODO: texture
+							normal[i] = std::stoi(idxs[2]) - 1;
+						}
+					}
+				}
+
+				_indecies.push_back(face);
+				_normal_indecies.push_back(normal);
+			}
+			else
+				_indecies.push_back((loadVec<int, 3>(line + 2) - 1));	// since .obj file index starts from 1, substitute 1 to make sure no access violation.
+		}
 		else if (hasPrefix(line, "vn"))
 			_normals.push_back(loadVec<float, 3>(line + 3));
 		else
@@ -49,7 +90,7 @@ namespace Homura {
 		return ret;
 	}
 
-	bool ObjHandler::readObj(const char *fn, std::vector<Point3f> &vertices, std::vector<Vec3i> &indecies, std::vector<Vec3f> &normals) {
+	bool ObjHandler::readObj(const char *fn, std::vector<Point3f> &vertices, std::vector<Vec3i> &indecies, std::vector<Vec3f> &normals, std::vector<Vec3i> &normal_indecies) {
 		std::ifstream file(fn, std::ios::binary);
 		if (!file.good()) {
 			std::cerr << "Open file " << fn << " failed!" << std::endl;
@@ -61,6 +102,7 @@ namespace Homura {
 		vertices = std::move(loader._verts);
 		normals = std::move(loader._normals);
 		indecies = std::move(loader._indecies);
+		normal_indecies = std::move(loader._normal_indecies);
 
 		return true;
 	}

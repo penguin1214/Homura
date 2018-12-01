@@ -12,8 +12,9 @@ namespace Homura {
 		ObjLoader(std::ifstream &file);
 
 		std::vector<Point3f> _verts;
-		std::vector<Vec3f> _normals;
 		std::vector<Vec3i> _indecies;
+		std::vector<Vec3f> _normals;
+		std::vector<Vec3i> _normal_indecies;
 
 	private:
 		void parseLine(const char *line);
@@ -28,7 +29,7 @@ namespace Homura {
 	public:
 		ObjHandler() = default;
 
-		static bool readObj(const char *fn, std::vector<Point3f> &vertices, std::vector<Vec3i> &indecies, std::vector<Vec3f> &normals);
+		static bool readObj(const char *fn, std::vector<Point3f> &vertices, std::vector<Vec3i> &indecies, std::vector<Vec3f> &normals, std::vector<Vec3i> &normal_indecies);
 		static bool writeObj(char *fn, std::vector<Point3f> vertices, std::vector<Vec3f> normals, std::vector<int> faceIndices);
 	};
 }

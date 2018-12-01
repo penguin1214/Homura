@@ -9,8 +9,9 @@ namespace Homura {
 	//	_vertIdx = vertidx;
  //       // TODO
 	//}
-	Triangle::Triangle(Vec3i vertIdx) {
+	Triangle::Triangle(Vec3i vertIdx, Vec3i normidx) {
 		_vertIdx = vertIdx;
+		_normalIdx = normidx;
 	}
 
 	void Triangle::getUV(Point2f uv[3]) const {
@@ -20,7 +21,7 @@ namespace Homura {
 		uv[2] = Point2f(2, 0);
 	}
 
-	bool Triangle::intersect(const Ray &r, Point3f p0, Point3f p1, Point3f p2, IntersectInfo &isect_info) const {
+	bool Triangle::intersect(const Ray &r, Point3f p0, Point3f p1, Point3f p2, const Vec3f &n0, const Vec3f &n1, const Vec3f n2, IntersectInfo &isect_info, bool smooth) const {
 		// translate
 		Point3f p0_ = p0 - r._o;
 		Point3f p1_ = p1 - r._o;
@@ -128,8 +129,13 @@ namespace Homura {
 
 		isect_info._dpdu = dpdu;
 		isect_info._dpdv = dpdv;
-		isect_info._shading._n = isect_info._dpdu.cross(isect_info._dpdv).normalized();	isect_info._normal = isect_info._shading._n;	/// TODO: geometry normal and shading normal
-		//isect_info._shading._n = ((p1 - p0).cross(p2 - p1)).normalized();	isect_info._normal = isect_info._shading._n;	/// TODO: geometry normal and shading normal
+		isect_info._normal = isect_info._dpdu.cross(isect_info._dpdv).normalized();
+
+		// smooth shading
+		if (smooth)
+			isect_info._shading._n = (b0 * n0 + b1 * n1 + b2 * n2).normalized();		/// TODO: geometry normal and shading normal
+		else
+			isect_info._shading._n = isect_info._normal;
 		isect_info._shading._tangent = isect_info._dpdu.normalized();
 		isect_info._shading._bitangent = isect_info._dpdv.normalized();
 
@@ -221,16 +227,26 @@ namespace Homura {
 	TriangleMesh::TriangleMesh(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs) :
 		Primitive(json, bsdfs) {
 		std::string obj_path = json["path"].getString();
-		ObjHandler::readObj(obj_path.c_str(), _vertices, _indecies, _normals);
+		ObjHandler::readObj(obj_path.c_str(), _vertices, _indecies, _normals, _normal_indecies);
 	}
 
 	bool TriangleMesh::intersect(const Ray &r, IntersectInfo &info) {
 		bool flag = false;
 		for (int i = 0; i < _indecies.size(); i++) {
-			Triangle t(_indecies[i]);
-			if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], info)) {
-				info._primitive = getShared();
-				flag = true;
+			if (_normal_indecies.size() > 0) {
+				Triangle t(_indecies[i], _normal_indecies[i]);
+				if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], _normals[t._normalIdx[0]], _normals[t._normalIdx[1]], _normals[t._normalIdx[2]], info, true)) {
+					info._primitive = getShared();
+					flag = true;
+				}
+			}
+			else {
+				Triangle t(_indecies[i], -1);
+				const Vec3f tmp(-1);
+				if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], tmp, tmp, tmp, info, false)) {
+					info._primitive = getShared();
+					flag = true;
+				}
 			}
 		}
 
@@ -240,7 +256,7 @@ namespace Homura {
 	bool TriangleMesh::intersectP(const Ray &r) const {
 		bool flag = false;
 		for (int i = 0; i < _indecies.size(); i++) {
-			Triangle t(_indecies[i]);
+			Triangle t(_indecies[i], (_normal_indecies.size() > 0) ? _normal_indecies[i] : -1);
 			if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
 				flag = true;
 		}
