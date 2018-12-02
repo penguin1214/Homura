@@ -26,16 +26,18 @@ namespace Homura {
 			for (unsigned i = 0; i < bxdfs.size(); i++) {
 				JsonObject bxdf = bxdfs[i];
 				std::string type = bxdf["type"].getString();
+				std::string name = bxdf["name"].getString();
 				if (type == "matte")
-					_bxdfs[bxdf["name"].getString()] = std::make_shared<LambertReflection>(bxdf["R"].getVec3());
+					_bxdfs[name] = std::make_shared<LambertReflection>(bxdf["R"].getVec3(), name);
 				else if (type == "specref")
-					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecularReflection>(bxdf["R"].getVec3(), bxdf["eta"].getFloat());
+					_bxdfs[name] = std::make_shared<FresnelSpecularReflection>(bxdf["R"].getVec3(), bxdf["eta"].getFloat(), name);
 				else if (type == "spectrans")
-					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecularTransmission>(bxdf["T"].getVec3(), bxdf["eta"].getFloat());
+					_bxdfs[name] = std::make_shared<FresnelSpecularTransmission>(bxdf["T"].getVec3(), bxdf["eta"].getFloat(), name);
 				else if (type == "specular")
-					_bxdfs[bxdf["name"].getString()] = std::make_shared<FresnelSpecular>(bxdf["R"].getVec3(), bxdf["T"].getVec3(), bxdf["eta"].getFloat());
+					_bxdfs[name] = std::make_shared<FresnelSpecular>(bxdf["R"].getVec3(), bxdf["T"].getVec3(), bxdf["eta"].getFloat(), name);
 			}
 		}
+	}
 
 		if (auto primitives = scene_document["primitives"]) {
             for (unsigned i = 0; i < primitives.size(); i++) {
