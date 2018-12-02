@@ -28,6 +28,8 @@ namespace Homura {
 			if (emitter->isType(EmitterFlags::Area))
 				return emitter->L(*this, wi);
 		}
+		else
+			return Vec3f(0.f);
 	}
 
 	Ray IntersectInfo::spawnRay(const Vec3f &wi) const {

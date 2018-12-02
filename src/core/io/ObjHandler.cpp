@@ -29,7 +29,6 @@ namespace Homura {
 
 	void ObjLoader::parseLine(const char *line) {
 		/// TODO: .mtl prefix parse
-
 		skipWhitespaces(line);
 		if (hasPrefix(line, "v"))
 			_verts.push_back(loadVec<float, 3>(line + 2));
@@ -37,6 +36,24 @@ namespace Homura {
 			/// TODO: vertex normals
 			if (strstr(line, "//")) {
 				// face//normal
+				Vec3i face, normal;
+				std::vector<std::string> values = split(line, " ");
+				if (values.size() != 4)
+					std::cout << "OBJ_INDEX_ERROR::INDEX_NOT_3" << std::endl;
+				else {
+					for (unsigned i = 0; i < 3; i++) {
+						std::vector<std::string> idxs = split(values[i + 1].c_str(), "/");
+						if (idxs.size() == 2) {}
+						else if (idxs.size() == 3) {
+							face[i] = std::stoi(idxs[0]) - 1;
+							/// TODO: texture
+							normal[i] = std::stoi(idxs[2]) - 1;
+						}
+					}
+				}
+
+				_indecies.push_back(face);
+				_normal_indecies.push_back(normal);
 			}
 			else if (strstr(line, "/")) {
 				// face/texture/normal

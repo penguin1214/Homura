@@ -1,7 +1,7 @@
 #include "renderer/bxdfs/BxDF.h"
 
 namespace Homura {
-	BxDF::BxDF(BxDFType type) : _type(type) {}
+	BxDF::BxDF(BxDFType type, std::string name) : _type(type), _name(name) {}
 
 	//BSDF::BSDF(IntersectInfo &isect_info, const float eta) :
 	//	_eta(eta), _ng(isect_info._normal), _ns(isect_info._shading._n), _ts(isect_info._shading._tangent), _bs(isect_info._shading._bitangent) {}

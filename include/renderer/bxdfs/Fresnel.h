@@ -44,8 +44,8 @@ namespace Homura {
 
     class FresnelSpecularReflection : public BxDF {
     public:
-        FresnelSpecularReflection(const Vec3f &R, const float &eta)
-        : BxDF(BxDFType(BSDF_REFLECTION|BSDF_SPECULAR)), _R(R), _eta(eta) {
+        FresnelSpecularReflection(const Vec3f &R, const float &eta, std::string name)
+        : BxDF(BxDFType(BSDF_REFLECTION|BSDF_SPECULAR), name), _R(R), _eta(eta) {
 			if (_R.max() > (1.f - 1e-6))
 				_fresnel = std::unique_ptr<FresnelNoop>(new FresnelNoop());
 			else {
@@ -66,9 +66,9 @@ namespace Homura {
 
     class FresnelSpecularTransmission: public BxDF {
     public:
-        FresnelSpecularTransmission(const Vec3f &T, const float &eta)
+        FresnelSpecularTransmission(const Vec3f &T, const float &eta, std::string name)
         //: BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _eta(eta) {}
-        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR)), _T(T), _etaT(eta), _etaI(1.f),
+        : BxDF(BxDFType(BSDF_TRANSMISSION|BSDF_SPECULAR), name), _T(T), _etaT(eta), _etaI(1.f),
 		_fresnel(new FresnelDielectric(_etaI, _etaT)) {}
 
 		//void prepareForRender(const IntersectInfo &isect_info) override {
@@ -87,8 +87,8 @@ namespace Homura {
 
     class FresnelSpecular : public BxDF {
 	public:
-		FresnelSpecular(const Vec3f &R, const Vec3f &T, const float &eta)
-		: BxDF(BxDFType(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR)),
+		FresnelSpecular(const Vec3f &R, const Vec3f &T, const float &eta, std::string name)
+		: BxDF(BxDFType(BSDF_REFLECTION|BSDF_TRANSMISSION|BSDF_SPECULAR), name),
 		_R(R), _T(T), _eta(eta), _fresnel(new FresnelDielectric(1.f, _eta)) {}
 
 		//void prepareForRender(const IntersectInfo &isect_info) override;

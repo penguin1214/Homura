@@ -59,7 +59,7 @@ namespace Homura {
 
     class BxDF {
     public:
-		BxDF(BxDFType type);
+		BxDF(BxDFType type, std::string name);
 		bool matchType(BxDFType t) const { return (_type & t) == _type; }
 
 		virtual void prepareForRender(const IntersectInfo &isect_info) {}
@@ -73,13 +73,13 @@ namespace Homura {
 //        virtual rhh()
 
         BxDFType  _type;
-		//std::string _name;
+		std::string _name;
     };
 
     class ScaledBxDF: public BxDF {
     public:
-        ScaledBxDF(std::shared_ptr<BxDF> bxdf, const Vec3f scale)
-        : BxDF(bxdf->_type), _BxDF(bxdf), _scale(scale) {}
+        ScaledBxDF(std::shared_ptr<BxDF> bxdf, const Vec3f scale, std::string name)
+        : BxDF(bxdf->_type, name), _BxDF(bxdf), _scale(scale) {}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return _scale * _BxDF->f(wo, wi); };
         Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const override;

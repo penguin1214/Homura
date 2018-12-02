@@ -8,8 +8,8 @@
 namespace Homura {
     class LambertReflection : public BxDF {
     public:
-        LambertReflection(const Vec3f &R)
-        : BxDF(BxDFType(BSDF_REFLECTION || BSDF_DIFFUSE)), _R(R) {}
+        LambertReflection(const Vec3f &R, std::string name)
+        : BxDF(BxDFType(BSDF_REFLECTION || BSDF_DIFFUSE), name), _R(R) {}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override {
 			/// TODO: should Lambertian reflectance also be cosine weighted?
