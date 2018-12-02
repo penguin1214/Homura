@@ -37,7 +37,6 @@ namespace Homura {
 					_bxdfs[name] = std::make_shared<FresnelSpecular>(bxdf["R"].getVec3(), bxdf["T"].getVec3(), bxdf["eta"].getFloat(), name);
 			}
 		}
-	}
 
 		if (auto primitives = scene_document["primitives"]) {
             for (unsigned i = 0; i < primitives.size(); i++) {
