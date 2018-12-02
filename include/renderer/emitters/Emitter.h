@@ -7,11 +7,11 @@
 #include "renderer/IntersectInfo.h"
 #include "core/io/JsonObject.h"
 #include "renderer/textures/MIPMap.h"
-#include "renderer/Scene.h"
 #include "core/sampler/Sampler.h"
 #include "renderer/shapes/Shape.h"
 
 namespace Homura {
+	class Scene;
 
 	class VisibilityTester {
 	public:
@@ -45,8 +45,10 @@ namespace Homura {
 		virtual float Pdf() const = 0;
 		virtual Vec3f Le(const Ray &r) const { return Vec3f(0.f); }	// background radiance
 		virtual Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const;
+		virtual Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const = 0;
 		virtual Vec3f power() const = 0;
 		virtual void preprocess() {}
+		virtual bool isType(EmitterFlags flag) const;
 
 		virtual Point3f pos() const = 0;
 
@@ -67,6 +69,7 @@ namespace Homura {
 
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
 		float Pdf() const override { return 1.f; }
+		Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const override { return _I; }
 		Vec3f power() const override;
 
 		Point3f pos() const override { return _p; }
@@ -83,6 +86,7 @@ namespace Homura {
 		void preprocess() override;	/// TODO: bounds of scene?
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const override;
 		float Pdf() const override { return 1.f; }
+		Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const override { return _L; }
 		Vec3f power() const override;
 
 		Point3f pos() const override { return Point3f(0); }
@@ -98,8 +102,9 @@ namespace Homura {
 	class AreaEmitter : public Emitter {
 	public:
 		AreaEmitter::AreaEmitter(const JsonObject &json);
+		AreaEmitter::AreaEmitter(const JsonObject &json, std::shared_ptr<Shape> pshape);
 
-		virtual Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const = 0;
+		virtual Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const override = 0;
 
 		Point3f pos() const override { return _shape->_p; }
 
@@ -111,6 +116,7 @@ namespace Homura {
 	class DiffuseAreaEmitter : public AreaEmitter {
 	public:
 		DiffuseAreaEmitter(const JsonObject &json);
+		DiffuseAreaEmitter(const JsonObject &json, std::shared_ptr<Shape> pshape);
 
 		Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const override;
 		float Pdf() const override { return _shape->pdf(); }

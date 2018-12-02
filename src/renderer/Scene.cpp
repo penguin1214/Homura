@@ -1,6 +1,6 @@
 #include <renderer/sensors/Perspective.h>
 #include "renderer/Scene.h"
-#include "renderer/primitives/TriangleMesh.h"
+#include "renderer/shapes/TriangleMesh.h"
 #include "renderer/emitters/Emitter.h"
 #include "renderer/bxdfs/Lambert.h"
 #include "renderer/bxdfs/Fresnel.h"
@@ -42,37 +42,39 @@ namespace Homura {
 				JsonObject primitive = primitives[i];
 				auto type = primitive["type"].getString();
 				if (type == "obj")
-					_shapes.push_back(std::make_shared<TriangleMesh>(primitive, _bxdfs));
+					_primitives.push_back(std::make_shared<TriangleMeshPrimitive>(primitive, _bxdfs));
 				else if (type == "sphere" || type == "quad")
-					_shapes.push_back(std::make_shared<ShapePrimitive>(primitive, _bxdfs));
+					_primitives.push_back(std::make_shared<Primitive>(primitive, _bxdfs));
 			}
 		}
 
-		if (auto emitters = scene_document["emitters"]) {
-			for (unsigned i = 0; i < emitters.size(); i++) {
-				JsonObject emitter = emitters[i];
-				auto type = emitter["type"].getString();
-				if (type == "point")
-					_emitters.push_back(std::unique_ptr<PointEmitter>(new PointEmitter(emitter)));
-				else if (type == "directional")
-					_emitters.push_back(std::unique_ptr<DirectionalEmitter>(new DirectionalEmitter(emitter)));
-				else if (type == "diffuse_area")
-					_emitters.push_back(std::unique_ptr<DiffuseAreaEmitter>(new DiffuseAreaEmitter(emitter)));
-				//else if (emitter["type"].getString() == "environment")
-					//_emitters.push_back(std::unique_ptr<EnvironmentEmitter>(new EnvironmentEmitter(emitter)));
-				else
-					;
-			}
+		//if (auto emitters = scene_document["emitters"]) {
+		//	for (unsigned i = 0; i < emitters.size(); i++) {
+		//		JsonObject emitter = emitters[i];
+		//		auto type = emitter["type"].getString();
+		//		if (type == "point")
+		//			_emitters.push_back(std::unique_ptr<PointEmitter>(new PointEmitter(emitter)));
+		//		else if (type == "directional")
+		//			_emitters.push_back(std::unique_ptr<DirectionalEmitter>(new DirectionalEmitter(emitter)));
+		//		else if (type == "diffuse_area")
+		//			_emitters.push_back(std::unique_ptr<DiffuseAreaEmitter>(new DiffuseAreaEmitter(emitter)));
+		//		else
+		//			;
+		//	}
+		//}
+		for (const auto &prim : _primitives) {
+			if (prim->isEmitter())
+				_emitters.push_back(prim);
 		}
 
 		// Preprocess
 		for (auto light : _emitters)
-			light->preprocess();
+			light->getEmitter()->preprocess();
 	}
 
     bool Scene::intersect(Ray &r, IntersectInfo &isect_info) const {
 		bool flag = false;
-        for (auto &shape_ptr : _shapes) {
+        for (auto &shape_ptr : _primitives) {
 			if (shape_ptr->intersect(r, isect_info))
 				flag = true;
         }
@@ -82,8 +84,9 @@ namespace Homura {
 
 	bool Scene::intersectP(const Ray &r) const {
 		bool flag = false;
-		for (auto &shape_ptr : _shapes) {
-			if (shape_ptr->intersectP(r))
+		for (auto &shape_ptr : _primitives) {
+			std::shared_ptr<Primitive> hitprim = shape_ptr->intersectP(r);
+			if (hitprim != nullptr && hitprim != shape_ptr)
 				flag = true;
 		}
 		return flag;

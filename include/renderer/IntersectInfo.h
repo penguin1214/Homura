@@ -30,6 +30,7 @@ namespace Homura {
 		IntersectInfo(const Point3f p);
 
 		void computeScatteringFunction();
+		Vec3f Le(const Vec3f &wi) const;
 		Ray spawnRay(const Vec3f &wi) const;
 		Ray spawnRayTo(const IntersectInfo &other) const;
 	};

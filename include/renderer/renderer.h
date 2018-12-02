@@ -4,10 +4,10 @@
 #include <iostream>
 #include <chrono>
 #include "Scene.h"
-#include "primitives/TriangleMesh.h"
 #include "sensors/Orthographic.h"
 #include "../core/io/PpmHandler.h"
 #include "core/io/JsonDocument.h"
+#include "renderer/shapes/TriangleMesh.h"
 #include "renderer/integrators/Whitted.h"
 #include "renderer/integrators/DirectIntegrator.h"
 #include "renderer/integrators/PathTraceIntegrator.h"

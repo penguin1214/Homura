@@ -28,8 +28,8 @@ namespace Homura {
 //#pragma omp parallel for
 #define DBG 0
 #if DBG
-		int xx = 50;
-		int yy = 70;
+		int xx = 60;
+		int yy = 80;
 		int x_region = 1;
 		int y_region = 1;
 		float inv_region = 1.f / float(y_region);
@@ -75,7 +75,7 @@ namespace Homura {
 	Vec3f SamplerIntegrator::evaluateDirect(const IntersectInfo &isect_info) const {
 		Vec3f L(0.0f);
 		for (auto light : _scene->_emitters) {
-			L += light->evalDirect(_scene, isect_info, _sampler->get2D());
+			L += light->getEmitter()->evalDirect(_scene, isect_info, _sampler->get2D());
 		}
 		//std::cout << L << std::endl;
 		return L;

@@ -9,7 +9,7 @@
 #include "core/math/Mat4f.h"
 #include "renderer/sensors/Orthographic.h"
 #include "renderer/Scene.h"
-#include "renderer/primitives/TriangleMesh.h"
+#include "renderer/shapes/TriangleMesh.h"
 
 using namespace Homura;
 

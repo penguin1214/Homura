@@ -23,7 +23,9 @@ namespace Homura {
 			/// 2. compute direct light radiance
 			///		- compute light from intersect point to light wi, sample Li (shadow ray test)
 			///		- sample BSDF using wi
-			for (const auto &light : _scene->_emitters) {
+			//for (const auto &light : _scene->_emitters) {
+			for (size_t i = 0; i < _scene->_emitters.size(); i++) {
+				std::shared_ptr<Emitter> light = _scene->_emitters[i]->getEmitter();
 				Vec3f wi;
 				float pdf;
 				/// TODO: visibility tester?

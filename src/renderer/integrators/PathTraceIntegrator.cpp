@@ -35,7 +35,7 @@ namespace Homura {
 			// compute emitted light if first bounce / previous is specular.
 			if (depth == 1 || specular_bounce) {
 				if (intersected) {	// previous bounce is specular
-					//L += throughput * isect.Le();	/// TODO: if previous bouncing point is on specular objects, then light from light source is certainly not going into this path, then why should we still add the direct light here?
+					L += throughput * isect_info.Le(-ray._d);	/// TODO: if previous bouncing point is on specular objects, then light from light source is certainly not going into this path, then why should we still add the direct light here?
 				}
 				else {
 					//for (auto _inf_light : _scene->_inf_emitters)

@@ -1,4 +1,5 @@
-#include "renderer/shapes/TriangleMesh.h"
+#include "renderer/primitives/TriangleMesh.h"
+#include "renderer/primitives/Primitive.h"
 #include "core/math/CoordinateSystem.h"
 #include <iostream>
 
@@ -220,54 +221,46 @@ namespace Homura {
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//TriangleMesh::TriangleMesh(std::vector<Point3f> verts, std::vector<Vec3i> idxs) : Shape(), _vertices(verts), _indecies(idxs) {}
 
-	TriangleMesh::TriangleMesh(const JsonObject &json) :
-		Shape(json["transform"].getTransform()) {
+	TriangleMesh::TriangleMesh(std::vector<Point3f> verts, std::vector<Vec3i> idxs) : Primitive(), _vertices(verts), _indecies(idxs) {}
+
+	TriangleMesh::TriangleMesh(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs) :
+		Primitive(json, bsdfs) {
 		std::string obj_path = json["path"].getString();
 		ObjHandler::readObj(obj_path.c_str(), _vertices, _indecies, _normals, _normal_indecies);
 	}
 
-	bool TriangleMesh::intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
+	bool TriangleMesh::intersect(const Ray &r, IntersectInfo &info) {
 		bool flag = false;
 		for (int i = 0; i < _indecies.size(); i++) {
-			if (isect_info) {
-				if (_normal_indecies.size() > 0) {
-					Triangle t(_indecies[i], _normal_indecies[i]);
-					if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], _normals[t._normalIdx[0]], _normals[t._normalIdx[1]], _normals[t._normalIdx[2]], *isect_info, true)) {
-						flag = true;
-					}
-				}
-				else {
-					Triangle t(_indecies[i], -1);
-					const Vec3f tmp(-1);
-					if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], tmp, tmp, tmp, *isect_info, false)) {
-						flag = true;
-					}
+			if (_normal_indecies.size() > 0) {
+				Triangle t(_indecies[i], _normal_indecies[i]);
+				if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], _normals[t._normalIdx[0]], _normals[t._normalIdx[1]], _normals[t._normalIdx[2]], info, true)) {
+					info._primitive = getShared();
+					flag = true;
 				}
 			}
 			else {
-				bool flag = false;
-				for (int i = 0; i < _indecies.size(); i++) {
-				Triangle t(_indecies[i], (_normal_indecies.size() > 0) ? _normal_indecies[i] : -1);
-				if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
+				Triangle t(_indecies[i], -1);
+				const Vec3f tmp(-1);
+				if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], tmp, tmp, tmp, info, false)) {
+					info._primitive = getShared();
 					flag = true;
 				}
 			}
 		}
 
-		if (hitt) *hitt = isect_info->_t;
 		return flag;
 	}
 
-	//bool TriangleMesh::intersectP(const Ray &r) const {
-	//	bool flag = false;
-	//	for (int i = 0; i < _indecies.size(); i++) {
-	//		Triangle t(_indecies[i], (_normal_indecies.size() > 0) ? _normal_indecies[i] : -1);
-	//		if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
-	//			flag = true;
-	//	}
-	//	return flag;
-	//}
+	bool TriangleMesh::intersectP(const Ray &r) const {
+		bool flag = false;
+		for (int i = 0; i < _indecies.size(); i++) {
+			Triangle t(_indecies[i], (_normal_indecies.size() > 0) ? _normal_indecies[i] : -1);
+			if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
+				flag = true;
+		}
+		return flag;
+	}
 
 }

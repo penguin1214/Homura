@@ -1,14 +1,13 @@
 #ifndef HOMURA_TRIANGLE_MESH_H_
 #define HOMURA_TRIANGLE_MESH_H_
 
-#include "Primitive.h"
+#include "renderer/shapes/Shape.h"
 #include "core/math/Geometry.h"
 #include "core/io/ObjHandler.h"
 #include "core/io/JsonObject.h"
 #include <vector>
 
 namespace Homura {
-	class TriangleMesh;
 	struct Triangle {
 		//std::shared_ptr<TriangleMesh> _mesh;
 		Vec3i _vertIdx;
@@ -25,18 +24,26 @@ namespace Homura {
 		void getUV(Point2f uv[3]) const;
 	};
 
-	class TriangleMesh :public Primitive {
+	class TriangleMesh :public Shape {
     public:
         std::vector<Point3f> _vertices;
         std::vector<Vec3i> _indecies;
 		std::vector<Vec3f> _normals;
 		std::vector<Vec3i> _normal_indecies;
 
-        TriangleMesh(std::vector<Point3f> verts, std::vector<Vec3i> idxs);
-		TriangleMesh(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
+		//TriangleMesh(std::vector<Point3f> verts, std::vector<Vec3i> idxs);
+		TriangleMesh(const JsonObject &json);
 
-		bool intersect(const Ray &r, IntersectInfo &info) override;
-		bool intersectP(const Ray &r) const override;
+		Bound3f localBound() const override {
+			return Bound3f(Point3f(0.f), Point3f(1.f));	/// TODO
+		}
+
+		bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
+
+		float area() const override { return 1.f; }	/// TODO
+		inline Vec3f normal(const IntersectInfo &ref) const override { return Vec3f(0,1,0); }	/// TODO
+
+		IntersectInfo sample(const Point2f &u) const override { return IntersectInfo(); }	/// TODO
 	};
 }
 #endif	//!HOMURA_TRANGLE_MESH_H_

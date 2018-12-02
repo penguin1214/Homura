@@ -22,6 +22,14 @@ namespace Homura {
 		_primitive->computeScatteringFunction(*this);
 	}
 
+	Vec3f IntersectInfo::Le(const Vec3f &wi) const {
+		if (_primitive->isEmitter()) {
+			auto emitter = _primitive->getEmitter();
+			if (emitter->isType(EmitterFlags::Area))
+				return emitter->L(*this, wi);
+		}
+	}
+
 	Ray IntersectInfo::spawnRay(const Vec3f &wi) const {
 		return Ray(_p + ((_normal.dot(wi)>0.f) ? (_normal*1e-5):(-_normal*1e-5) ), wi);
 	}

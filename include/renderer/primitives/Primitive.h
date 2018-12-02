@@ -4,6 +4,7 @@
 #include "renderer/Ray.h"
 #include "renderer/IntersectInfo.h"
 #include "renderer/materials/Material.h"
+#include "renderer/emitters/Emitter.h"
 #include "core/io/JsonObject.h"
 #include <memory>
 #include <unordered_map>
@@ -19,31 +20,30 @@ namespace Homura {
 		Primitive() = default;
 		Primitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bxdfs);
 		virtual std::shared_ptr<Primitive> getShared();
-		virtual bool intersect(const Ray &r, IntersectInfo &info) = 0;
-		virtual bool intersectP(const Ray &r) const = 0;
+		virtual bool intersect(const Ray &r, IntersectInfo &info);
+		virtual std::shared_ptr<Primitive> intersectP(const Ray &r);
 		virtual void computeScatteringFunction(IntersectInfo &isect) const;
+
+		virtual bool isEmitter() const { return (_emitter != nullptr); }
+		virtual std::shared_ptr<Emitter> getEmitter() const { return _emitter; }
 
 	protected:
 	    std::unique_ptr<Material> _material;
+		std::shared_ptr<Emitter> _emitter;
+		std::shared_ptr<Shape> _shape;
 	};
 
-	class ShapePrimitive : public Primitive {
+	class TriangleMeshPrimitive : public Primitive {
 	public:
-		ShapePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
-
-		virtual bool intersect(const Ray &r, IntersectInfo &info) override;
-		virtual bool intersectP(const Ray &r) const override;
-
-	private:
-		std::unique_ptr<Shape> _shape;
+		TriangleMeshPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
 	};
 
-	class SpherePrimitive : public ShapePrimitive {
+	class SpherePrimitive : public Primitive {
 	public:
 		SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
 	};
 
-	class QuadPrimitive : public ShapePrimitive {
+	class QuadPrimitive : public Primitive {
 	public:
 		QuadPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
 	};

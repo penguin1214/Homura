@@ -1,6 +1,7 @@
 #include "renderer/emitters/Emitter.h"
 #include "core/Common.h"
 #include "renderer/bxdfs/BxDF.h"
+#include "renderer/Scene.h"
 #include <fstream>
 
 namespace Homura {
@@ -12,6 +13,10 @@ namespace Homura {
 		Vec3f Li_sampled = sample_Li(isect_info, wi, light_pdf, vt, u);
 		Vec3f f = isect_info._bsdf->f(isect_info._wo, wi)*std::abs(isect_info._shading._n.dot(wi));
 		return (vt.unoccluded(*scene)) ? (f*Li_sampled) / light_pdf : Vec3f(0.f);
+	}
+
+	bool Emitter::isType(EmitterFlags flag) const {
+		return (_flags & flag) != 0;
 	}
 
 	PointEmitter::PointEmitter(const Homura::JsonObject &json) :
@@ -101,8 +106,18 @@ namespace Homura {
 		_area = _shape->area();
 	}
 
+	AreaEmitter::AreaEmitter(const JsonObject &json, std::shared_ptr<Shape> pshape)
+	: Emitter(EmitterFlags::Area, json["n_samples"].getInt()),
+	_I(json["intensity"].getVec3()) {
+		_shape = pshape;
+		_area = _shape->area();
+	}
+
 	DiffuseAreaEmitter::DiffuseAreaEmitter(const JsonObject &json) :
 		AreaEmitter(json) {}
+
+	DiffuseAreaEmitter::DiffuseAreaEmitter(const JsonObject &json, std::shared_ptr<Shape> pshape)
+	: AreaEmitter(json, pshape) {}
 
 	Vec3f DiffuseAreaEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
 		IntersectInfo isect_emitter = _shape->sample(u);

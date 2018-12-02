@@ -70,117 +70,164 @@
       "type": "quad",
       "shape": {
         "transform": {
-          "translate": [ 0, 0.2, 0 ],
+          "translate": [ -0.5, 1.97, 0.5 ],
           "scale": [ 1, 1, 1 ]
         },
         "radius": 0.5,
-        "edge1": [ 0, 0, -0.38 ],
-        "edge0": [ 0.45, 0, 0 ]
+        "edge0": [ 0, 0, -1 ],
+        "edge1": [ 1, 0, 0 ]
       },
       "material": {
         "bsdf": [ "RightWall" ]
+      },
+      "emitter": {
+        "type": "diffuse_area",
+        "n_samples": 1,
+        "intensity": [ 10, 10, 10 ]
       }
     },
-    //{
-    //  "type": "obj",
-    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj",
-    //  "material": {
-    //    "bsdf": [ "Glass" ]
-    //  }
-    //},
-    //{
-    //  "type": "obj",
-    //  "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj",
-    //  "material": {
-    //    "bsdf": [ "Mirror" ]
-    //  }
-    //},
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/ceil.obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj"
+      },
+      "material": {
+        "bsdf": [ "Glass" ]
+      }
+    },
+    {
+      "type": "obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj"
+      },
+      "material": {
+        "bsdf": [ "Mirror" ]
+      }
+    },
+    {
+      "type": "obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/ceil.obj"
+      },
       "material": {
         "bsdf": [ "Ceil" ]
       }
     },
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/back.obj"
+      },
       "material": {
         "bsdf": [ "Back" ]
       }
     },
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/floor.obj"
+      },
       "material": {
         "bsdf": [ "Floor" ]
       }
     },
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/left.obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/left.obj"
+      },
       "material": {
         "bsdf": [ "LeftWall" ]
       }
     },
     {
       "type": "obj",
-      "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/right.obj"
+      },
       "material": {
         "bsdf": [ "RightWall" ]
       }
     }
   ],
-  "emitters": [
-    //{
-    //  "type": "point",
-    //  "direction": [ -1, -1, -0.5 ],
-    //  "n_samples": 1,
-    //  "transform": {
-    //    "translate": [ 0, 2, 0 ],
-    //    "scale": [ 1, 1, 1 ]
-    //  },
-    //  "intensity": [ 1, 1, 1 ]
-    //},
-    //{
-    //  "type": "diffuse_area",
-    //  "n_samples": 1,
-    //  "intensity": [8,8,8],
-    //  "shape": {
-    //    "type": "quad",
-    //    "transform": {
-    //      "translate": [ -0.5, 2, 0.5 ],
-    //      "scale": [ 1, 1, 1 ]
-    //    },
-    //    "radius": 0.5,
-    //    "edge0": [ 0, 0, -1 ],
-    //    "edge1": [ 1, 0, 0 ]
-    //  }
-    //}
-    {
-      "type": "diffuse_area",
-      "n_samples": 1,
-      "intensity": [ 15, 15, 15 ],
-      "shape": {
-        "type": "quad",
-        "transform": {
-          "translate": [ -0.24, 1.97, 0.16 ],
-          "scale": [ 1, 1, 1 ]
-        },
-        "radius": 0.5,
-        "edge0": [ 0, 0, -0.38 ],
-        "edge1": [ 0.45, 0, 0 ]
-      }
-    }
-  ],
+  //"emitters": [
+  //  //{
+  //  //  "type": "point",
+  //  //  "direction": [ -1, -1, -0.5 ],
+  //  //  "n_samples": 1,
+  //  //  "transform": {
+  //  //    "translate": [ 0, 2, 0 ],
+  //  //    "scale": [ 1, 1, 1 ]
+  //  //  },
+  //  //  "intensity": [ 1, 1, 1 ]
+  //  //},
+  //  //{
+  //  //  "type": "diffuse_area",
+  //  //  "n_samples": 1,
+  //  //  "intensity": [8,8,8],
+  //  //  "shape": {
+  //  //    "type": "quad",
+  //  //    "transform": {
+  //  //      "translate": [ -0.5, 2, 0.5 ],
+  //  //      "scale": [ 1, 1, 1 ]
+  //  //    },
+  //  //    "radius": 0.5,
+  //  //    "edge0": [ 0, 0, -1 ],
+  //  //    "edge1": [ 1, 0, 0 ]
+  //  //  }
+  //  //}
+  //  {
+  //    "type": "diffuse_area",
+  //    "n_samples": 1,
+  //    "intensity": [ 15, 15, 15 ],
+  //    "shape": {
+  //      "type": "quad",
+  //      "transform": {
+  //        "translate": [ -0.24, 1.97, 0.16 ],
+  //        "scale": [ 1, 1, 1 ]
+  //      },
+  //      "radius": 0.5,
+  //      "edge0": [ 0, 0, -0.38 ],
+  //      "edge1": [ 0.45, 0, 0 ]
+  //    }
+  //  }
+  //],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 2,
-    "rr_bounce": 5,
+    "max_depth": 5,
+    "rr_bounce": 6,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 1,
+      "spp": 8,
       "ndim": 4
     }
   },

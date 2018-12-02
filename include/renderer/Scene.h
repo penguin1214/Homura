@@ -18,8 +18,8 @@ namespace Homura {
 	public:
 		std::shared_ptr<Sensor> _cam;
 		std::unordered_map<std::string, std::shared_ptr<BxDF>> _bxdfs;
-		std::vector<std::shared_ptr<Primitive>> _shapes;
-		std::vector<std::shared_ptr<Emitter>> _emitters;
+		std::vector<std::shared_ptr<Primitive>> _primitives;
+		std::vector<std::shared_ptr<Primitive>> _emitters;
 	public:
 		//Scene(Sensor *cam);
 		Scene(const JsonDocument &scene_document);
