@@ -87,7 +87,7 @@ namespace Homura {
 		bool flag = false;
 		for (auto &shape_ptr : _primitives) {
 			std::shared_ptr<Primitive> hitprim = shape_ptr->intersectP(r);
-			if (hitprim != nullptr && hitprim != shape_ptr)
+			if (hitprim != nullptr && (hitprim->getEmitter() == nullptr) )
 				flag = true;
 		}
 		return flag;

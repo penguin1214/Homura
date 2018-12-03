@@ -247,12 +247,9 @@ namespace Homura {
 				}
 			}
 			else {
-				bool flag = false;
-				for (int i = 0; i < _indecies.size(); i++) {
 				Triangle t(_indecies[i], (_normal_indecies.size() > 0) ? _normal_indecies[i] : -1);
 				if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
 					flag = true;
-				}
 			}
 		}
 

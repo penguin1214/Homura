@@ -4,9 +4,14 @@ namespace Homura {
     //Film::Film(int w, int h, Buffer *cbuffer) : _width(w), _height(h), _cbuffer(cbuffer) {}
 	Film::Film(Vec2u res) : _width(res[0]), _height(res[1]), _cbuffer(new Buffer(res[0], res[1])) {}
 
-	void Film::addSample(const Vec2f &pfilm, Vec3f L, float ray_weight) {
-		/// TODO: 0.5 offset?
-		int idx = (int)pfilm.y()*_width + (int)pfilm.x();
+	void Film::addSample(const Vec2f &pfilm, Vec3f L, float ray_weight, bool flag) {
+		///// TODO: 0.5 offset?
+		//if (flag) std::cout << "computing idx " << std::endl;
+		//if (flag) std::cout << _width << std::endl;
+		//if (flag) std::cout << (int)pfilm.y() << std::endl;
+		//if (flag) std::cout << (int)pfilm.x() << std::endl;
+		int idx = int(pfilm.y()-0.5f)*_width + int(pfilm.x()-0.5f);
+		if (flag) std::cout << "add sample to idx: " << idx << std::endl;
 		_cbuffer->addSample(idx, L*ray_weight);
 	}
 
