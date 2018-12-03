@@ -90,8 +90,8 @@ namespace Homura {
 		Point3f p = r._o + t * r._d;
 
 		Vec3f v = p - _base;
-		float l0 = _edge0.dot(v);
-		float l1 = _edge1.dot(v);
+		float l0 = _edge0.normalized().dot(v);
+		float l1 = _edge1.normalized().dot(v);
 
 		if (l0 < 0.0f || l0 > _edge0.length() || l1 < 0.0f || l1 > _edge1.length() )
 			return false;
