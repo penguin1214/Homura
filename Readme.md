@@ -1,20 +1,17 @@
 # Current results
 
-> PT on Lambertian reflection
+> Cornell box original (400x400, 64spp)
 
-![bunny_matte](figs/bunny_matte.jpg)
+![cornell_box_original](figs/cornell_box_origin.jpg)
 
-> PT on specular reflection (mirror)
+> Cornell box spheres (400x400, 64spp)
 
-![bunny_mirror](figs/bunny_mirror.jpg)
+![cornell_box_sphere](figs/cornell_box_sphere.jpg)
 
-> PT on specular object (glass)
+> Cornell box two glass spheres (400x400, 64spp)
 
-![bunny_glass](figs/bunny_glass.jpg)
+![cornell_box_glass](figs/cornell_box_glass.jpg)
 
-> PT with area (quad) light on matte objects. See soft shadows and color bleeding.
-
-![teapot_area](figs/teapot_quad_light.jpg)
 
 
 # `lib` Core
