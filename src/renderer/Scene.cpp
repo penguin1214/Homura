@@ -92,4 +92,14 @@ namespace Homura {
 		}
 		return flag;
 	}
+
+	bool Scene::intersectP(const Ray &r, std::shared_ptr<Emitter> evalemitter) const {
+		bool flag = false;
+		for (auto &shape_ptr : _primitives) {
+			std::shared_ptr<Primitive> hitprim = shape_ptr->intersectP(r);
+			if (hitprim != nullptr && (hitprim->getEmitter() != evalemitter))
+				flag = true;
+		}
+		return flag;
+	}
 }

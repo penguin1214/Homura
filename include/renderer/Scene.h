@@ -26,6 +26,7 @@ namespace Homura {
 
 		bool intersect(Ray &r, IntersectInfo &isect_info) const;
 		bool intersectP(const Ray &r) const;
+		bool Scene::intersectP(const Ray &r, std::shared_ptr<Emitter> evalemitter) const;
 };
 }
 

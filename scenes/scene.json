@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      100,
-      100
+      400,
+      400
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -70,12 +70,12 @@
       "type": "quad",
       "shape": {
         "transform": {
-          "translate": [ -0.5, 1.97, 0.5 ],
+          "translate": [ -0.2, 1.97, 0.2 ],
           "scale": [ 1, 1, 1 ]
         },
         "radius": 0.5,
-        "edge0": [ 0, 0, -1 ],
-        "edge1": [ 1, 0, 0 ]
+        "edge0": [ 0, 0, -0.4 ],
+        "edge1": [ 0.4, 0, 0 ]
       },
       "material": {
         "bsdf": [ "RightWall" ]
@@ -86,6 +86,19 @@
         "intensity": [ 10, 10, 10 ]
       }
     },
+    //{
+    //  "type": "obj",
+    //  "shape": {
+    //    "transform": {
+    //      "translate": [ 0, 0, 0 ],
+    //      "scale": [ 1, 1, 1 ]
+    //    },
+    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj"
+    //  },
+    //  "material": {
+    //    "bsdf": [ "Glass" ]
+    //  }
+    //},
     {
       "type": "obj",
       "shape": {
@@ -93,10 +106,10 @@
           "translate": [ 0, 0, 0 ],
           "scale": [ 1, 1, 1 ]
         },
-        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj"
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/short_box.obj"
       },
       "material": {
-        "bsdf": [ "Glass" ]
+        "bsdf": [ "Ceil" ]
       }
     },
     {
@@ -106,10 +119,10 @@
           "translate": [ 0, 0, 0 ],
           "scale": [ 1, 1, 1 ]
         },
-        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj"
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/tall_box.obj"
       },
       "material": {
-        "bsdf": [ "Mirror" ]
+        "bsdf": [ "Ceil" ]
       }
     },
     {
@@ -222,12 +235,12 @@
   //],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 5,
-    "rr_bounce": 6,
+    "max_depth": 3,
+    "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 8,
+      "spp": 4,
       "ndim": 4
     }
   },

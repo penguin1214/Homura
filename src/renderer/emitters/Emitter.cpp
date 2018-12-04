@@ -6,13 +6,13 @@
 
 namespace Homura {
 
-	Vec3f Emitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const {
+	Vec3f Emitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) {
 		Vec3f wi;
 		float light_pdf;
 		VisibilityTester vt;
 		Vec3f Li_sampled = sample_Li(isect_info, wi, light_pdf, vt, u);
 		Vec3f f = isect_info._bsdf->f(isect_info._wo, wi)*std::abs(isect_info._shading._n.dot(wi));
-		return (vt.unoccluded(*scene)) ? (f*Li_sampled) / light_pdf : Vec3f(0.f);
+		return (vt.unoccluded(*scene, shared_from_this())) ? (f*Li_sampled) / light_pdf : Vec3f(0.f);
 	}
 
 	bool Emitter::isType(EmitterFlags flag) const {
@@ -161,8 +161,8 @@ namespace Homura {
 		return _Lmap->lookup(st);
 	}
 
-	bool VisibilityTester::unoccluded(const Scene &scene) const {
-		return !(scene.intersectP(_I1.spawnRayTo(_I2)));
+	bool VisibilityTester::unoccluded(const Scene &scene, std::shared_ptr<Emitter> evalemitter) const {
+		return !(scene.intersectP(_I1.spawnRayTo(_I2), evalemitter));
 	}
 
 	Vec3f VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {

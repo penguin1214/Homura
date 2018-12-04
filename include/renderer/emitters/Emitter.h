@@ -12,6 +12,7 @@
 
 namespace Homura {
 	class Scene;
+	class Emitter;
 
 	class VisibilityTester {
 	public:
@@ -22,7 +23,7 @@ namespace Homura {
 		const IntersectInfo &isect1() const { return _I1; }
 		const IntersectInfo &isect2() const { return _I2; }
 
-		bool unoccluded(const Scene &scene) const;
+		bool unoccluded(const Scene &scene, std::shared_ptr<Emitter> evalemitter) const;
 		Vec3f Tr(const Scene &scene, Sampler &sampler) const;
 
 	private:
@@ -36,7 +37,7 @@ namespace Homura {
 		Infinite = 1 << 3,
 	};
 
-    class Emitter {
+    class Emitter : public std::enable_shared_from_this<Emitter>{
 	public:
 		Emitter(int flags, int n_samples=1)
 			: _flags(flags), _n_samples(n_samples) {}
@@ -44,7 +45,7 @@ namespace Homura {
 		virtual Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const = 0;
 		virtual float Pdf() const = 0;
 		virtual Vec3f Le(const Ray &r) const { return Vec3f(0.f); }	// background radiance
-		virtual Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) const;
+		virtual Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u);
 		virtual Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const = 0;
 		virtual Vec3f power() const = 0;
 		virtual void preprocess() {}
