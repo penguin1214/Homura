@@ -70,4 +70,9 @@ namespace Homura {
 
 		_raster2screen = Mat4f::inverse(_screen2raster);
 	}
+
+	Vec3f ProjectiveSensor::We(const Ray &r, Point2f *p_raster) const {
+		std::cerr << "NOT_IMPLEMENT_ERROR::WE()_ONLY_IMPLEMENTED_FOR_PERSPECTOVE_SENSOR" << std::endl;
+		return Vec3f(0.f);
+	}
 }

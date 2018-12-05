@@ -40,13 +40,13 @@ namespace Homura {
 	}
 
     Vec3f FresnelSpecularReflection::sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf,
-                                              Homura::BxDFType *sampled_type) const {
+                                              Homura::BxDFType *sampled_type, TransportMode *mode = nullptr) const {
         wi = Vec3f(-wo.x(), -wo.y(), wo.z());
         pdf = 1.0f;
         return _fresnel->evaluate(CosTheta(wi)) * _R / AbsCosTheta(wi);
     }
 
-    Vec3f FresnelSpecularTransmission::sample_f(const Vec3f &wi, Vec3f &wt, const Point2f &sample, float &pdf, BxDFType *sampled_type) const {
+    Vec3f FresnelSpecularTransmission::sample_f(const Vec3f &wi, Vec3f &wt, const Point2f &sample, float &pdf, BxDFType *sampled_type, TransportMode *mode = nullptr) const {
         bool entering = CosTheta(wi) > 0.f;
 		//std::cout << "entering: " << entering << std::endl;
         float etaI = entering ? _etaI : _etaT;
@@ -58,47 +58,37 @@ namespace Homura {
 
         pdf = 1.f;
         Vec3f Ft = _T * (Vec3f(1.f) - _fresnel->evaluate(CosTheta(wt)));
-        /// TODO: from camera or light source
-		/// Since haven't do bidirectional methods, just account for the energe transmitted
-		Ft *= (etaI*etaI) / (etaT*etaT);
+		if (*mode == TransportMode::RADIANCE)
+			Ft *= (etaI*etaI) / (etaT*etaT);
+
         return Ft / AbsCosTheta(wi);
     }
 
-	Vec3f FresnelSpecular::sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type) const {
+	Vec3f FresnelSpecular::sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type, TransportMode *mode = nullptr) const {
 		float f = FrDielectric(CosTheta(wo), 1.f, _eta).max();
-		//std::cout << "F: " << f << std::endl;
 		if (sample[0] < f) {
-			// reflection
-			//std::cout << "reflection" << std::endl;
 			*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_REFLECTION);
 			wi = Vec3f(-wo.x(), -wo.y(), wo.z());
 			pdf = f;
 			return _R * f / AbsCosTheta(wi);
 		}
 		else {
-			// transmit
-			// compute ray direction
 			bool entering = CosTheta(wo) > 0.f;
 			float etaI = entering ? 1.f : _eta;
 			float etaT = entering ? _eta : 1.f;
 			Vec3f normal = Vec3f(0, 0, 1).dot(wo) > 0.f ? Vec3f(0, 0, 1) : -Vec3f(0, 0, 1);
-			//std::cout << "transmit wi: " << wo << std::endl;
 			if (!Refract(wo, normal, etaI / etaT, wi)) {
 				*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_REFLECTION);
 				wi = Vec3f(-wo.x(), -wo.y(), wo.z());
 				pdf = 1.f;
 				return Vec3f(1.f);
-				//return Vec3f(0.f);
 			}
-			//std::cout << "transmission" << std::endl;
-			//std::cout << "transmit wo: " << wi << std::endl;
-			/// TODO: from camera or light source
-			/// Since haven't do bidirectional methods, just account for the energe transmitted
 			Vec3f ft = _T * (1.f - f);
 			*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION);
 			pdf = 1.f - f;
-			ft *= (etaI*etaI) / (etaT*etaT);
-			//std::cout << "transmit BTDF" << (ft) << std::endl;
+			if (*mode == TransportMode::RADIANCE)
+				ft *= (etaI*etaI) / (etaT*etaT);
+
 			return ft / AbsCosTheta(wi);
 		}
 	}

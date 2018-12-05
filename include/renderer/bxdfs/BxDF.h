@@ -65,7 +65,7 @@ namespace Homura {
 		virtual void prepareForRender(const IntersectInfo &isect_info) {}
 
 		virtual Vec3f f(const Vec3f &wo, const Vec3f &wi) const { return Vec3f(0.f); }    // wo, wi are in local coord
-		virtual Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr) const { return Vec3f(0.f); }
+		virtual Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const { return Vec3f(0.f); }
 		virtual float Pdf(const Vec3f &wo, const Vec3f &wi) const { return 0.f; }
 
         /// TODO: hemispherical reflection distribution
@@ -82,7 +82,7 @@ namespace Homura {
         : BxDF(bxdf->_type, name), _BxDF(bxdf), _scale(scale) {}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return _scale * _BxDF->f(wo, wi); };
-        Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const override;
+        Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const override;
 		float Pdf(const Vec3f &wo, const Vec3f &wi) const override;
 
     private:

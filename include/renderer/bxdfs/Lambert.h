@@ -16,7 +16,7 @@ namespace Homura {
 			return _R * INVPI;
 		}
 
-		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr) const override {
+		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const override {
 			//wi = uniformSampleHemisphereSolidAngle(sample);
 			wi = cosineSampleHemisphereSolidAngle(sample);
 			if (wo.z() < 0.f) wi.z() = -wi.z();

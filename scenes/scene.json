@@ -86,6 +86,32 @@
         "intensity": [ 10, 10, 10 ]
       }
     },
+    {
+      "type": "obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj"
+      },
+      "material": {
+        "bsdf": [ "Glass" ]
+      }
+    },
+    {
+      "type": "obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj"
+      },
+      "material": {
+        "bsdf": [ "Mirror" ]
+      }
+    },
     //{
     //  "type": "obj",
     //  "shape": {
@@ -93,38 +119,12 @@
     //      "translate": [ 0, 0, 0 ],
     //      "scale": [ 1, 1, 1 ]
     //    },
-    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj"
+    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/tall_box.obj"
     //  },
     //  "material": {
-    //    "bsdf": [ "Glass" ]
+    //    "bsdf": [ "Ceil" ]
     //  }
     //},
-    {
-      "type": "obj",
-      "shape": {
-        "transform": {
-          "translate": [ 0, 0, 0 ],
-          "scale": [ 1, 1, 1 ]
-        },
-        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/short_box.obj"
-      },
-      "material": {
-        "bsdf": [ "Ceil" ]
-      }
-    },
-    {
-      "type": "obj",
-      "shape": {
-        "transform": {
-          "translate": [ 0, 0, 0 ],
-          "scale": [ 1, 1, 1 ]
-        },
-        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/tall_box.obj"
-      },
-      "material": {
-        "bsdf": [ "Ceil" ]
-      }
-    },
     {
       "type": "obj",
       "shape": {
@@ -235,12 +235,12 @@
   //],
   "integrator": {
     "type": "path_trace",
-    "max_depth": 3,
+    "max_depth": 5,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 4,
+      "spp": 256,
       "ndim": 4
     }
   },

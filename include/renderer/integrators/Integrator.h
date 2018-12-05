@@ -9,6 +9,10 @@
 #include "core/io/JsonDocument.h"
 
 namespace Homura {
+	enum TransportType {
+		RADIANCE, IMPORTANCE
+	};
+
 	class Integrator {
 	public:
 		Integrator() = default;

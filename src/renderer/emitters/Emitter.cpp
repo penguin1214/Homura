@@ -2,6 +2,7 @@
 #include "core/Common.h"
 #include "renderer/bxdfs/BxDF.h"
 #include "renderer/Scene.h"
+#include "core/math/CoordinateSystem.h"
 #include <fstream>
 
 namespace Homura {
@@ -125,6 +126,27 @@ namespace Homura {
 		pdf = Pdf();
 		vt = VisibilityTester(isect_info, isect_emitter);
 		return L(isect_emitter, -wi) * std::abs(_shape->normal(isect_emitter).dot(-wi)) / (isect_emitter._p - isect_info._p).squareLength();
+	}
+
+	Vec3f DiffuseAreaEmitter::sample_Le(const Point2f &u1, const Point2f &u2, Ray &ray, Vec3f &normal, float &pdf_pos, float &pdf_dir) const {
+		IntersectInfo emitter_sample(_shape->sample(u1));
+		pdf_pos = _shape->pdf();
+		normal = _shape->normal(emitter_sample);
+		emitter_sample._normal = normal;
+
+		Vec3f wo = cosineSampleHemisphereSolidAngle(u2);
+		Vec3f t, b;
+		ShadingCoordinateSystem(normal, t, b);
+		Vec3f wo_w = wo.x()*t + wo.y()*b + wo.z()*normal;
+		pdf_dir = (normal.dot(wo_w) > 0.f) ? (AbsCosTheta(wo)*INVPI) : 0.f ;
+		
+		return L(emitter_sample, wo_w);
+	}
+
+	void DiffuseAreaEmitter::Pdf_Le(const Ray &r, const Vec3f &normal, float &pdf_pos, float &pdf_dir) const {
+		IntersectInfo isect(r._o);
+		pdf_pos = _shape->pdf();
+		pdf_dir = (std::abs(r._d.dot(normal)*INVPI));
 	}
 
 	Vec3f DiffuseAreaEmitter::L(const IntersectInfo &isect_info, const Vec3f &w) const {

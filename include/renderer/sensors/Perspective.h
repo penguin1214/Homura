@@ -13,10 +13,15 @@ namespace Homura {
     public:
 		float _vfov;	// vertical fov, in degree.
         Vec3f _dxSensor, _dySensor;
+		float _area;
 
         PerspectiveSensor(const JsonObject json);
 
         float generatePrimaryRay(const PixelSample &sample, Ray &r) const override;
+
+		Vec3f We(const Ray &r, Point2f *p_raster = nullptr) const override;
+		void Pdf_We(const Ray &r, float &pdf_pos, float &pdf_dir) const override;
+		Vec3f sample_Wi(const IntersectInfo &isect_info, const Point2f &u, Vec3f &wi, float &pdf, Point2f *p_raster, VisibilityTester *vt) const override;
     };
 }
 #endif //HOMURA_PERSPECTIVE_H_

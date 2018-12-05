@@ -8,9 +8,12 @@
 #include "renderer/Ray.h"
 #include "renderer/Buffer.h"
 #include "renderer/Bound.h"
+#include "renderer/IntersectInfo.h"
 #include <memory>
 
 namespace Homura {
+	class VisibilityTester;
+
 	struct PixelSample {
 		Vec2f _p_film;
 		Vec2f _p_lens;
@@ -61,10 +64,15 @@ namespace Homura {
         ProjectiveSensor(const Mat4f &ctw, const Mat4f &cts, Film *film, Bound3f screen_window);
 		ProjectiveSensor(const JsonObject json);
 
+		virtual Vec3f We(const Ray &r, Point2f *p_raster = nullptr) const;
+		virtual void Pdf_We(const Ray &r, float &pdf_pos, float &pdf_dir) const;
+		virtual Vec3f sample_Wi(const IntersectInfo &isect_info, const Point2f &u, Vec3f &wi, float &pdf, Point2f *p_raster, VisibilityTester *vt) const;
+
     protected:
 		/* Note that _cam2screen and _raster2cam rely on type of sensor,
 		 * thus when initializing from json, these two matrices are initialized by derived classes.
 		*/
+		float _lens_radius = 0.f;
 		float _screen_window;
         Mat4f _cam2screen;
         Mat4f _raster2cam;
