@@ -40,13 +40,13 @@ namespace Homura {
 	}
 
     Vec3f FresnelSpecularReflection::sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf,
-                                              Homura::BxDFType *sampled_type, TransportMode *mode) const {
+                                              Homura::BxDFType *sampled_type, const TransportMode *mode) const {
         wi = Vec3f(-wo.x(), -wo.y(), wo.z());
         pdf = 1.0f;
         return _fresnel->evaluate(CosTheta(wi)) * _R / AbsCosTheta(wi);
     }
 
-    Vec3f FresnelSpecularTransmission::sample_f(const Vec3f &wi, Vec3f &wt, const Point2f &sample, float &pdf, BxDFType *sampled_type, TransportMode *mode) const {
+    Vec3f FresnelSpecularTransmission::sample_f(const Vec3f &wi, Vec3f &wt, const Point2f &sample, float &pdf, BxDFType *sampled_type, const TransportMode *mode) const {
         bool entering = CosTheta(wi) > 0.f;
 		//std::cout << "entering: " << entering << std::endl;
         float etaI = entering ? _etaI : _etaT;
@@ -64,7 +64,7 @@ namespace Homura {
         return Ft / AbsCosTheta(wi);
     }
 
-	Vec3f FresnelSpecular::sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type, TransportMode *mode) const {
+	Vec3f FresnelSpecular::sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type, const TransportMode *mode) const {
 		float f = FrDielectric(CosTheta(wo), 1.f, _eta).max();
 		if (sample[0] < f) {
 			*sampled_type = BxDFType(BSDF_SPECULAR | BSDF_REFLECTION);

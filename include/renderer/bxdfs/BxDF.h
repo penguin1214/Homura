@@ -53,7 +53,7 @@ namespace Homura {
         BSDF_ALL = BSDF_REFLECTION | BSDF_TRANSMISSION | BSDF_DIFFUSE | BSDF_GLOSSY | BSDF_SPECULAR,
     };
 
-    enum TransportMode {
+    enum TransportMode :short {
         RADIANCE, IMPORTANCE,
     };
 
@@ -65,7 +65,7 @@ namespace Homura {
 		virtual void prepareForRender(const IntersectInfo &isect_info) {}
 
 		virtual Vec3f f(const Vec3f &wo, const Vec3f &wi) const { return Vec3f(0.f); }    // wo, wi are in local coord
-		virtual Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const { return Vec3f(0.f); }
+		virtual Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, const TransportMode *mode = nullptr) const { return Vec3f(0.f); }
 		virtual float Pdf(const Vec3f &wo, const Vec3f &wi) const { return 0.f; }
 
         /// TODO: hemispherical reflection distribution
@@ -82,7 +82,7 @@ namespace Homura {
         : BxDF(bxdf->_type, name), _BxDF(bxdf), _scale(scale) {}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return _scale * _BxDF->f(wo, wi); };
-        Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const override;
+        Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample/*TODO*/, float &pdf, BxDFType *sampled_type = nullptr, const TransportMode *mode = nullptr) const override;
 		float Pdf(const Vec3f &wo, const Vec3f &wi) const override;
 
     private:
@@ -118,6 +118,7 @@ namespace Homura {
 			_ns = isect_info._shading._n;
 			_ts = isect_info._shading._tangent;
 			_bs = isect_info._shading._bitangent;
+			_transport_mode = isect_info._transport_mode;
 
 			//for (auto &bxdf : _bxdfs)
 			//	bxdf->prepareForRender(isect_info);
@@ -162,7 +163,7 @@ namespace Homura {
 
 			const Vec3f wo(world2local(wo_w));
 			Vec3f wi;
-			Vec3f f = sampled_bxdf->sample_f(wo, wi, u, pdf, sampled_types);
+			Vec3f f = sampled_bxdf->sample_f(wo, wi, u, pdf, sampled_types, &_transport_mode);
 			wi_w = local2world(wi);
 
 			//std::cout << "frame: " << std::endl;
@@ -214,6 +215,7 @@ namespace Homura {
 		//float _eta;
         Vec3f _ng;  // store geometry normal to avoid problems caused by shading normals.
         Vec3f _ns, _ts, _bs;   // normal, tangent, bitangent
+		TransportMode _transport_mode;
         std::vector<std::shared_ptr<BxDF>> _bxdfs;
     };
 }

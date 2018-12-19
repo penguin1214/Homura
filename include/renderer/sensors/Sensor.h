@@ -31,6 +31,7 @@ namespace Homura {
         //Film(int w, int h, Buffer *cbuffer);
 		Film(Vec2u res);
 		void addSample(const Vec2f &pfilm, Vec3f L, float ray_weight);
+		void addSplat(const Vec2f &pfilm, Vec3f L);
 		void writeColorBuffer(char *fn);
 		int width() { return _width; }
 		int height() { return _height; }
@@ -65,8 +66,8 @@ namespace Homura {
 		ProjectiveSensor(const JsonObject json);
 
 		virtual Vec3f We(const Ray &r, Point2f *p_raster = nullptr) const;
-		virtual void Pdf_We(const Ray &r, float &pdf_pos, float &pdf_dir) const;
-		virtual Vec3f sample_Wi(const IntersectInfo &isect_info, const Point2f &u, Vec3f &wi, float &pdf, Point2f *p_raster, VisibilityTester *vt) const;
+		virtual void Pdf_We(const Ray &r, float &pdf_pos, float &pdf_dir) const {}
+		virtual Vec3f sample_Wi(const IntersectInfo &isect_info, const Point2f &u, Vec3f &wi, float &pdf, Point2f *p_raster, VisibilityTester *vt) const { return Vec3f(0.f); }
 
     protected:
 		/* Note that _cam2screen and _raster2cam rely on type of sensor,

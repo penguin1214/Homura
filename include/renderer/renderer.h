@@ -11,6 +11,7 @@
 #include "renderer/integrators/Whitted.h"
 #include "renderer/integrators/DirectIntegrator.h"
 #include "renderer/integrators/PathTraceIntegrator.h"
+#include "renderer/integrators/BDPTIntegrator.h"
 
 namespace Homura {
 	class Renderer {
@@ -34,6 +35,8 @@ namespace Homura {
 				_integrator = std::unique_ptr<Integrator>(new DirectIntegrator(std::shared_ptr<Scene>(_scene), integrator_json));
 			else if (integrator_type == "path_trace")
 				_integrator = std::unique_ptr<Integrator>(new PathTraceIntegrator(std::shared_ptr<Scene>(_scene), integrator_json));
+			else if (integrator_type == "bdpt")
+				_integrator = std::unique_ptr<Integrator>(new BDPTIntegrator(std::shared_ptr<Scene>(_scene), integrator_json));
 			else
 				;
 		}

@@ -92,6 +92,21 @@ namespace Homura {
 		return pdf;
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	BDPTIntegrator::BDPTIntegrator(std::shared_ptr<Scene> sc, const JsonObject &json)
+	: _scene(sc), _max_depth(json["max_depth"].getInt()) {
+		auto sampler_json = json["sampler"];
+		std::string sampler_type = sampler_json["type"].getString();
+
+		if (sampler_type == "uniform")
+			;//_sampler = std::unique_ptr<UniformSampler>(new UniformSampler(json));
+		else if (sampler_type == "stratified")
+			_sampler = std::unique_ptr<StratifiedSampler>(new StratifiedSampler(sampler_json));
+		else
+			std::cerr << "NOT_IMPLEMENTED_ERROR: Sampler [" << sampler_type << "] not implemented." << std::endl;
+	}
+
 	void BDPTIntegrator::render() {
 		// generate camera and light sample
 		float Li_weight = 1.0f / _sampler->_spp;
@@ -104,9 +119,10 @@ namespace Homura {
 				_sampler->startPixel(current_pixel);
 
 				do {
+					// for every sample, generate different position on the film.
 					Vec3f L(0.f);
 					Point2f p_film = Point2f(current_pixel.x(), current_pixel.y()) + _sampler->get2D();
-					std::vector<Vertex> sensor_vertices(_max_depth + 2);
+					std::vector<Vertex> sensor_vertices(_max_depth + 2);	/// TODO: extra vertex on camera? "Camera subpaths get yet again one more vertex, which allows camera paths to randomly intersect light sources—this"
 					std::vector<Vertex> emitter_vertices(_max_depth + 1);
 
 					// sample camera subpath
@@ -122,15 +138,16 @@ namespace Homura {
 
 							// do connection and compute contribution
 							Point2f p_film_new = p_film;
-							Vec3f L_path = connectBDPT(t, s, sensor_vertices, emitter_vertices, &p_film_new);
+							Vec3f L_path = connectBDPT(t, s, sensor_vertices, emitter_vertices, &p_film_new, nullptr);
 							if (t != 1)
 								L += L_path;
 							else {
 								// addsplat
+								_scene->_cam->_film->addSplat(p_film_new, L_path);
 							}
 						}
 					}
-					//_scene->_cam->_film->addSample(pixel_sample._p_film, radiance*Li_weight, ray_weight);
+					_scene->_cam->_film->addSample(p_film, L, 1.f);
 				} while (_sampler->startNextSample());
 			}
 		}
@@ -155,15 +172,19 @@ namespace Homura {
 
 	int BDPTIntegrator::generateEmitterSubpath(std::vector<Vertex> l_path) {
 		if (_max_depth == 0)	return 0;
-		/// TODO: sample emitter to use
-		const std::shared_ptr<Emitter> light = _scene->_emitters[0]->getEmitter();
-		float light_pdf;
+		int n_l = _scene->_emitters.size();
+		int sampled_light;
+		while (!(std::floor(n_l * _sampler->get1D()) > n_l - 1))
+			sampled_light = n_l;
+
+		const std::shared_ptr<Emitter> light = _scene->_emitters[sampled_light]->getEmitter();
+		float light_pdf = 1.f / (float)n_l;
 
 		float pdf_pos, pdf_dir;
 		Ray ray;
 		Vec3f normal_light;
 		Vec3f Le = light->sample_Le(_sampler->get1D(), _sampler->get2D(), ray, normal_light, pdf_pos, pdf_dir);
-		if (pdf_pos == 0 || pdf_dir || Le.max() == 0)	return 0;
+		if (pdf_pos < 1e-6 || pdf_dir < 1e-6 || Le.max() < 1e-6)	return 0;
 
 		l_path[0] = Vertex::createEmitter(light, ray, normal_light, Le, pdf_pos*light_pdf);
 		Vec3f beta = Le * std::abs(normal_light.dot(ray._d)) / (light_pdf, pdf_pos, pdf_dir);	/// TODO: ???
@@ -189,7 +210,8 @@ namespace Homura {
 			Vertex &vertex = path[current_depth];
 			Vertex &prev = path[current_depth - 1];
 			/// compute scattering function
-			isect.computeScatteringFunction();	/// TODO: transport mode?
+			isect._transport_mode = mode;
+			isect.computeScatteringFunction();
 
 			/// initialize vertex
 			vertex = Vertex::createSurface(isect, beta, pdfFwd, prev);
@@ -222,7 +244,7 @@ namespace Homura {
 		return current_depth;
 	}
 
-	Vec3f BDPTIntegrator::connectBDPT(int t, int s, std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, Point2f *p_raster) {
+	Vec3f BDPTIntegrator::connectBDPT(int t, int s, std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, Point2f *p_raster, float *mis) {
 		Vec3f L(0.f);
 
 		// connect
@@ -244,7 +266,7 @@ namespace Homura {
 				Vec3f wi;
 				float pdf;
 				Vec3f Wi = _scene->_cam->sample_Wi(qs.getInfo(), _sampler->get2D(), wi, pdf, p_raster, &vt);
-				if (Wi.max() < 1e-6 || pdf < 1e-6) {
+				if (Wi.max() > 1e-6 && pdf > 1e-6) {
 					/// TODO: generate a vertex?
 				}
 			}
@@ -253,6 +275,20 @@ namespace Homura {
 			// only one vertex on light subpath, i.e. the vertex on light surface
 			// sample a vertex on light and connect to the camera subpath
 			/// TODO: direct lighting
+			const Vertex qs = light_vertex[s - 1];
+			if (qs.isConnectible()) {
+				// sample a light
+				int n_l = _scene->_emitters.size();
+				int sampled_light;
+				while (!(std::floor(n_l * _sampler->get1D()) > n_l - 1))
+					sampled_light = n_l;
+
+				const std::shared_ptr<Emitter> light = _scene->_emitters[sampled_light]->getEmitter();
+				float light_pdf = 1.f / (float)n_l;
+				// evaluate direct
+
+				L = light->evalDirect(_scene, qs.getInfo(), _sampler->get2D());
+			}
 		}
 		else {
 			// plain cases
@@ -265,7 +301,12 @@ namespace Homura {
 			}
 		}
 
-		/// TODO: compute MIS weight
+		float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
+		L *= mis_weight;
+
+		if (mis)
+			*mis = mis_weight;
+
 		return L;
 	}
 
@@ -281,4 +322,29 @@ namespace Homura {
 		return g * vt.unoccluded(*_scene);	/// TODO: Tr() for medium
 	}
 
+	float BDPTIntegrator::MISWeight(std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, int t, int s) {
+		if (t + s == 2)
+			return 1.f;
+
+		float sum_ri = 0.f;
+		auto map0 = [](float f)->float {return f != 0 ? f : 1; };
+
+		float ri = 1.f;
+		for (int i = t - 1; t > 0; --i) {
+			ri *= map0(camera_vertex[i]._pdfRev) / map0(camera_vertex[i]._pdfFwd);
+			if (!camera_vertex[i]._is_delta && !camera_vertex[i - 1]._is_delta)
+				sum_ri += ri;
+		}
+
+		ri = 1.f;
+		for (int i = s - 1; i >= 0; i--) {
+			ri *= map0(light_vertex[i]._pdfRev) / map0(light_vertex[i]._pdfFwd);
+			/// TODO: check delta
+
+			if (!light_vertex[i]._is_delta /* TODO: && !deltaLightVertex*/)
+				sum_ri += ri;
+		}
+
+		return 1.f / (sum_ri + 1.f);
+	}
 }

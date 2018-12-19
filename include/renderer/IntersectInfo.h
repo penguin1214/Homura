@@ -9,12 +9,14 @@ namespace Homura {
 	class BSDF;
 	class ProjectiveSensor;
 	class Emitter;
+	enum TransportMode :short;
 
 	struct IntersectInfo {
 		Point3f _p;
 		Vec3f _wo;
 		float _t = INFINITY;
 		Vec3f _normal;
+		TransportMode _transport_mode;
 
 		/// TODO: not handled at present, not suitable for two adjacent specular object
 		//float _etaI = 1.f;	// everytime rays inter a medium(transmission), update _etaI.

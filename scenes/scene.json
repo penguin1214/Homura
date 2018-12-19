@@ -234,7 +234,7 @@
   //  }
   //],
   "integrator": {
-    "type": "path_trace",
+    "type": "bdpt",
     "max_depth": 5,
     "rr_bounce": 5,
     "sampler": {

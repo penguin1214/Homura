@@ -56,7 +56,7 @@ namespace Homura {
 		//void prepareForRender(const IntersectInfo &isect_info) override;
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
-		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const override;
+		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, const TransportMode *mode = nullptr) const override;
 
     private:
 		const float _eta;
@@ -76,7 +76,7 @@ namespace Homura {
 		//}
 
         Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
-		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const override;
+		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, const TransportMode *mode = nullptr) const override;
 		//float Pdf(const Vec3f &wo, const Vec3f &wi) const override;
 
     private:
@@ -94,7 +94,7 @@ namespace Homura {
 		//void prepareForRender(const IntersectInfo &isect_info) override;
 
 		Vec3f f(const Vec3f &wo, const Vec3f &wi) const override { return Vec3f(0.f); };
-		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, TransportMode *mode = nullptr) const override;
+		Vec3f sample_f(const Vec3f &wo, Vec3f &wi, const Point2f &sample, float &pdf, BxDFType *sampled_type = nullptr, const TransportMode *mode = nullptr) const override;
 
 	private:
 		const float _eta;

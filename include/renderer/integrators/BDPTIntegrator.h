@@ -61,7 +61,7 @@ namespace Homura {
 		float convertPdf(float pdf/*w.r.t. solid angle*/, const Vertex &next) const;
 
 		VertexType _type;
-		Vec3f _beta;	/// TODO
+		Vec3f _beta;
 		bool _is_delta;	/// TODO
 
 		float _pdfFwd = 0.f, _pdfRev = 0.f;
@@ -83,8 +83,9 @@ namespace Homura {
 		int generateEmitterSubpath(std::vector<Vertex> l_path);
 
 		int randomWalk(Ray &ray, Vec3f &beta, float &pdf, const TransportMode &mode, std::vector<Vertex> path);
-		Vec3f connectBDPT(int t, int s, std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, Point2f *p_raster);
+		Vec3f connectBDPT(int t, int s, std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, Point2f *p_raster, float *mis);
 		Vec3f G(const Vertex &v0, const Vertex &v1) const;
+		float MISWeight(std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, int t, int s);
 
 	private:
 		float correctShadingNormal() const;
