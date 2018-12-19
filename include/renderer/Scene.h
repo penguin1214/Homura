@@ -16,7 +16,7 @@ namespace Homura {
 
 	class Scene {
 	public:
-		std::shared_ptr<Sensor> _cam;
+		std::shared_ptr<ProjectiveSensor> _cam;
 		std::unordered_map<std::string, std::shared_ptr<BxDF>> _bxdfs;
 		std::vector<std::shared_ptr<Primitive>> _primitives;
 		std::vector<std::shared_ptr<Primitive>> _emitters;

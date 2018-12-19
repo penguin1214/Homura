@@ -15,7 +15,7 @@ namespace Homura {
 		_area = std::abs((p_cam_max.x() - p_cam_min.x()) * (p_cam_max.y() - p_cam_min.y()));
     }
 
-    float PerspectiveSensor::generatePrimaryRay(const PixelSample &sample, Ray &r) const {
+    float PerspectiveSensor::generatePrimaryRay(const SensorSample &sample, Ray &r) const {
         Point3f pSample(sample._p_film.x(), sample._p_film.y(), 0);
         Point3f p_cam = pSample * _raster2cam;
 		r._o = Point3f(0.0f) * _cam2world;

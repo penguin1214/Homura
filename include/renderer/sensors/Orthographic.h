@@ -16,7 +16,7 @@ namespace Homura {
         OrthographicSensor(const Mat4f &ctw, Film *film, Bound3f screen_window = Bound3f(Point3f(-1, -1, 0), Point3f(1, 1, 0)));
 		OrthographicSensor(const JsonObject json);
 
-        float generatePrimaryRay(const PixelSample &sample, Ray &r) const override;
+        float generatePrimaryRay(const SensorSample &sample, Ray &r) const override;
     };
 }
 

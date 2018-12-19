@@ -183,6 +183,10 @@ namespace Homura {
 		return _Lmap->lookup(st);
 	}
 
+	bool VisibilityTester::unoccluded(const Scene &scene) const {
+		return !(scene.intersectP(_I1.spawnRayTo(_I2)));
+	}
+
 	bool VisibilityTester::unoccluded(const Scene &scene, std::shared_ptr<Emitter> evalemitter) const {
 		return !(scene.intersectP(_I1.spawnRayTo(_I2), evalemitter));
 	}

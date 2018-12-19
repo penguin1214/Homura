@@ -7,6 +7,8 @@
 namespace Homura {
 	class Primitive;
 	class BSDF;
+	class ProjectiveSensor;
+	class Emitter;
 
 	struct IntersectInfo {
 		Point3f _p;
@@ -33,6 +35,23 @@ namespace Homura {
 		Vec3f Le(const Vec3f &wi) const;
 		Ray spawnRay(const Vec3f &wi) const;
 		Ray spawnRayTo(const IntersectInfo &other) const;
+	};
+
+	struct EndpointInfo : public IntersectInfo {
+		EndpointInfo() {}
+		EndpointInfo(const EndpointInfo &other) {}	/// TODO: copy constructor with union member
+
+		EndpointInfo(const std::shared_ptr<ProjectiveSensor> s, const Ray &ray) : IntersectInfo(ray._o), _sensor(s) {}
+		EndpointInfo(const std::shared_ptr<Emitter> e, const Ray &ray, const Vec3f &n_light) : IntersectInfo(ray._o), _emitter(e) {
+			_normal = n_light;
+		}
+		~EndpointInfo() {}
+
+		/* Stores information of path endpoint, i.e., on sensor or light. */
+		union {
+			const std::shared_ptr<ProjectiveSensor> _sensor;
+			const std::shared_ptr<Emitter> _emitter;
+		};
 	};
 
 }

@@ -242,3 +242,21 @@ Pointing to `(0,-1,0)` at default.
 ### `class` Buffer
 ### `class` Ray
 ### `class` Scene
+
+### `BDPT`
+> Sensor::We
+Evaluates importance emitted from sensor at `p` and of direction `w`. `pRaster` returns associated ray position on the film.
+This method first needs to check if a valid ray (same direction as the outgoing hemisphere), and returns `0` if invalid.
+
+> Sensor::Pdf_We
+Compute spatial and directional pdf.
+Note what `theta` refers to.
+
+> Sensor::Sample_Wi
+
+> Emitter::Sample_Le
+
+For BDPT, the sampled point on film is only effective when sampling camera path, while doing particle sampling(light path), the point on film is random.
+
+> Vertex::convertPdf()
+Why `theta` is the angle between ray direction and **next**.normal?

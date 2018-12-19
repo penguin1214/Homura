@@ -63,7 +63,7 @@ namespace Homura {
 		virtual void startPixel(const Vec2i &p) override = 0;
 		bool startNextSample() override;
 		bool setSampleIdx(int64_t idx) override;
-		PixelSample getSensorSample(Vec2i p);
+		SensorSample getSensorSample(Vec2i p);
 
 		float get1D() override;
 		Vec2f get2D() override;

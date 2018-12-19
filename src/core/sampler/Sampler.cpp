@@ -54,8 +54,8 @@ namespace Homura {
 		return (&(_sampleArray2D[_array2DOffset++][_current_pixel_sample_idx*n]));
 	}
 
-	PixelSample PixelSampler::getSensorSample(Vec2i p) {
-		PixelSample cs;
+	SensorSample PixelSampler::getSensorSample(Vec2i p) {
+		SensorSample cs;
 		cs._p_film = Vec2f(p.x(), p.y()) + get2D();
 		cs.time = get1D();
 		cs._p_lens = get2D();

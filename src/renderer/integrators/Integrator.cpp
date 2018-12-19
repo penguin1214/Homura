@@ -46,7 +46,7 @@ namespace Homura {
 				_sampler->startPixel(current_pixel);
 
 				do {
-					PixelSample pixel_sample = _sampler->getSensorSample(current_pixel);
+					SensorSample pixel_sample = _sampler->getSensorSample(current_pixel);
 					
 					Ray ray;
 					float ray_weight = _scene->_cam->generatePrimaryRay(pixel_sample, ray);

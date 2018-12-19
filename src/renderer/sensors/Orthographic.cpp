@@ -31,7 +31,7 @@ namespace Homura {
 	//	ProjectiveSensor::ProjectiveSensor(cam2world, Mat4f::orthographic(0, 1/*TODO*/), screen_window, &film);
 	//}
 
-    float OrthographicSensor::generatePrimaryRay(const PixelSample &sample, Ray &r) const {
+    float OrthographicSensor::generatePrimaryRay(const SensorSample &sample, Ray &r) const {
         Point3f pSample(sample._p_film.x(), sample._p_film.y(), 0);
 		//std::cout << pSample << std::endl;
 		//std::cout << _raster2screen * pSample << std::endl;

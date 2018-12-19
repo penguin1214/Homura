@@ -17,7 +17,7 @@ namespace Homura {
 
         PerspectiveSensor(const JsonObject json);
 
-        float generatePrimaryRay(const PixelSample &sample, Ray &r) const override;
+        float generatePrimaryRay(const SensorSample &sample, Ray &r) const override;
 
 		Vec3f We(const Ray &r, Point2f *p_raster = nullptr) const override;
 		void Pdf_We(const Ray &r, float &pdf_pos, float &pdf_dir) const override;

@@ -14,7 +14,7 @@
 namespace Homura {
 	class VisibilityTester;
 
-	struct PixelSample {
+	struct SensorSample {
 		Vec2f _p_film;
 		Vec2f _p_lens;
 		float time;
@@ -52,7 +52,7 @@ namespace Homura {
         ~Sensor();
 
 	public:
-        virtual float generatePrimaryRay(const PixelSample &sample, Ray &r) const = 0;
+        virtual float generatePrimaryRay(const SensorSample &sample, Ray &r) const = 0;
 	};
 
     class ProjectiveSensor: public Sensor {

@@ -23,6 +23,7 @@ namespace Homura {
 		const IntersectInfo &isect1() const { return _I1; }
 		const IntersectInfo &isect2() const { return _I2; }
 
+		bool unoccluded(const Scene &scene) const;
 		bool unoccluded(const Scene &scene, std::shared_ptr<Emitter> evalemitter) const;
 		Vec3f Tr(const Scene &scene, Sampler &sampler) const;
 
