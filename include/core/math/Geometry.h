@@ -290,6 +290,22 @@ namespace Homura {
 			}
 			return ret;
 		}
+
+		friend bool operator==(const Vector &v1, const Vector &v2) {
+			for (unsigned i = 0; i < Size; i++) {
+				if (v1[i] != v2[i])
+					return false;
+			}
+			return true;
+		}
+
+		friend bool operator!=(const Vector &v1, const Vector &v2) {
+			for (unsigned i = 0; i < Size; i++) {
+				if (v1[i] != v2[i])
+					return true;
+			}
+			return false;
+		}
 	};
 
 	typedef Vector<double, 4> Vec4d;
@@ -422,6 +438,12 @@ namespace Homura {
 		inline void operator-=(const Point &other) {
 			for (int i = 0; i < Size; i++) {
 				_p[i] -= other._p[i];
+			}
+		}
+
+		inline void operator/=(const float &d) {
+			for (int i = 0; i < Size; i++) {
+				_p[i] /= d;
 			}
 		}
 

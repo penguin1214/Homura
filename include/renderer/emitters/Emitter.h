@@ -43,6 +43,13 @@ namespace Homura {
 		Emitter(int flags, int n_samples=1)
 			: _flags(flags), _n_samples(n_samples) {}
 
+
+		/*
+		@param isect_info: isect to be cast by emitter
+		@param wi incident: direction from isect to emitter
+		@param pdf: probability of wi being sampled
+		@param vt: to be initialized as (isect_info, isect_emitter)
+		*/
 		virtual Vec3f sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u/*samples*/) const = 0;
 		virtual float Pdf() const = 0;
 		virtual Vec3f sample_Le(const Point2f &u1, const Point2f &u2, Ray &ray, Vec3f &normal, float &pdf_pos, float &pdf_dir) const { return Vec3f(0.f); }

@@ -7,6 +7,9 @@
 
 namespace Homura {
 
+	/*
+	@param isect_info: isect to be  cast by emitter
+	*/
 	Vec3f Emitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) {
 		Vec3f wi;
 		float light_pdf;
@@ -139,6 +142,9 @@ namespace Homura {
 		ShadingCoordinateSystem(normal, t, b);
 		Vec3f wo_w = wo.x()*t + wo.y()*b + wo.z()*normal;
 		pdf_dir = (normal.dot(wo_w) > 0.f) ? (AbsCosTheta(wo)*INVPI) : 0.f ;
+
+		ray._o = emitter_sample._p;
+		ray._d = wo_w;
 		
 		return L(emitter_sample, wo_w);
 	}

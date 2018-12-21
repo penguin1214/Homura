@@ -27,6 +27,7 @@ namespace Homura {
 
 		static inline Vertex createSensor(std::shared_ptr<ProjectiveSensor> sensor, const Ray &ray, const Vec3f &beta);
 		static inline Vertex createEmitter(std::shared_ptr<Emitter> emitter, const Ray &ray, const Vec3f &n_light, const Vec3f &Le, float pdf);
+		static inline Vertex createEmitter(const EndpointInfo &ei, const Vec3f &beta, const float &pdf);
 		static inline Vertex createSurface(const IntersectInfo &si, const Vec3f &beta, float pdf, const Vertex &prev);
 
 		const IntersectInfo &getInfo() const {
@@ -39,30 +40,51 @@ namespace Homura {
 
 		inline const Point3f &p() const { return getInfo()._p; }
 		inline const Vec3f &ng() const { return getInfo()._normal; }
+		inline const Vec3f &ns() const { return getInfo()._shading._n; }
 		/// TODO: other getters
 
 		Vec3f Le(const Vertex &v) const;
 
-		bool isOnSurface() const;	/// TODO
+		bool isOnSurface() const {
+			return (getInfo()._normal != Vec3f());
+		}
 		bool isEmitter() const {
 			return (_type == VertexType::LIGHT) || (_type==VertexType::SURFACE && _si._primitive->isEmitter());
 		}
 		bool isDeltaEmitter() const {
 			return (_type == VertexType::LIGHT) && (_ei._emitter) && (_ei._emitter->isDelta());
 		}
-		bool isInfiniteEmitter() const;
-		bool isConnectible() const;
+		bool isInfiniteEmitter() const {
+			if (isEmitter() && (_ei._emitter->_flags & (EmitterFlags::Infinite)))
+				return true;
+			else
+				return false;
+		}
+		bool isConnectible() const {
+			switch (_type)
+			{
+			case VertexType::SENSOR:
+				return true;
+			case VertexType::LIGHT:
+				return (_ei._emitter->_flags & EmitterFlags::DeltaDirection) == 0;
+			case VertexType::SURFACE:
+				return (_si._bsdf->numComponents(BxDFType(BSDF_DIFFUSE | BSDF_GLOSSY | BSDF_REFLECTION | BSDF_TRANSMISSION)) > 0);
+			default:
+				break;
+			}
+		}
 
-		Vec3f f(const Vertex &next) const;
+		Vec3f f(const Vertex &next) const;	/// TODO: transport mode? (for correcting shading normal)
 		float Pdf(const Vertex *prev, const Vertex &next) const;
 		float PdfEmitter(const Vertex &next) const;
+		float PdfEmitterOrigin(const std::shared_ptr<Scene> sc, const Vertex &v) const;
 
 		/* Convert solid angle pdf -> unit area pdf */
 		float convertPdf(float pdf/*w.r.t. solid angle*/, const Vertex &next) const;
 
 		VertexType _type;
 		Vec3f _beta;
-		bool _is_delta;	/// TODO
+		bool _is_delta = false;
 
 		float _pdfFwd = 0.f, _pdfRev = 0.f;
 
@@ -79,10 +101,10 @@ namespace Homura {
 
 		virtual void render() override;
 
-		int generateSensorSubpath(std::vector<Vertex> v_path, const Point2f &p_f);
-		int generateEmitterSubpath(std::vector<Vertex> l_path);
+		int generateSensorSubpath(std::vector<Vertex> &v_path, const Point2f &p_f);
+		int generateEmitterSubpath(std::vector<Vertex> &l_path);
 
-		int randomWalk(Ray &ray, Vec3f &beta, float &pdf, const TransportMode &mode, std::vector<Vertex> path);
+		int randomWalk(Ray &ray, Vec3f &beta, float &pdf, const TransportMode &mode, std::vector<Vertex> &path);
 		Vec3f connectBDPT(int t, int s, std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, Point2f *p_raster, float *mis);
 		Vec3f G(const Vertex &v0, const Vertex &v1) const;
 		float MISWeight(std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, int t, int s);

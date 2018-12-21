@@ -11,6 +11,12 @@ namespace Homura {
 		return v;
 	}
 
+	inline Vertex Vertex::createEmitter(const EndpointInfo &ei, const Vec3f &beta, const float &pdf) {
+		Vertex v(VertexType::LIGHT, ei, beta);
+		v._pdfFwd = pdf;
+		return v;
+	}
+
 	inline Vertex Vertex::createSurface(const IntersectInfo &si, const Vec3f &beta, float pdf, const Vertex &prev) {
 		Vertex v(si, beta);
 		v._pdfFwd = prev.convertPdf(pdf, v);
@@ -47,8 +53,10 @@ namespace Homura {
 	}
 
 	Vec3f Vertex::f(const Vertex &next) const {
-		Vec3f wi = (p() - next.p()).normalized();
-		return getInfo()._bsdf->f(getInfo()._wo, wi);	/// TODO: medium
+		Vec3f wi = (next.p() - p()).normalized();
+		const IntersectInfo &info = getInfo();
+		return info._bsdf->f(info._wo, wi);	/// TODO: medium
+		//return getInfo()._bsdf->f(getInfo()._wo, wi);	/// TODO: medium
 	}
 
 	float Vertex::Pdf(const Vertex *prev, const Vertex &next) const {
@@ -71,6 +79,9 @@ namespace Homura {
 		return convertPdf(pdf, next);	/// TODO: why use `next`, shouldn't it be `this`? (directions are sampled w.r.t. current object's bsdf, is shouldn't be related to the sampled object?
 	}
 
+	/* Handle both incident and emitting pdfs.
+	/// TODO: it seems using Pdf_Le() is the same as Pdf_We(), then why need PdfEmitter()??
+	*/
 	float Vertex::PdfEmitter(const Vertex &next) const {
 		Vec3f w = next.p() - p();
 		float invdist2 = 1.f / w.squareLength();
@@ -90,6 +101,24 @@ namespace Homura {
 			pdf *= std::abs(next.ng().dot(w));
 
 		return pdf;
+	}
+
+	float Vertex::PdfEmitterOrigin(const std::shared_ptr<Scene> sc, const Vertex &v) const {
+		Vec3f w = (v.p() - p()).normalized();
+		if (isInfiniteEmitter()) {
+			/// TODO: infinite light
+		}
+		else {
+			float pdf_pos, pdf_dir, pdf_choice = 0.f;
+			/// TODO: check isEmitter()
+			const std::shared_ptr<Emitter> emitter = (_type == VertexType::LIGHT) ? (_ei._emitter) : (_si._primitive->getEmitter());
+
+			/// TODO: check if emitter==nullptr
+
+			pdf_choice = 1.f / sc->_emitters.size();
+			emitter->Pdf_Le(Ray(p(), w), ng(), pdf_pos, pdf_dir);
+			return pdf_pos * pdf_choice;
+		}
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,9 +141,21 @@ namespace Homura {
 		float Li_weight = 1.0f / _sampler->_spp;
 		float invH = 1.f / _scene->_cam->_film->height();
 
+#if 0
+		int xx = 2;
+		int yy = 16;
+		int x_region = 1;
+		int y_region = 1;
+		float inv_region = 1.f / float(y_region);
+		for (int y = yy; y < yy + y_region; y++) {
+			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);
+			for (int x = xx; x < xx + x_region; x++) {
+				//std::cout << "(" << x << ", " << y << "):" << std::endl;
+#else
 		for (int y = 0; y < _scene->_cam->_film->height(); y++) {
 			fprintf(stderr, "\rRendering %5.2f%%", invH*y);
 			for (int x = 0; x < _scene->_cam->_film->width(); x++) {
+#endif
 				Vec2i current_pixel(x, y);
 				_sampler->startPixel(current_pixel);
 
@@ -127,13 +168,21 @@ namespace Homura {
 
 					// sample camera subpath
 					int n_sensor_vertex = generateSensorSubpath(sensor_vertices, p_film);
+					//std::cout << "Generated " << n_sensor_vertex << " camera vertices" << std::endl;
 					// sample light subpath
 					int n_emitter_vertex = generateEmitterSubpath(emitter_vertices);
+					//std::cout << "Generated " << n_emitter_vertex << " light vertices" << std::endl;
 					// connect
+					//std::cout << "Connecting vertices..." << std::endl;
+#define DEBUG_T_S 1
+#if DEBUG_T_S
+					int t = 2, s = 1;
+#else
 					for (int t = 1; t <= n_sensor_vertex; t++) {
 						for (int s = 0; s <= n_emitter_vertex; s++) {
-							int depth = t + s - 2;	/// TODO: check definition of depth
-							// what is s=0 case? if direct light, s should be 1?
+#endif
+							//std::cout << "t=" << t << ", s=" << s << std::endl;
+							int depth = t + s - 2;	// depth is number of bounces (exclude endpoints)
 							if (t == 1 && s == 1 || depth < 0 || depth > _max_depth) continue;
 
 							// do connection and compute contribution
@@ -145,15 +194,21 @@ namespace Homura {
 								// addsplat
 								_scene->_cam->_film->addSplat(p_film_new, L_path);
 							}
+#if DEBUG_T_S
+#else
 						}
 					}
-					_scene->_cam->_film->addSample(p_film, L, 1.f);
+#endif
+					_scene->_cam->_film->addSample(p_film, L*Li_weight, 1.f);
 				} while (_sampler->startNextSample());
 			}
 		}
+		char fn[1024];
+		sprintf(fn, "test.ppm");
+		_scene->_cam->_film->writeColorBuffer(fn);
 	}
 
-	int BDPTIntegrator::generateSensorSubpath(std::vector<Vertex> v_path, const Point2f &p_f) {
+	int BDPTIntegrator::generateSensorSubpath(std::vector<Vertex> &v_path, const Point2f &p_f) {
 		if (_max_depth == 0)	return 0;
 		// sample initial ray on sensor
 		SensorSample sensor_sample;
@@ -163,19 +218,20 @@ namespace Homura {
 		Vec3f beta = _scene->_cam->generatePrimaryRay(sensor_sample, ray);
 		/// TODO: ray differential
 
-		v_path[0] = Vertex::createSensor(_scene->_cam, ray, beta);
+		v_path[0] = Vertex::createSensor(_scene->_cam, ray, beta);	/// TODO: is this initialization of containing isect enough?
 
 		float pdf_pos, pdf_dir;
-		_scene->_cam->Pdf_We(ray, pdf_pos, pdf_dir);
+		_scene->_cam->Pdf_We(ray, pdf_pos, pdf_dir);	/// TODO: need check
 		return randomWalk(ray, beta, pdf_dir, TransportMode::RADIANCE, v_path);
 	}
 
-	int BDPTIntegrator::generateEmitterSubpath(std::vector<Vertex> l_path) {
+	int BDPTIntegrator::generateEmitterSubpath(std::vector<Vertex> &l_path) {
 		if (_max_depth == 0)	return 0;
 		int n_l = _scene->_emitters.size();
 		int sampled_light;
-		while (!(std::floor(n_l * _sampler->get1D()) > n_l - 1))
-			sampled_light = n_l;
+		do {
+			sampled_light = std::floor(n_l*_sampler->get1D());
+		} while (!(sampled_light < n_l));
 
 		const std::shared_ptr<Emitter> light = _scene->_emitters[sampled_light]->getEmitter();
 		float light_pdf = 1.f / (float)n_l;
@@ -196,7 +252,7 @@ namespace Homura {
 		return n;
 	}
 
-	int BDPTIntegrator::randomWalk(Ray &ray, Vec3f &beta, float &pdf, const TransportMode &mode, std::vector<Vertex> path) {
+	int BDPTIntegrator::randomWalk(Ray &ray, Vec3f &beta, float &pdf, const TransportMode &mode, std::vector<Vertex> &path) {
 		int current_depth = 1;
 		float pdfFwd = pdf, pdfRev = 0.f;
 		while (true) {
@@ -248,6 +304,7 @@ namespace Homura {
 		Vec3f L(0.f);
 
 		// connect
+		Vertex sampled;
 		if (s == 0) {
 			// no vertex on light subpath
 			// interprete camera subpath as the complete path
@@ -261,13 +318,17 @@ namespace Homura {
 			// sample a vertex on camera and connect to the light subpath
 			const Vertex &qs = light_vertex[s - 1];
 			if (qs.isConnectible()) {
-				// TODO: sample_Wi
 				VisibilityTester vt;
 				Vec3f wi;
 				float pdf;
+				Ray ray;
 				Vec3f Wi = _scene->_cam->sample_Wi(qs.getInfo(), _sampler->get2D(), wi, pdf, p_raster, &vt);
-				if (Wi.max() > 1e-6 && pdf > 1e-6) {
-					/// TODO: generate a vertex?
+				if (!(pdf < 1e-6) && !(Wi.max() < 1e-6)) {
+					sampled = Vertex::createSensor(_scene->_cam, ray, Wi / pdf);
+					L = qs._beta * qs.f(sampled) * sampled._beta;
+					if (qs.isOnSurface()) {
+						L *= std::abs(wi.dot(qs.ns()));
+					}
 				}
 			}
 		}
@@ -275,19 +336,34 @@ namespace Homura {
 			// only one vertex on light subpath, i.e. the vertex on light surface
 			// sample a vertex on light and connect to the camera subpath
 			/// TODO: direct lighting
-			const Vertex qs = light_vertex[s - 1];
-			if (qs.isConnectible()) {
+			const Vertex pt = camera_vertex[t - 1];
+
+			if (pt.isConnectible()) {
 				// sample a light
 				int n_l = _scene->_emitters.size();
 				int sampled_light;
-				while (!(std::floor(n_l * _sampler->get1D()) > n_l - 1))
-					sampled_light = n_l;
+				do {
+					sampled_light = std::floor(n_l*_sampler->get1D());
+				} while (!(sampled_light < n_l));
 
 				const std::shared_ptr<Emitter> light = _scene->_emitters[sampled_light]->getEmitter();
 				float light_pdf = 1.f / (float)n_l;
 				// evaluate direct
-
-				L = light->evalDirect(_scene, qs.getInfo(), _sampler->get2D());
+				Vec3f wi;
+				float pdf;
+				VisibilityTester vt;
+				Vec3f Li = light->sample_Li(pt.getInfo(), wi, pdf, vt, _sampler->get2D());
+				if (!(pdf < 1e-6) && !(Li.max() < 1e-6)) {
+					EndpointInfo ei(vt.isect2(), light);
+					sampled = Vertex::createEmitter(ei, Li / (pdf*light_pdf), 0);
+					sampled._pdfFwd = sampled.PdfEmitterOrigin(_scene, pt);
+					L = pt._beta * pt.f(sampled) * sampled._beta;
+					//std::cout << pt._beta << std::endl;
+					//std::cout << pt.f(sampled) << std::endl;
+					//std::cout << sampled._beta << std::endl;
+					if (pt.isOnSurface())
+						L *= std::abs(pt.ns().dot(wi));
+				}
 			}
 		}
 		else {
@@ -301,11 +377,11 @@ namespace Homura {
 			}
 		}
 
-		float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
-		L *= mis_weight;
+		//float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
+		//L *= mis_weight;
 
-		if (mis)
-			*mis = mis_weight;
+		//if (mis)
+		//	*mis = mis_weight;
 
 		return L;
 	}
