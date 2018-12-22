@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      100,
-      100
+      400,
+      400
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -83,7 +83,7 @@
       "emitter": {
         "type": "diffuse_area",
         "n_samples": 1,
-        "intensity": [ 10, 10, 10 ]
+        "intensity": [ 1, 1, 1 ]
       }
     },
     //{
@@ -99,19 +99,19 @@
     //    "bsdf": [ "Glass" ]
     //  }
     //},
-    //{
-    //  "type": "obj",
-    //  "shape": {
-    //    "transform": {
-    //      "translate": [ 0, 0, 0 ],
-    //      "scale": [ 1, 1, 1 ]
-    //    },
-    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_behind.obj"
-    //  },
-    //  "material": {
-    //    "bsdf": [ "Mirror" ]
-    //  }
-    //},
+    {
+      "type": "obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/short_box.obj"
+      },
+      "material": {
+        "bsdf": [ "Ceil" ]
+      }
+    },
     {
       "type": "obj",
       "shape": {
@@ -235,12 +235,12 @@
   //],
   "integrator": {
     "type": "bdpt",
-    "max_depth": 1,
+    "max_depth": 5,
     "rr_bounce": 5,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 1,
+      "spp": 128,
       "ndim": 4
     }
   },

@@ -65,13 +65,15 @@ namespace Homura {
 		pdf_dir = 1.f / (_area*lens_area*cos_theta*cos_theta*cos_theta);
 	}
 
+	/* Sample an incident intersection on camera. */
 	Vec3f PerspectiveSensor::sample_Wi(const IntersectInfo &isect_info, const Point2f &u, Vec3f &wi, float &pdf, Point2f *p_raster, VisibilityTester *vt) const {
-		Point2f sample_lens(_lens_radius);	/// TODO: sample on lens
-		Point3f sample_lens_w = Point3f(sample_lens.x(), sample_lens.y(), 0.f)*_cam2world;
+		// for now lens radius is 0 and thus no need to sample.
+		/// TODO: sample on lens
+		Point3f sample_lens_w = Point3f(0, 0, 0.f)*_cam2world;
 		IntersectInfo lens_isect(sample_lens_w);
 		lens_isect._normal = Vec3f(0, 0, -1)*(_cam2world.forNormal());
 		*vt = VisibilityTester(isect_info, lens_isect);
-		wi = (isect_info._p - lens_isect._p).normalized();
+		wi = (lens_isect._p - isect_info._p).normalized();
 		pdf = 1.f;	/// TODO
 
 		return We(lens_isect.spawnRay(-wi), p_raster);

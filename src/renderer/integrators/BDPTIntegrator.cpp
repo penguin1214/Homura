@@ -5,6 +5,10 @@ namespace Homura {
 		return Vertex(VertexType::SENSOR, EndpointInfo(sensor, ray), beta);
 	}
 
+	inline Vertex Vertex::createSensor(std::shared_ptr<ProjectiveSensor> sensor, const IntersectInfo &info, const Vec3f &beta) {
+		return Vertex(VertexType::SENSOR, EndpointInfo(info, sensor), beta);
+	}
+
 	inline Vertex Vertex::createEmitter(std::shared_ptr<Emitter> emitter, const Ray &ray, const Vec3f &n_light, const Vec3f &Le, float pdf) {
 		Vertex v(VertexType::LIGHT, EndpointInfo(emitter, ray, n_light), Le);
 		v._pdfFwd = pdf;
@@ -13,6 +17,12 @@ namespace Homura {
 
 	inline Vertex Vertex::createEmitter(const EndpointInfo &ei, const Vec3f &beta, const float &pdf) {
 		Vertex v(VertexType::LIGHT, ei, beta);
+		v._pdfFwd = pdf;
+		return v;
+	}
+
+	inline Vertex Vertex::createEmitter(const Ray &ray, const Vec3f &beta, const float &pdf) {
+		Vertex v(VertexType::LIGHT, EndpointInfo(ray), beta);
 		v._pdfFwd = pdf;
 		return v;
 	}
@@ -54,7 +64,7 @@ namespace Homura {
 
 	Vec3f Vertex::f(const Vertex &next) const {
 		Vec3f wi = (next.p() - p()).normalized();
-		const IntersectInfo &info = getInfo();
+		const IntersectInfo info = getInfo();
 		return info._bsdf->f(info._wo, wi);	/// TODO: medium
 		//return getInfo()._bsdf->f(getInfo()._wo, wi);	/// TODO: medium
 	}
@@ -174,9 +184,11 @@ namespace Homura {
 					//std::cout << "Generated " << n_emitter_vertex << " light vertices" << std::endl;
 					// connect
 					//std::cout << "Connecting vertices..." << std::endl;
-#define DEBUG_T_S 1
+#define DEBUG_T_S 0
 #if DEBUG_T_S
-					int t = 2, s = 1;
+					int t = 1, s = 2;
+					if (!(t <= n_sensor_vertex) || !(s <= n_emitter_vertex))
+						break;
 #else
 					for (int t = 1; t <= n_sensor_vertex; t++) {
 						for (int s = 0; s <= n_emitter_vertex; s++) {
@@ -192,7 +204,7 @@ namespace Homura {
 								L += L_path;
 							else {
 								// addsplat
-								_scene->_cam->_film->addSplat(p_film_new, L_path);
+								_scene->_cam->_film->addSplat(p_film_new, L_path*Li_weight);
 							}
 #if DEBUG_T_S
 #else
@@ -243,7 +255,7 @@ namespace Homura {
 		if (pdf_pos < 1e-6 || pdf_dir < 1e-6 || Le.max() < 1e-6)	return 0;
 
 		l_path[0] = Vertex::createEmitter(light, ray, normal_light, Le, pdf_pos*light_pdf);
-		Vec3f beta = Le * std::abs(normal_light.dot(ray._d)) / (light_pdf, pdf_pos, pdf_dir);	/// TODO: ???
+		Vec3f beta = Le * std::abs(normal_light.dot(ray._d)) / (light_pdf*pdf_pos/**pdf_dir??*/);
 
 		int n = randomWalk(ray, beta, pdf_dir, TransportMode::IMPORTANCE, l_path);
 
@@ -257,14 +269,21 @@ namespace Homura {
 		float pdfFwd = pdf, pdfRev = 0.f;
 		while (true) {
 			if (beta.max() == 0) break;
+
+			Vertex &vertex = path[current_depth];
+			Vertex &prev = path[current_depth - 1];
+
 			IntersectInfo isect;
 			bool intersected = _scene->intersect(ray, isect);
 			if (!intersected) {
-				/// special handle escaped ray
+				if (mode == TransportMode::RADIANCE) {
+					// only for paths emitted by camera
+					vertex = Vertex::createEmitter(ray, beta, pdfFwd);
+					current_depth++;
+				}
 				break;
 			}
-			Vertex &vertex = path[current_depth];
-			Vertex &prev = path[current_depth - 1];
+
 			/// compute scattering function
 			isect._transport_mode = mode;
 			isect.computeScatteringFunction();
@@ -303,6 +322,10 @@ namespace Homura {
 	Vec3f BDPTIntegrator::connectBDPT(int t, int s, std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, Point2f *p_raster, float *mis) {
 		Vec3f L(0.f);
 
+		// handling excaped case
+		if (t > 1 && s != 0 && camera_vertex[t - 1]._type == VertexType::LIGHT)
+			return L;
+
 		// connect
 		Vertex sampled;
 		if (s == 0) {
@@ -321,10 +344,9 @@ namespace Homura {
 				VisibilityTester vt;
 				Vec3f wi;
 				float pdf;
-				Ray ray;
 				Vec3f Wi = _scene->_cam->sample_Wi(qs.getInfo(), _sampler->get2D(), wi, pdf, p_raster, &vt);
-				if (!(pdf < 1e-6) && !(Wi.max() < 1e-6)) {
-					sampled = Vertex::createSensor(_scene->_cam, ray, Wi / pdf);
+				if (!(pdf < 1e-6) && !(Wi.max() < 1e-6) && vt.unoccluded(*_scene)/*TODO:necessary?*/) {
+					sampled = Vertex::createSensor(_scene->_cam, vt.isect2(), Wi / pdf);
 					L = qs._beta * qs.f(sampled) * sampled._beta;
 					if (qs.isOnSurface()) {
 						L *= std::abs(wi.dot(qs.ns()));
@@ -362,7 +384,7 @@ namespace Homura {
 					//std::cout << pt.f(sampled) << std::endl;
 					//std::cout << sampled._beta << std::endl;
 					if (pt.isOnSurface())
-						L *= std::abs(pt.ns().dot(wi));
+						L *= std::abs(pt.ns().dot(wi)) * vt.unoccluded(*_scene, light);
 				}
 			}
 		}

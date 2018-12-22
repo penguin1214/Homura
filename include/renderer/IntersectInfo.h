@@ -53,6 +53,8 @@ namespace Homura {
 			_normal = n_light;
 		}
 		EndpointInfo(const IntersectInfo &isect, std::shared_ptr<Emitter> e) : IntersectInfo(isect), _emitter(e) {}
+		EndpointInfo(const IntersectInfo &isect, std::shared_ptr<ProjectiveSensor> s) : IntersectInfo(isect), _sensor(s) {}
+		EndpointInfo(const Ray &ray) : IntersectInfo(ray._o), _emitter(nullptr) {}	/* for special handling of infinite light (escaped ray) */
 
 		~EndpointInfo() {}
 

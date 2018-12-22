@@ -26,8 +26,10 @@ namespace Homura {
 		}
 
 		static inline Vertex createSensor(std::shared_ptr<ProjectiveSensor> sensor, const Ray &ray, const Vec3f &beta);
+		static inline Vertex createSensor(std::shared_ptr<ProjectiveSensor> sensor, const IntersectInfo &info, const Vec3f &beta);
 		static inline Vertex createEmitter(std::shared_ptr<Emitter> emitter, const Ray &ray, const Vec3f &n_light, const Vec3f &Le, float pdf);
 		static inline Vertex createEmitter(const EndpointInfo &ei, const Vec3f &beta, const float &pdf);
+		static inline Vertex createEmitter(const Ray &ray, const Vec3f &beta, const float &pdf);	/* for special handling of infinite light (escaped) */
 		static inline Vertex createSurface(const IntersectInfo &si, const Vec3f &beta, float pdf, const Vertex &prev);
 
 		const IntersectInfo &getInfo() const {
@@ -55,7 +57,7 @@ namespace Homura {
 			return (_type == VertexType::LIGHT) && (_ei._emitter) && (_ei._emitter->isDelta());
 		}
 		bool isInfiniteEmitter() const {
-			if (isEmitter() && (_ei._emitter->_flags & (EmitterFlags::Infinite)))
+			if ((_type == VertexType::LIGHT) && (!_ei._emitter/*escaped*/ || (_ei._emitter->_flags & (EmitterFlags::Infinite))))
 				return true;
 			else
 				return false;

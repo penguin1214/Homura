@@ -10,7 +10,9 @@ namespace Homura {
 	}
 
 	void Film::addSplat(const Vec2f &pfilm, Vec3f L) {
-		/// TODO
+		/// TODO: check
+		int idx = int(pfilm.y()-0.5f)*_width + int(pfilm.x()-0.5f);
+		_cbuffer->addSample(idx, L);
 	}
 
 	Vec3f Film::tonemap(Vec3f c) const {
