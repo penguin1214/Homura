@@ -7,7 +7,7 @@
 #include "core/io/JsonObject.h"
 #include "renderer/Ray.h"
 #include "renderer/Buffer.h"
-#include "renderer/Bound.h"
+#include "renderer/shapes/Bound.h"
 #include "renderer/IntersectInfo.h"
 #include <memory>
 

@@ -27,7 +27,7 @@ namespace Homura {
 
 		inline bool operator==(const Bound3f &b) const { return (b._min == _min) && (b._max == _max); }
 
-		inline bool intersectP(const Ray &ray, float &hitt0, float &hitt1) const {
+		inline bool intersectP(const Ray &ray, float *hitt0, float *hitt1) const {
 			float tmin = 0.0f; float tmax = ray._tmax;
 			for (unsigned i = 0; i < 3; i++) {
 				float inv_d = 1.0f / ray._d[i];
@@ -40,9 +40,29 @@ namespace Homura {
 			}
 			if (tmin > tmax) return false;
 
-			hitt0 = tmin; hitt1 = tmax;
+			if (hitt0 != nullptr)
+				*hitt0 = tmin;
+			if (hitt1 != nullptr)
+				*hitt1 = tmax;
+
 			/// TODO: update ray information?
 			return true;
+		}
+
+		inline Point3f centroid() const {
+			return (_min + _max)*.5f;
+		}
+		
+		inline int maxDim() const {
+			return (_max-_min).maxDim();
+		}
+
+		static Bound3f Union(const Bound3f &a, const Bound3f &b) {
+			return Bound3f(minElemWise(a._min, b._min), maxElemWise(a._max, b._max));
+		}
+
+		static Bound3f Union(const Bound3f &a, const Point3f &p) {
+			return Bound3f(minElemWise(a._min, p), maxElemWise(a._max, p));
 		}
 
 		Point3f _min, _max;

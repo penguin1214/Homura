@@ -27,6 +27,8 @@ namespace Homura {
 		virtual bool isEmitter() const { return (_emitter != nullptr); }
 		virtual std::shared_ptr<Emitter> getEmitter() const { return _emitter; }
 
+		virtual Bound3f worldBound() const { return _shape->worldBound(); }
+
 	protected:
 	    std::unique_ptr<Material> _material;
 		std::shared_ptr<Emitter> _emitter;
@@ -47,5 +49,18 @@ namespace Homura {
 	public:
 		QuadPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
 	};
+
+	class PrimitiveGroup : public Primitive {
+	public:
+		PrimitiveGroup() = default;
+		//std::shared_ptr<PrimitiveGroup> getShared() override;
+		void computeScatteringFunction(IntersectInfo &isect) const;
+
+		bool isEmitter() const { return (_emitter != nullptr); }
+		std::shared_ptr<Emitter> getEmitter() const { return _emitter; }
+
+		std::vector<std::shared_ptr<Primitive>> _primitives;
+	};
+
 }
 #endif // HOMURA_PRIMITIVE_H_

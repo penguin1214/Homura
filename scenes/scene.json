@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      400,
-      400
+      100,
+      100
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -83,7 +83,7 @@
       "emitter": {
         "type": "diffuse_area",
         "n_samples": 1,
-        "intensity": [ 1, 1, 1 ]
+        "intensity": [ 1,1,1 ]
       }
     },
     //{
@@ -93,10 +93,10 @@
     //      "translate": [ 0, 0, 0 ],
     //      "scale": [ 1, 1, 1 ]
     //    },
-    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/sphere_smooth.obj"
+    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/block.obj"
     //  },
     //  "material": {
-    //    "bsdf": [ "Glass" ]
+    //    "bsdf": [ "Ceil" ]
     //  }
     //},
     {
@@ -110,6 +110,19 @@
       },
       "material": {
         "bsdf": [ "Ceil" ]
+      }
+    },
+    {
+      "type": "obj",
+      "shape": {
+        "transform": {
+          "translate": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
+        },
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/teapot.obj"
+      },
+      "material": {
+        "bsdf": [ "Mirror" ]
       }
     },
     {
@@ -240,7 +253,7 @@
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 128,
+      "spp": 16,
       "ndim": 4
     }
   },

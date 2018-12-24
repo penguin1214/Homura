@@ -1,7 +1,7 @@
 #include "core/math/Mat4f.h"
 
 #include "core/Common.h"
-#include "renderer/Bound.h"
+#include "renderer/shapes/Bound.h"
 #include "renderer/Ray.h"
 
 namespace Homura {

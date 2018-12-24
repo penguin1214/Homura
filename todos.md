@@ -1,4 +1,5 @@
 ## TODO
+- [ ] Two sided primitive, for both sides interaction.
 - [ ] How to handle outter and inner ita at surface?
 - [x] obj opengl viewer
 - [ ] ObjHandler still has problem when file contains texure/normal indiceis.

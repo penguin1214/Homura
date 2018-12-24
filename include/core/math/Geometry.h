@@ -447,6 +447,22 @@ namespace Homura {
 			}
 		}
 
+		friend Point<T, Size> minElemWise(const Point &a, const Point &b) {
+			Point ret;
+			for (int i = 0; i < Size; i++) {
+				ret[i] = std::min(a[i], b[i]);
+			}
+			return ret;
+		}
+
+		friend Point<T, Size> maxElemWise(const Point &a, const Point &b) {
+			Point ret;
+			for (int i = 0; i < Size; i++) {
+				ret[i] = std::max(a[i], b[i]);
+			}
+			return ret;
+		}
+
 		friend std::ostream &operator<<(std::ostream &os, const Point &p) {
 			os << '(';
 			for (unsigned i = 0; i < Size; i++) {

@@ -152,10 +152,10 @@ namespace Homura {
 		float invH = 1.f / _scene->_cam->_film->height();
 
 #if 0
-		int xx = 2;
-		int yy = 16;
-		int x_region = 1;
-		int y_region = 1;
+		int xx = 200;
+		int yy = 270;
+		int x_region = 50;
+		int y_region = 20;
 		float inv_region = 1.f / float(y_region);
 		for (int y = yy; y < yy + y_region; y++) {
 			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);
@@ -399,11 +399,11 @@ namespace Homura {
 			}
 		}
 
-		//float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
-		//L *= mis_weight;
+		float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
+		L *= mis_weight;
 
-		//if (mis)
-		//	*mis = mis_weight;
+		if (mis)
+			*mis = mis_weight;
 
 		return L;
 	}
@@ -428,7 +428,7 @@ namespace Homura {
 		auto map0 = [](float f)->float {return f != 0 ? f : 1; };
 
 		float ri = 1.f;
-		for (int i = t - 1; t > 0; --i) {
+		for (int i = t - 1; i > 0; --i) {
 			ri *= map0(camera_vertex[i]._pdfRev) / map0(camera_vertex[i]._pdfFwd);
 			if (!camera_vertex[i]._is_delta && !camera_vertex[i - 1]._is_delta)
 				sum_ri += ri;

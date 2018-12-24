@@ -5,7 +5,7 @@
 #include "core/math/Geometry.h"
 #include "core/math/Mat4f.h"
 #include "core/io/JsonObject.h"
-#include "renderer/Bound.h"
+#include "renderer/shapes/Bound.h"
 #include "renderer/Ray.h"
 #include "renderer/IntersectInfo.h"
 

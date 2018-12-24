@@ -86,7 +86,7 @@ namespace Homura {
 	bool Scene::intersectP(const Ray &r) const {
 		bool flag = false;
 		for (auto &shape_ptr : _primitives) {
-			std::shared_ptr<Primitive> hitprim = shape_ptr->intersectP(r);
+			std::shared_ptr<Primitive> hitprim = shape_ptr->intersectP(r);	/// TODO: don't need to check emitter?
 			if (hitprim != nullptr && (hitprim->getEmitter() == nullptr) )
 				flag = true;
 		}
