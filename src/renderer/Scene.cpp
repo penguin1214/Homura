@@ -5,6 +5,8 @@
 #include "renderer/bxdfs/Lambert.h"
 #include "renderer/bxdfs/Fresnel.h"
 
+#define USE_BVH 1
+
 namespace Homura {
     //Scene::Scene(Sensor *cam) :_cam(cam) {}
 
@@ -71,9 +73,15 @@ namespace Homura {
 		// Preprocess
 		for (auto light : _emitters)
 			light->getEmitter()->preprocess();
+
+		// build bvh
+		_bvh.reset(new BVHAccelerator(_primitives));
 	}
 
     bool Scene::intersect(Ray &r, IntersectInfo &isect_info) const {
+#if USE_BVH
+		return _bvh->intersect(r, isect_info);
+#else
 		bool flag = false;
         for (auto &shape_ptr : _primitives) {
 			if (shape_ptr->intersect(r, isect_info))
@@ -81,9 +89,13 @@ namespace Homura {
         }
 
 		return flag;
+#endif
     }
 
 	bool Scene::intersectP(const Ray &r) const {
+#if USE_BVH
+		return _bvh->intersectP(r);
+#else
 		bool flag = false;
 		for (auto &shape_ptr : _primitives) {
 			std::shared_ptr<Primitive> hitprim = shape_ptr->intersectP(r);	/// TODO: don't need to check emitter?
@@ -91,9 +103,13 @@ namespace Homura {
 				flag = true;
 		}
 		return flag;
+#endif
 	}
 
 	bool Scene::intersectP(const Ray &r, std::shared_ptr<Emitter> evalemitter) const {
+#if USE_BVH
+		return _bvh->intersectP(r, evalemitter);
+#else
 		bool flag = false;
 		for (auto &shape_ptr : _primitives) {
 			std::shared_ptr<Primitive> hitprim = shape_ptr->intersectP(r);
@@ -101,5 +117,6 @@ namespace Homura {
 				flag = true;
 		}
 		return flag;
+#endif
 	}
 }

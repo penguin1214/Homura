@@ -54,7 +54,9 @@ namespace Homura {
 	public:
 		PrimitiveGroup() = default;
 		//std::shared_ptr<PrimitiveGroup> getShared() override;
-		void computeScatteringFunction(IntersectInfo &isect) const;
+
+		/// TODO: all functions
+		void computeScatteringFunction(IntersectInfo &isect) const {}
 
 		bool isEmitter() const { return (_emitter != nullptr); }
 		std::shared_ptr<Emitter> getEmitter() const { return _emitter; }

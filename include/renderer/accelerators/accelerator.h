@@ -29,6 +29,7 @@ namespace Homura {
 	};
 
 	struct BVHBoundInfo {
+		BVHBoundInfo() = default;
 		BVHBoundInfo(int &i, Bound3f &bnd) : _idx(i), _bounding(bnd), _centroid((_bounding._min+_bounding._max)*.5f) {}
 
 		int _idx;
@@ -39,10 +40,17 @@ namespace Homura {
 	class BVHAccelerator :PrimitiveGroup {
 	public:
 		BVHAccelerator(std::vector<std::shared_ptr<Primitive>> &prims, const int &max_nodes = 1, const BVHSplitType &type = BVHSplitType::EQL_CNT);
+		BVHAccelerator(const BVHAccelerator &origin);
 
 		Bound3f worldBound() const override;
 		bool intersect(const Ray &r, IntersectInfo &info);
 		bool intersectP(const Ray &r) const;
+		bool intersectP(const Ray &r, std::shared_ptr<Emitter> evalemitter) const;
+
+		friend std::ostream &operator<<(std::ostream &os, const BVHAccelerator &bvh) {
+			os << "Number of nodes:" << bvh._n_total_nodes << std::endl;
+			return os;
+		}
 
 	private:
 		std::shared_ptr<BVHNode> buildBVHRecurse(std::vector<BVHBoundInfo> bounding_info, const int &start, const int &end, std::vector<std::shared_ptr<Primitive>> &ordered_prims, int &total_nodes);
@@ -50,6 +58,7 @@ namespace Homura {
 		std::shared_ptr<BVHNode> createInterior(const int &spliting_axis, std::shared_ptr<BVHNode> left, std::shared_ptr<BVHNode> right);
 		/// TODO: flat bvh
 
+	public:
 		const int _max_obj_per_node;
 		const BVHSplitType _split_type;
 		int _n_total_nodes;

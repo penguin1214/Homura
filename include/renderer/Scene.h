@@ -6,6 +6,7 @@
 #include "renderer/bxdfs/BxDF.h"
 #include "primitives/Primitive.h"
 #include "core/io/JsonDocument.h"
+#include "accelerators/accelerator.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -20,6 +21,7 @@ namespace Homura {
 		std::unordered_map<std::string, std::shared_ptr<BxDF>> _bxdfs;
 		std::vector<std::shared_ptr<Primitive>> _primitives;
 		std::vector<std::shared_ptr<Primitive>> _emitters;
+		std::unique_ptr<BVHAccelerator> _bvh;
 	public:
 		//Scene(Sensor *cam);
 		Scene(const JsonDocument &scene_document);

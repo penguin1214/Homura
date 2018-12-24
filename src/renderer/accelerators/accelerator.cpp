@@ -59,6 +59,16 @@ namespace Homura {
 			return (_root->_left->intersectP(r, _primitives) || _root->_right->intersectP(r, _primitives));
 	}
 
+	bool BVHAccelerator::intersectP(const Ray &r, std::shared_ptr<Emitter> evalemitter) const {
+		if (_root == nullptr)
+			return false;
+		
+		if (_root->_bound.intersectP(r, nullptr, nullptr))
+			return (
+				_root->_left->intersectP(r, evalemitter, _primitives) ||
+				_root->_right->intersectP(r, evalemitter, _primitives));
+	}
+
 	bool BVHAccelerator::intersect(const Ray &r, IntersectInfo &info) {
 		if (_root == nullptr)
 			return false;
@@ -83,14 +93,14 @@ namespace Homura {
 
 		_primitives = std::move(prims);
 
-		std::vector<BVHBoundInfo> bounding_info;
-		bounding_info.reserve(_primitives.size());
+		std::vector<BVHBoundInfo> bounding_info(_primitives.size());
 		for (int i = 0; i < _primitives.size(); i++) {
 			bounding_info[i] = { i, _primitives[i]->worldBound() };
 		}
 
 		std::vector<std::shared_ptr<Primitive>> ordered_prims;
 		ordered_prims.reserve(_primitives.size());
+		_n_total_nodes = 0;
 		if (_split_type == BVHSplitType::EQL_CNT) {
 			_root = buildBVHRecurse(bounding_info, 0, _primitives.size(), ordered_prims, _n_total_nodes);
 		}
@@ -99,6 +109,15 @@ namespace Homura {
 		}
 
 		_primitives.swap(ordered_prims);
+		
+		std::cout << "BVH complete." << std::endl;
+		std::cout << *this << std::endl;
+	}
+
+	BVHAccelerator::BVHAccelerator(const BVHAccelerator &origin)
+	: _max_obj_per_node(origin._max_obj_per_node), _split_type(origin._split_type), _n_total_nodes(origin._n_total_nodes),
+		_root(origin._root) {
+		_primitives = origin._primitives;
 	}
 
 	std::shared_ptr<BVHNode> BVHAccelerator::createLeaf(const int &n_prim, const int &offset, const Bound3f &bound) {
@@ -110,8 +129,8 @@ namespace Homura {
 	}
 
 	std::shared_ptr<BVHNode> BVHAccelerator::buildBVHRecurse(std::vector<BVHBoundInfo> bounding_info, const int &start, const int &end, std::vector<std::shared_ptr<Primitive>> &ordered_prims, int &total_nodes) {
-		Bound3f bound;
-		for (int i = start; i < end; i++)
+		Bound3f bound(bounding_info[start]._bounding);
+		for (int i = start+1; i < end; i++)
 			bound = Bound3f::Union(bound, bounding_info[i]._bounding);
 
 		total_nodes++;
@@ -128,8 +147,8 @@ namespace Homura {
 		}
 		else {
 			// compute centroid in order to select spliting axis
-			Bound3f centroid_bound;
-			for (int i = start; i < end; i++) {
+			Bound3f centroid_bound(bounding_info[start]._centroid, bounding_info[start]._centroid);
+			for (int i = start+1; i < end; i++) {
 				centroid_bound = Bound3f::Union(centroid_bound, bounding_info[i]._centroid);
 			}
 			int spliting_axis = centroid_bound.maxDim();

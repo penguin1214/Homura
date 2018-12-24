@@ -30,13 +30,12 @@ namespace Homura {
         std::vector<Vec3i> _indecies;
 		std::vector<Vec3f> _normals;
 		std::vector<Vec3i> _normal_indecies;
+		Bound3f _local_bnd;
 
 		//TriangleMesh(std::vector<Point3f> verts, std::vector<Vec3i> idxs);
 		TriangleMesh(const JsonObject &json);
 
-		Bound3f localBound() const override {
-			return Bound3f(Point3f(0.f), Point3f(1.f));	/// TODO
-		}
+		Bound3f localBound() const override { return _local_bnd; }
 
 		bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
 
@@ -44,6 +43,16 @@ namespace Homura {
 		inline Vec3f normal(const IntersectInfo &ref) const override { return Vec3f(0,1,0); }	/// TODO
 
 		IntersectInfo sample(const Point2f &u) const override { return IntersectInfo(); }	/// TODO
+
+	private:
+		void computeLocalBound() {
+			Bound3f ret(_vertices[0], _vertices[0]);
+			for (auto &v : _vertices) {
+				ret._max = maxElemWise(ret._max, v);
+				ret._min = minElemWise(ret._min, v);
+			}
+			_local_bnd = ret;
+		}
 	};
 }
 #endif	//!HOMURA_TRANGLE_MESH_H_

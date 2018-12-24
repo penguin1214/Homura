@@ -226,6 +226,7 @@ namespace Homura {
 		Shape(json["transform"].getTransform()) {
 		std::string obj_path = json["path"].getString();
 		ObjHandler::readObj(obj_path.c_str(), _vertices, _indecies, _normals, _normal_indecies);
+		computeLocalBound();
 	}
 
 	bool TriangleMesh::intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const {

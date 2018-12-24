@@ -73,7 +73,14 @@ namespace Homura {
 		}
 
 		Bound3f localBound() const override {
-			return Bound3f(_base, _base+_edge0+_edge1);
+			/// TODO: now assume w and h are of same length
+			float halfe = _edge0.length() * 0.5f;
+			std::cout << "Quad::localBound() called." << std::endl;
+			return Bound3f(Point3f(-halfe, 0, halfe), Point3f(halfe, 0, -halfe));	/// TODO: when to call localBound()?
+		}
+
+		Bound3f worldBound() const override {
+			return Bound3f(_base, _base+_edge0+_edge1);	/// TODO: when to call localBound()?
 		}
 
 		bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
