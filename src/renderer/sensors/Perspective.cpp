@@ -31,11 +31,13 @@ namespace Homura {
 		float cos_theta = r._d.dot(Vec3f(0, 0, -1)*_cam2world);	/// TODO: (0,0,1)?
 		if (cos_theta <= 0.f)
 			return Vec3f(0.f);
-		// 2. check if point in film region
-		Point3f p_focus = r._o + (1.f / cos_theta)*r._d;	/// TODO: only consider pinhole now, apeture size to do.
-		Point3f p_raster = p_focus * Mat4f::inverse(_cam2world)*Mat4f::inverse(_raster2cam);	/// TODO: check
 
-		if (praster) *praster = Point2f(p_raster.x(), p_raster.y());
+		/// dont do this now, since we don't sample a pinhole camera
+		//// 2. check if point in film region
+		//Point3f p_focus = r._o + (1.f / cos_theta)*r._d;	/// TODO: only consider pinhole now, apeture size to do.
+		//Point3f p_raster = p_focus * Mat4f::inverse(_cam2world)*Mat4f::inverse(_raster2cam);	/// TODO: check
+
+		//if (praster) *praster = Point2f(p_raster.x(), p_raster.y());
 
 		/// TOOD: film bound ???
 
