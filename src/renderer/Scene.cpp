@@ -74,8 +74,10 @@ namespace Homura {
 		for (auto light : _emitters)
 			light->getEmitter()->preprocess();
 
+#if USE_BVH
 		// build bvh
 		_bvh.reset(new BVHAccelerator(_primitives));
+#endif
 	}
 
     bool Scene::intersect(Ray &r, IntersectInfo &isect_info) const {

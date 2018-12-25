@@ -2,19 +2,29 @@
 
 namespace Homura {
 	bool BVHNode::intersect(Ray &r, const std::vector<std::shared_ptr<Primitive>> &ordered_prims, IntersectInfo &isect) const {
-		bool flag = false;
-		for (int i = _offset; i < _offset + _n_prims; i++) {
-			if (ordered_prims[i]->intersect(r, isect))
-				flag = true;
+		if (_bound.intersectP(r, nullptr, nullptr)) {
+			if (_n_prims > 0) {
+				// leaf
+				bool flag = false;
+				for (int i = _offset; i < _offset + _n_prims; i++) {
+					if (ordered_prims[i]->intersect(r, isect))
+						flag = true;
+				}
+				return flag;
+			}
+			else
+				// interior
+				return (_left->intersect(r, ordered_prims, isect) | _right->intersect(r, ordered_prims, isect));
 		}
-		return flag;
+		else
+			return false;
 	}
 	
 	bool BVHNode::intersectP(const Ray &r, std::shared_ptr<Emitter> evalemitter, const std::vector<std::shared_ptr<Primitive>> &ordered_prims) {
 		if (_bound.intersectP(r, nullptr, nullptr)) {
 			if (_left != nullptr && _right != nullptr) {
 				// interior
-				return (_left->intersectP(r, ordered_prims) || _right->intersectP(r, ordered_prims));
+				return (_left->intersectP(r, evalemitter, ordered_prims) || _right->intersectP(r, evalemitter, ordered_prims));
 			}
 			else {
 				// leaf, test all primitives
@@ -69,12 +79,12 @@ namespace Homura {
 				_root->_right->intersectP(r, evalemitter, _primitives));
 	}
 
-	bool BVHAccelerator::intersect(const Ray &r, IntersectInfo &info) {
+	bool BVHAccelerator::intersect(Ray &r, IntersectInfo &info) {
 		if (_root == nullptr)
 			return false;
 
 		if (_root->_bound.intersectP(r, nullptr, nullptr)) {
-			return (_root->_left->intersectP(r, _primitives) || (_root->_right->intersectP(r, _primitives)));
+			return (_root->_left->intersect(r, _primitives, info) | (_root->_right->intersect(r, _primitives, info)));
 				//(_root->_left == nullptr) ? (false) : (_root->_left->intersectP()) ||
 				//(_root->_right == nullptr) ? (false) : (_root->_right->intersectP()));
 		}
@@ -160,6 +170,10 @@ namespace Homura {
 					[spliting_axis](const BVHBoundInfo &a, const BVHBoundInfo &b) {
 					return a._centroid[spliting_axis] < b._centroid[spliting_axis];
 				});
+				//// debug
+				//for (auto &info : bounding_info)
+				//	std::cout << info._idx << ", ";
+				//std::cout << std::endl;
 				break;
 			}
 			default:

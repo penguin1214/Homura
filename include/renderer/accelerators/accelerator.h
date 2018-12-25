@@ -43,7 +43,7 @@ namespace Homura {
 		BVHAccelerator(const BVHAccelerator &origin);
 
 		Bound3f worldBound() const override;
-		bool intersect(const Ray &r, IntersectInfo &info);
+		bool intersect(Ray &r, IntersectInfo &info);
 		bool intersectP(const Ray &r) const;
 		bool intersectP(const Ray &r, std::shared_ptr<Emitter> evalemitter) const;
 
