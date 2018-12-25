@@ -75,6 +75,7 @@ namespace Homura {
 		*/
 		float _lens_radius = 0.f;
 		float _screen_window;
+		Bound2f _raster_bound;
         Mat4f _cam2screen;
         Mat4f _raster2cam;
         Mat4f _screen2raster;

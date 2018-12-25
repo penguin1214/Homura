@@ -67,6 +67,7 @@ namespace Homura {
 	    /// TODO: screen window aspect ratio should be same as film?
 		json.getField("screen_window", _screen_window);
 		Bound3f screen_window(Point3f(-_aspect_ratio*0.5f*_screen_window, -0.5f*_screen_window, 0), Point3f(_aspect_ratio*0.5f*_screen_window, 0.5f*_screen_window, 0));
+		_raster_bound = Bound2f(Point2f(0, 0), Point2f(_film->width(), _film->height()));
 
 		_screen2raster =
 			Mat4f::translate(Vec3f(-screen_window._min.x(), -screen_window._max.y(), -1)) * // NDC -> raster(final image)

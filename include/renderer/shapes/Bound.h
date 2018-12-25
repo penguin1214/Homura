@@ -9,7 +9,15 @@ namespace Homura {
 	public:
 		Point2f _min, _max;
 
+		Bound2f() = default;
 		Bound2f(Point2f min, Point2f max) : _min(min), _max(max) {}
+		inline bool withinBound(const Point2f &p) const {
+			if (p.x() <= _max.x() && p.x() >= _min.x() &&
+				p.y() <= _max.y() && p.y() >= _min.y())
+				return true;
+			else
+				return false;
+		}
 	};
 
 	////////////////////////////////////////////////////////

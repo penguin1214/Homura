@@ -1,6 +1,7 @@
 #include "renderer/sensors/Perspective.h"
 #include "renderer/IntersectInfo.h"
 #include "renderer/emitters/Emitter.h"
+#include "renderer/shapes/Bound.h"
 
 namespace Homura {
     PerspectiveSensor::PerspectiveSensor(const Homura::JsonObject json)	/* checked. */
@@ -32,17 +33,16 @@ namespace Homura {
 		if (cos_theta <= 0.f)
 			return Vec3f(0.f);
 
-		/// dont do this now, since we don't sample a pinhole camera
-		//// 2. check if point in film region
-		//Point3f p_focus = r._o + (1.f / cos_theta)*r._d;	/// TODO: only consider pinhole now, apeture size to do.
-		//Point3f p_raster = p_focus * Mat4f::inverse(_cam2world)*Mat4f::inverse(_raster2cam);	/// TODO: check
+		// 2. check if point in film region
+		Point3f p_focus = r._o + (1.f / cos_theta)*r._d;	/// TODO: only consider pinhole now, apeture size to do.
+		Point3f p_raster = p_focus * Mat4f::inverse(_cam2world)*Mat4f::inverse(_raster2cam);
 
-		//if (praster) *praster = Point2f(p_raster.x(), p_raster.y());
+		if (praster) *praster = Point2f(p_raster.x(), p_raster.y());
 
-		/// TOOD: film bound ???
+		if (!_raster_bound.withinBound(*praster))
+			return Vec3f(0.f);
 
-		float lens_area = 1.f;	/// TODO: realistic camera (finite lens area)
-
+		float lens_area = 1.f;
 		float cos2 = cos_theta * cos_theta;
 		return Vec3f(1.f / (_area*lens_area*cos2*cos2));
 	}
@@ -59,10 +59,10 @@ namespace Homura {
 		Point3f p_focus = r._o + (1.f / cos_theta)*r._d;	/// TODO: only consider pinhole now, apeture size to do.
 		Point3f p_raster = p_focus * Mat4f::inverse(_cam2world)*Mat4f::inverse(_raster2cam);
 
-		/// TOOD: film bound
+		if (!_raster_bound.withinBound(Point2f(p_raster.x(), p_raster.y())));
+			pdf_dir = pdf_pos = 0.f;
 
 		float lens_area = 1.f;	/// TODO: realistic camera
-
 		pdf_pos = 1.f / lens_area;	/// TODO: why not 1/A????
 		pdf_dir = 1.f / (_area*lens_area*cos_theta*cos_theta*cos_theta);
 	}
