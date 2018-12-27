@@ -116,6 +116,7 @@ namespace Homura {
 
 		std::shared_ptr<Scene> _scene;
 		std::unique_ptr<PixelSampler> _sampler;
+		const int _len_subpath;
 		const int _max_depth;
 	};
 }

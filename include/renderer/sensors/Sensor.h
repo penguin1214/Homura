@@ -30,8 +30,8 @@ namespace Homura {
 	public:
         //Film(int w, int h, Buffer *cbuffer);
 		Film(Vec2u res);
-		void addSample(const Vec2f &pfilm, Vec3f L, float ray_weight);
-		void addSplat(const Vec2f &pfilm, Vec3f L);
+		void addSample(const Point2f &pfilm, Vec3f L, float ray_weight);
+		void addSplat(const Point2f &pfilm, Vec3f L);
 		void writeColorBuffer(char *fn);
 		int width() { return _width; }
 		int height() { return _height; }
@@ -45,6 +45,7 @@ namespace Homura {
 	public:
         std::unique_ptr<Film> _film;
     protected:
+		Point3f _p;
         Mat4f _cam2world;   // TODO: Animated Transform
         float _aspect_ratio;
 
@@ -54,6 +55,8 @@ namespace Homura {
 
 	public:
         virtual float generatePrimaryRay(const SensorSample &sample, Ray &r) const = 0;
+
+		virtual Point3f p() const;
 	};
 
     class ProjectiveSensor: public Sensor {
@@ -68,6 +71,8 @@ namespace Homura {
 		virtual Vec3f We(const Ray &r, Point2f *p_raster = nullptr) const;
 		virtual void Pdf_We(const Ray &r, float &pdf_pos, float &pdf_dir) const {}
 		virtual Vec3f sample_Wi(const IntersectInfo &isect_info, const Point2f &u, Vec3f &wi, float &pdf, Point2f *p_raster, VisibilityTester *vt) const { return Vec3f(0.f); }
+
+		virtual Point2f pWorldToRaster(const Point3f &p_w) const;
 
     protected:
 		/* Note that _cam2screen and _raster2cam rely on type of sensor,

@@ -4,12 +4,12 @@ namespace Homura {
     //Film::Film(int w, int h, Buffer *cbuffer) : _width(w), _height(h), _cbuffer(cbuffer) {}
 	Film::Film(Vec2u res) : _width(res[0]), _height(res[1]), _cbuffer(new Buffer(res[0], res[1])) {}
 
-	void Film::addSample(const Vec2f &pfilm, Vec3f L, float ray_weight) {
+	void Film::addSample(const Point2f &pfilm, Vec3f L, float ray_weight) {
 		int idx = int(pfilm.y()-0.5f)*_width + int(pfilm.x()-0.5f);
 		_cbuffer->addSample(idx, L*ray_weight);
 	}
 
-	void Film::addSplat(const Vec2f &pfilm, Vec3f L) {
+	void Film::addSplat(const Point2f &pfilm, Vec3f L) {
 		/// TODO:  splat
 		int idx = int(pfilm.y()-0.5f)*_width + int(pfilm.x()-0.5f);
 		_cbuffer->addSample(idx, L);
@@ -43,6 +43,11 @@ namespace Homura {
 		Mat4f cam2World;
 		if (json.getField("lookat", cam2World))
 			_cam2world = cam2World;
+		_p = Point3f(0, 0, 0)*_cam2world;
+	}
+
+	Point3f Sensor::p() const {
+		return _p;
 	}
 
     Sensor::~Sensor() {}
@@ -81,5 +86,13 @@ namespace Homura {
 	Vec3f ProjectiveSensor::We(const Ray &r, Point2f *p_raster) const {
 		std::cerr << "NOT_IMPLEMENT_ERROR::WE()_ONLY_IMPLEMENTED_FOR_PERSPECTOVE_SENSOR" << std::endl;
 		return Vec3f(0.f);
+	}
+
+	Point2f ProjectiveSensor::pWorldToRaster(const Point3f &p_w) const {
+		Point3f praster = p_w * Mat4f::inverse(_cam2world)*Mat4f::inverse(_raster2cam);
+		Point2f p_raster;
+		p_raster.x() = praster.x();
+		p_raster.y() = praster.y();
+		return p_raster;
 	}
 }

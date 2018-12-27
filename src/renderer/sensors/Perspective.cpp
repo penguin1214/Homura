@@ -75,8 +75,13 @@ namespace Homura {
 		IntersectInfo lens_isect(sample_lens_w);
 		lens_isect._normal = Vec3f(0, 0, -1)*(_cam2world.forNormal());
 		*vt = VisibilityTester(isect_info, lens_isect);
-		wi = (lens_isect._p - isect_info._p).normalized();
-		pdf = 1.f;	/// TODO
+		wi = lens_isect._p - isect_info._p;
+		float d = wi.length();
+		wi /= d;
+		
+		// convert pdf to solid angle pdf
+		/// TODO: float lens_area
+		pdf = d*d / std::abs(wi.dot(lens_isect._normal));	// 1/area to solid angle measure, TODO: lens with finite area
 
 		return We(lens_isect.spawnRay(-wi), p_raster);
 	}

@@ -1,4 +1,5 @@
 #include "renderer/integrators/BDPTIntegrator.h"
+#include "renderer/Helper.h"
 
 namespace Homura {
 	inline Vertex Vertex::createSensor(std::shared_ptr<ProjectiveSensor> sensor, const Ray &ray, const Vec3f &beta) {
@@ -90,7 +91,6 @@ namespace Homura {
 	}
 
 	/* Handle both incident and emitting pdfs.
-	/// TODO: it seems using Pdf_Le() is the same as Pdf_We(), then why need PdfEmitter()??
 	*/
 	float Vertex::PdfEmitter(const Vertex &next) const {
 		Vec3f w = next.p() - p();
@@ -134,7 +134,7 @@ namespace Homura {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	BDPTIntegrator::BDPTIntegrator(std::shared_ptr<Scene> sc, const JsonObject &json)
-	: _scene(sc), _max_depth(json["max_depth"].getInt()) {
+	: _scene(sc), _len_subpath(json["subpath"].getInt()), _max_depth(2*_len_subpath-2) {
 		auto sampler_json = json["sampler"];
 		std::string sampler_type = sampler_json["type"].getString();
 
@@ -152,10 +152,10 @@ namespace Homura {
 		float invH = 1.f / _scene->_cam->_film->height();
 
 #if 0
-		int xx = 200;
-		int yy = 270;
-		int x_region = 50;
-		int y_region = 20;
+		int xx = 68;
+		int yy = 254;
+		int x_region = 1;
+		int y_region = 1;
 		float inv_region = 1.f / float(y_region);
 		for (int y = yy; y < yy + y_region; y++) {
 			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);
@@ -173,27 +173,26 @@ namespace Homura {
 					// for every sample, generate different position on the film.
 					Vec3f L(0.f);
 					Point2f p_film = Point2f(current_pixel.x(), current_pixel.y()) + _sampler->get2D();
-					std::vector<Vertex> sensor_vertices(_max_depth + 2);	/// TODO: extra vertex on camera? "Camera subpaths get yet again one more vertex, which allows camera paths to randomly intersect light sources—this"
-					std::vector<Vertex> emitter_vertices(_max_depth + 1);
+					std::vector<Vertex> sensor_vertices(_len_subpath + 2);	/// TODO: extra vertex on camera? "Camera subpaths get yet again one more vertex, which allows camera paths to randomly intersect light sources—this"
+					std::vector<Vertex> emitter_vertices(_len_subpath + 1);
 
 					// sample camera subpath
 					int n_sensor_vertex = generateSensorSubpath(sensor_vertices, p_film);
+					//for (int i = 1; i < n_sensor_vertex; i++) {
+					//	draw_line(_scene, sensor_vertices[i-1].p(), sensor_vertices[i].p(), 0.05f, Vec3f(0,1,0));
+					//}
 					//std::cout << "Generated " << n_sensor_vertex << " camera vertices" << std::endl;
 					// sample light subpath
 					int n_emitter_vertex = generateEmitterSubpath(emitter_vertices);
+					//for (int i = 1; i < n_emitter_vertex; i++) {
+					//	draw_line(_scene, emitter_vertices[i - 1].p(), emitter_vertices[i].p(), 0.05f, Vec3f(1,1,1));
+					//}
 					//std::cout << "Generated " << n_emitter_vertex << " light vertices" << std::endl;
 					// connect
 					//std::cout << "Connecting vertices..." << std::endl;
-#define DEBUG_T_S 0
-#if DEBUG_T_S
-					int t = 1, s = 2;
-					if (!(t <= n_sensor_vertex) || !(s <= n_emitter_vertex))
-						break;
-#else
+
 					for (int t = 1; t <= n_sensor_vertex; t++) {
 						for (int s = 0; s <= n_emitter_vertex; s++) {
-#endif
-							//std::cout << "t=" << t << ", s=" << s << std::endl;
 							int depth = t + s - 2;	// depth is number of bounces (exclude endpoints)
 							if (t == 1 && s == 1 || depth < 0 || depth > _max_depth) continue;
 
@@ -206,11 +205,8 @@ namespace Homura {
 								// addsplat
 								_scene->_cam->_film->addSplat(p_film_new, L_path*Li_weight);
 							}
-#if DEBUG_T_S
-#else
 						}
 					}
-#endif
 					_scene->_cam->_film->addSample(p_film, L*Li_weight, 1.f);
 				} while (_sampler->startNextSample());
 			}
@@ -221,7 +217,7 @@ namespace Homura {
 	}
 
 	int BDPTIntegrator::generateSensorSubpath(std::vector<Vertex> &v_path, const Point2f &p_f) {
-		if (_max_depth == 0)	return 0;
+		if (_len_subpath == 0)	return 0;
 		// sample initial ray on sensor
 		SensorSample sensor_sample;
 		sensor_sample._p_film = p_f;
@@ -230,15 +226,15 @@ namespace Homura {
 		Vec3f beta = _scene->_cam->generatePrimaryRay(sensor_sample, ray);
 		/// TODO: ray differential
 
-		v_path[0] = Vertex::createSensor(_scene->_cam, ray, beta);	/// TODO: is this initialization of containing isect enough?
+		v_path[0] = Vertex::createSensor(_scene->_cam, ray, beta);
 
 		float pdf_pos, pdf_dir;
-		_scene->_cam->Pdf_We(ray, pdf_pos, pdf_dir);	/// TODO: need check
+		_scene->_cam->Pdf_We(ray, pdf_pos, pdf_dir);
 		return randomWalk(ray, beta, pdf_dir, TransportMode::RADIANCE, v_path);
 	}
 
 	int BDPTIntegrator::generateEmitterSubpath(std::vector<Vertex> &l_path) {
-		if (_max_depth == 0)	return 0;
+		if (_len_subpath == 0)	return 0;
 		int n_l = _scene->_emitters.size();
 		int sampled_light;
 		do {
@@ -255,7 +251,7 @@ namespace Homura {
 		if (pdf_pos < 1e-6 || pdf_dir < 1e-6 || Le.max() < 1e-6)	return 0;
 
 		l_path[0] = Vertex::createEmitter(light, ray, normal_light, Le, pdf_pos*light_pdf);
-		Vec3f beta = Le * std::abs(normal_light.dot(ray._d)) / (light_pdf*pdf_pos/**pdf_dir??*/);
+		Vec3f beta = Le * std::abs(normal_light.dot(ray._d)) / (light_pdf*pdf_pos*pdf_dir);	/// TODO: why divide two pdf?
 
 		int n = randomWalk(ray, beta, pdf_dir, TransportMode::IMPORTANCE, l_path);
 
@@ -265,6 +261,7 @@ namespace Homura {
 	}
 
 	int BDPTIntegrator::randomWalk(Ray &ray, Vec3f &beta, float &pdf, const TransportMode &mode, std::vector<Vertex> &path) {
+		if (_len_subpath == 1) return 1;
 		int current_depth = 1;
 		float pdfFwd = pdf, pdfRev = 0.f;
 		while (true) {
@@ -291,7 +288,7 @@ namespace Homura {
 			/// initialize vertex
 			vertex = Vertex::createSurface(isect, beta, pdfFwd, prev);
 
-			if (++current_depth >= _max_depth)
+			if (++current_depth > _len_subpath)
 				break;
 
 			/// compute BSDF and reversed pdf
@@ -310,7 +307,6 @@ namespace Homura {
 			}
 			/// TODO: correct shading normal
 
-			/// TODO: pdfRev
 			prev._pdfRev = pdfRev;
 
 			// update ray
@@ -329,6 +325,7 @@ namespace Homura {
 		// connect
 		Vertex sampled;
 		if (s == 0) {
+			//return L;
 			// no vertex on light subpath
 			// interprete camera subpath as the complete path
 			// i.e. when p_{t-1} is an emitter
@@ -339,6 +336,7 @@ namespace Homura {
 		else if (t == 1) {
 			// only one vertex on camera subpath, i.e. the vertex on camera
 			// sample a vertex on camera and connect to the light subpath
+			//return L;
 			const Vertex &qs = light_vertex[s - 1];
 			if (qs.isConnectible()) {
 				VisibilityTester vt;
@@ -353,11 +351,12 @@ namespace Homura {
 					}
 				}
 			}
+			//draw_line(_scene, qs.p(), _scene->_cam->p(), 0.01f, Vec3f(1, 0, 0));
 		}
 		else if (s == 1) {
 			// only one vertex on light subpath, i.e. the vertex on light surface
 			// sample a vertex on light and connect to the camera subpath
-			/// TODO: direct lighting
+			//return L;
 			const Vertex pt = camera_vertex[t - 1];
 
 			if (pt.isConnectible()) {
@@ -386,24 +385,29 @@ namespace Homura {
 					if (pt.isOnSurface())
 						L *= std::abs(pt.ns().dot(wi)) * vt.unoccluded(*_scene, light);
 				}
+				//draw_line(_scene, pt.p(), vt.isect2()._p, 0.01f, Vec3f(1, 0, 0));
 			}
 		}
 		else {
 			// plain cases
+			//return L;
 			const Vertex &qs = light_vertex[s - 1];
 			const Vertex &pt = camera_vertex[t - 1];
 			if (qs.isConnectible() && pt.isConnectible()) {
 				L = qs._beta * qs.f(pt) * pt.f(qs) * pt._beta;
-				if (!(L.max() < 1e-6))
+				//std::cout << "(" << t << ", " << s << ") : " << G(qs,pt) << std::endl;
+				if (!(L.max() < 1e-6)) {
 					L *= G(qs, pt);
+				}
 			}
+			//draw_line(_scene, qs.p(), pt.p(), 0.01f, Vec3f(1, 0, 0));
 		}
 
-		float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
-		L *= mis_weight;
+		//float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
+		//L *= mis_weight;
 
-		if (mis)
-			*mis = mis_weight;
+		//if (mis)
+		//	*mis = mis_weight;
 
 		return L;
 	}
@@ -411,13 +415,13 @@ namespace Homura {
 	Vec3f BDPTIntegrator::G(const Vertex &v0, const Vertex &v1) const {
 		Vec3f d = v0.p() - v1.p();
 		float g = 1.f / d.squareLength();
-		/// TODO d *=
+		d *= std::sqrt(g);
 		if (v0.isOnSurface())
 			g *= std::abs(v0.ng().dot(d));	/// TODO: ns or ng?
 		if (v1.isOnSurface())
 			g *= std::abs(v1.ng().dot(d));
 		VisibilityTester vt(v0.getInfo(), v1.getInfo());
-		return g * vt.unoccluded(*_scene);	/// TODO: Tr() for medium
+		return g/* * vt.unoccluded(*_scene)*/;	/// TODO: Tr() for medium
 	}
 
 	float BDPTIntegrator::MISWeight(std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, int t, int s) {
