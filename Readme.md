@@ -1,5 +1,13 @@
 # Current results
 
+> BDPT rendered glass teaport in Cornell box w/ MIS
+
+![bdpt_mis](figs/bdpt_mis.jpg)
+
+> BDPT rendered glass teaport in Cornell box w/o MIS
+
+![bdpt_no_mis](figs/bdpt_no_mis.jpg)
+
 > Cornell box original (400x400, 64spp)
 
 ![cornell_box_original](figs/cornell_box_origin.jpg)
