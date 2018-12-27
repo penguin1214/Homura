@@ -421,7 +421,7 @@ namespace Homura {
 		if (v1.isOnSurface())
 			g *= std::abs(v1.ng().dot(d));
 		VisibilityTester vt(v0.getInfo(), v1.getInfo());
-		return g/* * vt.unoccluded(*_scene)*/;	/// TODO: Tr() for medium
+		return g * vt.unoccluded(*_scene);	/// TODO: Tr() for medium
 	}
 
 	float BDPTIntegrator::MISWeight(std::vector<Vertex> &camera_vertex, std::vector<Vertex> &light_vertex, int t, int s) {
