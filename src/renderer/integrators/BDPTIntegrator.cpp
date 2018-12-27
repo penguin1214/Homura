@@ -152,10 +152,10 @@ namespace Homura {
 		float invH = 1.f / _scene->_cam->_film->height();
 
 #if 0
-		int xx = 68;
-		int yy = 254;
-		int x_region = 1;
-		int y_region = 1;
+		int xx = 260;
+		int yy = 90;
+		int x_region = 30;
+		int y_region = 190;
 		float inv_region = 1.f / float(y_region);
 		for (int y = yy; y < yy + y_region; y++) {
 			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);
@@ -403,11 +403,15 @@ namespace Homura {
 			//draw_line(_scene, qs.p(), pt.p(), 0.01f, Vec3f(1, 0, 0));
 		}
 
-		//float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
-		//L *= mis_weight;
+		// no MIS
+		//L *= 1.f / (t + s -1);
 
-		//if (mis)
-		//	*mis = mis_weight;
+		// use MIS
+		float mis_weight = MISWeight(camera_vertex, light_vertex, t, s);
+		L *= mis_weight;
+
+		if (mis)
+			*mis = mis_weight;
 
 		return L;
 	}
@@ -441,9 +445,9 @@ namespace Homura {
 		ri = 1.f;
 		for (int i = s - 1; i >= 0; i--) {
 			ri *= map0(light_vertex[i]._pdfRev) / map0(light_vertex[i]._pdfFwd);
-			/// TODO: check delta
 
-			if (!light_vertex[i]._is_delta /* TODO: && !deltaLightVertex*/)
+			bool isdeltalight = i > 0 ? (light_vertex[i-1]._is_delta) : (light_vertex[0].isDeltaEmitter());
+			if (!light_vertex[i]._is_delta && isdeltalight)
 				sum_ri += ri;
 		}
 

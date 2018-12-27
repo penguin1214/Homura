@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      100,
-      100
+      200,
+      200
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -26,6 +26,11 @@
     }
   },
   "bxdfs": [
+    {
+      "name": "Light",
+      "type": "matte",
+      "R": [1, 1, 1]
+    },
     {
       "name": "LeftWall",
       "type": "matte",
@@ -78,12 +83,12 @@
         "edge1": [ 0.4, 0, 0 ]
       },
       "material": {
-        "bsdf": [ "RightWall" ]
+        "bsdf": [ "Light" ]
       },
       "emitter": {
         "type": "diffuse_area",
         "n_samples": 1,
-        "intensity": [ 1,1,1 ]
+        "intensity": [ 10,10,10 ]
       }
     },
     //{
@@ -106,38 +111,38 @@
           "translate": [ 0, 0, 0 ],
           "scale": [ 1, 1, 1 ]
         },
-        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/short_box.obj"
-      },
-      "material": {
-        "bsdf": [ "Ceil" ]
-      }
-    },
-    {
-      "type": "obj",
-      "shape": {
-        "transform": {
-          "translate": [ 0, 0, 0 ],
-          "scale": [ 1, 1, 1 ]
-        },
         "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/teapot.obj"
       },
       "material": {
-        "bsdf": [ "Mirror" ]
+        "bsdf": [ "Glass" ]
       }
     },
-    {
-      "type": "obj",
-      "shape": {
-        "transform": {
-          "translate": [ 0, 0, 0 ],
-          "scale": [ 1, 1, 1 ]
-        },
-        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/tall_box.obj"
-      },
-      "material": {
-        "bsdf": [ "Ceil" ]
-      }
-    },
+    //{
+    //  "type": "obj",
+    //  "shape": {
+    //    "transform": {
+    //      "translate": [ 0, 0, 0 ],
+    //      "scale": [ 1, 1, 1 ]
+    //    },
+    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/short_box.obj"
+    //  },
+    //  "material": {
+    //    "bsdf": [ "Ceil" ]
+    //  }
+    //},
+    //{
+    //  "type": "obj",
+    //  "shape": {
+    //    "transform": {
+    //      "translate": [ 0, 0, 0 ],
+    //      "scale": [ 1, 1, 1 ]
+    //    },
+    //    "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/tall_box.obj"
+    //  },
+    //  "material": {
+    //    "bsdf": [ "Ceil" ]
+    //  }
+    //},
     {
       "type": "obj",
       "shape": {
@@ -248,12 +253,13 @@
   //],
   "integrator": {
     "type": "bdpt",
-    "max_depth": 5,
-    "rr_bounce": 5,
+    "subpath": 10,
+    "max_depth": 10,
+    "rr_bounce": 15,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 16,
+      "spp": 256,
       "ndim": 4
     }
   },
