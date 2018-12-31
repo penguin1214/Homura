@@ -31,8 +31,10 @@ namespace Homura {
 
 			if (f.max() > 1e-6) {
 				Li_sampled *= vt.Tr(scene, shared_from_this(), sampler);
+				return f * Li_sampled / light_pdf;
 			}
-			return f * Li_sampled / light_pdf;
+			else
+				return Vec3f(0.f);
 		}
 		else
 			return Vec3f(0.f);

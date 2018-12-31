@@ -19,7 +19,7 @@ namespace Homura {
 		return true;
 	}
 
-	bool Sphere::intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
+	bool Sphere::intersect(const Ray &r, float &hitt, IntersectInfo *isect_info) const {
 		Ray ray = r * _world2local;	/// TODO
 		float ox = ray._o.x(); float oy = ray._o.y(); float oz = ray._o.z();
 		float dx = ray._d.x(); float dy = ray._d.y(); float dz = ray._d.z();
@@ -33,10 +33,9 @@ namespace Homura {
 
 		if (t0 < 0.f || t1 > ray._tmax)
 			return false;
-		ray._tmax = t0;
+		//ray._tmax = t0;
 
-		if (hitt)
-			*hitt = t0;
+		hitt = t0;
 
 		Point3f phit = r._o + t0 * r._d;
 		float phi = std::atan2(phit.y(), phit.x());
@@ -77,7 +76,7 @@ namespace Homura {
 		return isect_info;
 	}
 
-	bool Quad::intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
+	bool Quad::intersect(const Ray &r, float &hitt, IntersectInfo *isect_info) const {
 		float NdotD = r._d.dot(_normal);
 		if (std::abs(NdotD) < 1e-6f)
 			return false;
@@ -95,12 +94,10 @@ namespace Homura {
 
 		if (l0 < 0.0f || l0 > _edge0.length() || l1 < 0.0f || l1 > _edge1.length() )
 			return false;
-		/// TODO: intersect info
 
-		r._tmax = t;
+		//r._tmax = t;
 
-		if (hitt)
-			*hitt = t;
+		hitt = t;
 
 		if (isect_info) {
 			isect_info->_t = t;

@@ -209,6 +209,8 @@ namespace Homura {
 			return n;
 		}
 
+		bool isValid() { return _bxdfs.size() > 0; }
+
         /// TODO: rho()
 
     private:

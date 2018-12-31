@@ -20,7 +20,7 @@ namespace Homura {
 		uv[2] = Point2f(2, 0);
 	}
 
-	bool Triangle::intersect(const Ray &r, Point3f p0, Point3f p1, Point3f p2, const Vec3f &n0, const Vec3f &n1, const Vec3f n2, IntersectInfo &isect_info, bool smooth) const {
+	bool Triangle::intersect(const Ray &r, Point3f p0, Point3f p1, Point3f p2, const Vec3f &n0, const Vec3f &n1, const Vec3f n2, float &hitt, IntersectInfo &isect_info, bool smooth) const {
 		// translate
 		Point3f p0_ = p0 - r._o;
 		Point3f p1_ = p1 - r._o;
@@ -90,8 +90,10 @@ namespace Homura {
 		float invDet = 1.0f / det;
 		float t = tScaled * invDet;
 
-		if (t > r._tmax) return false;
-		r._tmax = t;
+		//if (t > r._tmax) return false;
+		//r._tmax = t;
+		if (t > hitt) return false;
+		hitt = t;
 
 		/// TODO: compute barycentric coord for texture mapping
 		float b0 = e0 * invDet;
@@ -143,7 +145,7 @@ namespace Homura {
 		return true;
 	}
 
-	bool Triangle::intersectP(const Ray &r, Point3f p0, Point3f p1, Point3f p2) const {
+	bool Triangle::intersectP(const Ray &r, Point3f p0, Point3f p1, Point3f p2, float &hitt) const {
 		// translate
 		Point3f p0_ = p0 - r._o;
 		Point3f p1_ = p1 - r._o;
@@ -213,8 +215,10 @@ namespace Homura {
 		float invDet = 1.0f / det;
 		float t = tScaled * invDet;
 
-		if (t > r._tmax) return false;
-		r._tmax = t;
+		//if (t > r._tmax) return false;
+		//r._tmax = t;
+		if (t > hitt) return false;
+		hitt = t;
 
 		return true;
 	}
@@ -229,32 +233,32 @@ namespace Homura {
 		computeLocalBound();
 	}
 
-	bool TriangleMesh::intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const {
+	bool TriangleMesh::intersect(const Ray &r, float &hitt, IntersectInfo *isect_info) const {
 		bool flag = false;
+		hitt = r._tmax;
 		for (int i = 0; i < _indecies.size(); i++) {
 			if (isect_info) {
 				if (_normal_indecies.size() > 0) {
 					Triangle t(_indecies[i], _normal_indecies[i]);
-					if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], _normals[t._normalIdx[0]], _normals[t._normalIdx[1]], _normals[t._normalIdx[2]], *isect_info, true)) {
+					if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], _normals[t._normalIdx[0]], _normals[t._normalIdx[1]], _normals[t._normalIdx[2]], hitt, *isect_info, true)) {
 						flag = true;
 					}
 				}
 				else {
 					Triangle t(_indecies[i], -1);
 					const Vec3f tmp(-1);
-					if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], tmp, tmp, tmp, *isect_info, false)) {
+					if (t.intersect(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], tmp, tmp, tmp, hitt, *isect_info, false)) {
 						flag = true;
 					}
 				}
 			}
 			else {
 				Triangle t(_indecies[i], (_normal_indecies.size() > 0) ? _normal_indecies[i] : -1);
-				if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]]))
+				if (t.intersectP(r, _vertices[t._vertIdx[0]], _vertices[t._vertIdx[1]], _vertices[t._vertIdx[2]], hitt))
 					flag = true;
 			}
 		}
 
-		if (hitt) *hitt = isect_info->_t;
 		return flag;
 	}
 

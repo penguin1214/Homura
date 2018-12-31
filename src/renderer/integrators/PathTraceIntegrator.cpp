@@ -3,6 +3,7 @@
 #include "renderer/bxdfs/BxDF.h"
 #include "renderer/phase/PhaseFunction.h"
 #include "renderer/emitters/Emitter.h"
+#include "renderer/Helper.h"
 #include <cmath>
 #include <fstream>
 
@@ -14,6 +15,10 @@ namespace Homura {
 		Vec3f L(0.0f), throughput(1.0f);
 		int depth = 0;
 		Ray ray(r);	ray.setPrimary(true);
+
+		//ray._o = Point3f(-0.644, 0.844, -0.511);
+		//ray._d = Vec3f(0.4895, 0.7608, 0.4262);
+		//bool intersect = _scene->_bvh->intersectP(ray, _scene->_emitters[0]->getEmitter());
 
 		bool specular_bounce = false;
 
@@ -66,6 +71,11 @@ namespace Homura {
 				}
 
 				isect_info.computeScatteringFunction();
+				if (!isect_info._bsdf->isValid()) {
+					ray = isect_info.spawnRay(ray._d);
+					depth--;
+					continue;
+				}
 
 				// Only account for direct light sampling for non-specular surfaces
 				if (isect_info._bsdf->numComponents(BxDFType(BSDF_ALL & ~BSDF_SPECULAR)) > 0) {
@@ -94,6 +104,7 @@ namespace Homura {
 				if (throughput.max() < 1e-3)	break;	// too small contribution
 
 				ray = isect_info.spawnRay(wi);
+				//std::cout << "spawn ray origin: " << ray._o << std::endl;
 				//std::cout << "sampled direction: " << wi << std::endl;
 			}
 			if (depth > _rr_bounce) {

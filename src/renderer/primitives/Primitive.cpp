@@ -33,7 +33,7 @@ namespace Homura {
 		}
 
 		if (auto mi = json["medium_interface"]) {
-			_medium_interface = MediumInterface(medium_interfaces[mi["name"].getString()]);
+			_medium_interface = MediumInterface(medium_interfaces[mi.getString()]);
 		}
 	}
 
@@ -48,14 +48,20 @@ namespace Homura {
     }
 
 	bool Primitive::intersect(const Ray &r, IntersectInfo &info) {
-		if (_shape->intersect(r, nullptr, &info)) {
-			info._primitive = getShared();
+		float hitt;
+		if (_shape->intersect(r, hitt, &info)) {
+			if ((!this->_material->_bsdf->isValid()) && !_medium_interface.isValid())
+				return false;
+
 			if (_medium_interface.isTransition()) {
 				info._medium_interface._inside = _medium_interface._inside;
 				info._medium_interface._outside = _medium_interface._outside;
 			}
 			else
 				info._medium_interface._inside = info._medium_interface._outside = r._medium;	// if the ray's origin is in a medium, and the hitted "surface" does not imply a medium transition, then the hitted point is in the same medium as the ray's origin.
+
+			info._primitive = getShared();
+			r._tmax = hitt;
 			return true;
 		}
 		else
@@ -64,8 +70,15 @@ namespace Homura {
 
 	/// TODO: does medium intersection count?
 	std::shared_ptr<Primitive> Primitive::intersectP(const Ray &r) {
-		if (_shape->intersectP(r, nullptr, nullptr))
-			return getShared();
+		float hitt = INFINITY;
+		if (_shape->intersectP(r, hitt, nullptr)) {
+			if (!_material->_bsdf->isValid() && !_medium_interface.isValid())
+				return nullptr;
+			else {
+				r._tmax = hitt;
+				return getShared();
+			}
+		}
 		else
 			return nullptr;
 	}

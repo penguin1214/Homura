@@ -24,8 +24,8 @@ namespace Homura {
 			return localBound() * _local2world;	/// TODO
 		}
 
-		virtual bool intersectP(const Ray &r, float *hitt, IntersectInfo *isect_info) const { return intersect(r, nullptr, nullptr); };
-		virtual bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const = 0;
+		virtual bool intersectP(const Ray &r, float &hitt, IntersectInfo *isect_info) const { return intersect(r, hitt, nullptr); };
+		virtual bool intersect(const Ray &r, float &hitt, IntersectInfo *isect_info) const = 0;
 
 		virtual float area() const = 0;
 		virtual inline Vec3f normal(const IntersectInfo &ref) const = 0;
@@ -49,7 +49,7 @@ namespace Homura {
 			return Bound3f(Point3f(-_radius, -_radius, -_radius), Point3f(_radius, _radius, _radius));
 		}
 
-		bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
+		bool intersect(const Ray &r, float &hitt, IntersectInfo *isect_info) const override;
 
 		float area() const override { return 4 * PI*_radius*_radius; }
 		inline Vec3f normal(const IntersectInfo &ref) const override { return Vec3f(ref._p).normalized(); }
@@ -83,7 +83,7 @@ namespace Homura {
 			return Bound3f(_base, _base+_edge0+_edge1);	/// TODO: when to call localBound()?
 		}
 
-		bool intersect(const Ray &r, float *hitt, IntersectInfo *isect_info) const override;
+		bool intersect(const Ray &r, float &hitt, IntersectInfo *isect_info) const override;
 		IntersectInfo sample(const Point2f &u) const override;
 
 		float area() const override { return _edge0.length() * _edge1.length(); }

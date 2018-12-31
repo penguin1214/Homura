@@ -19,6 +19,7 @@ namespace Homura {
 		MediumInterface(std::shared_ptr<Medium> in, std::shared_ptr<Medium> out) : _inside(in), _outside(out) {}
 
 		bool isTransition() const { return _inside != _outside; }
+		bool isValid() const { return _inside != nullptr && _outside != nullptr; }
 
 		std::shared_ptr<Medium> _inside;
 		std::shared_ptr<Medium> _outside;
