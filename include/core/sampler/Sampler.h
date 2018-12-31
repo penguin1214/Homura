@@ -69,7 +69,7 @@ namespace Homura {
 		Vec2f get2D() override;
 		void resetSeed(const int &seed);
 
-		virtual std::unique_ptr<PixelSampler> clone(const int &seed) const = 0;
+		virtual std::shared_ptr<PixelSampler> clone(const int &seed) const = 0;
 
 	protected:
 		PixelSampler(const PixelSampler &origin);

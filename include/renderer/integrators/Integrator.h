@@ -23,13 +23,13 @@ namespace Homura {
 		~SamplerIntegrator() = default;
 
 		void render() override;
-		virtual Vec3f Li(const Ray &r, std::unique_ptr<PixelSampler> sampler) const = 0;
+		virtual Vec3f Li(const Ray &r, std::shared_ptr<PixelSampler> sampler) const = 0;
 
 		std::shared_ptr<Scene> _scene;
-		std::unique_ptr<PixelSampler> _sampler;
+		std::shared_ptr<PixelSampler> _sampler;
 
 	protected:
-		virtual Vec3f evaluateDirect(const IntersectInfo &isect_info) const;
+		virtual Vec3f evaluateDirect(const IntersectInfo &isect_info, std::shared_ptr<PixelSampler> sampler) const;
 	};
 }
 

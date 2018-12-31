@@ -25,7 +25,7 @@ namespace Homura {
 
 		bool unoccluded(const Scene &scene) const;
 		bool unoccluded(const Scene &scene, std::shared_ptr<Emitter> evalemitter) const;
-		Vec3f Tr(const Scene &scene, Sampler &sampler) const;
+		Vec3f Tr(std::shared_ptr<Scene> scene, std::shared_ptr<Emitter> evalemitter, std::shared_ptr<PixelSampler> sampler) const;
 
 	private:
 		IntersectInfo _I1, _I2;
@@ -55,7 +55,7 @@ namespace Homura {
 		virtual Vec3f sample_Le(const Point2f &u1, const Point2f &u2, Ray &ray, Vec3f &normal, float &pdf_pos, float &pdf_dir) const { return Vec3f(0.f); }
 		virtual void Pdf_Le(const Ray &r, const Vec3f &normal, float &pdf_pos, float &pdf_dir) const {}
 		virtual Vec3f Le(const Ray &r) const { return Vec3f(0.f); }	// background radiance
-		virtual Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u);
+		virtual Vec3f evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, std::shared_ptr<PixelSampler> sampler);
 		virtual Vec3f L(const IntersectInfo &isect_info, const Vec3f &w) const = 0;
 		virtual Vec3f power() const = 0;
 		virtual void preprocess() {}

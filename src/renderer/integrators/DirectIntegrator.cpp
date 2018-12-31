@@ -9,7 +9,7 @@ namespace Homura {
 		///	TODO: request sample arrays from sampler in terms of the rounded sample count
 	}
 
-	Vec3f DirectIntegrator::Li(const Ray &r, std::unique_ptr<PixelSampler> sampler) const {
+	Vec3f DirectIntegrator::Li(const Ray &r, std::shared_ptr<PixelSampler> sampler) const {
 		Vec3f L(0.0f);
 		Ray ray(r);
 
@@ -25,7 +25,7 @@ namespace Homura {
 		
 		/// TODO: add self-emitted light by intersected object
 
-		L += evaluateDirect(isect_info);
+		L += evaluateDirect(isect_info, sampler);
 
 		return L;
 	}

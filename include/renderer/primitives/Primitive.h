@@ -5,6 +5,7 @@
 #include "renderer/IntersectInfo.h"
 #include "renderer/materials/Material.h"
 #include "renderer/emitters/Emitter.h"
+#include "renderer/medium/Medium.h"
 #include "core/io/JsonObject.h"
 #include <memory>
 #include <unordered_map>
@@ -18,7 +19,7 @@ namespace Homura {
 	class Primitive : public std::enable_shared_from_this<Primitive> {
 	public:
 		Primitive() = default;
-		Primitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bxdfs);
+		Primitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bxdfs, std::unordered_map<std::string, MediumInterface> &medium_interfaces);
 		virtual std::shared_ptr<Primitive> getShared();
 		virtual bool intersect(const Ray &r, IntersectInfo &info);
 		virtual std::shared_ptr<Primitive> intersectP(const Ray &r);
@@ -33,21 +34,22 @@ namespace Homura {
 	    std::unique_ptr<Material> _material;
 		std::shared_ptr<Emitter> _emitter;
 		std::shared_ptr<Shape> _shape;
+		MediumInterface _medium_interface;
 	};
 
 	class TriangleMeshPrimitive : public Primitive {
 	public:
-		TriangleMeshPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
+		TriangleMeshPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs, std::unordered_map<std::string, MediumInterface> &medium_interfaces);
 	};
 
 	class SpherePrimitive : public Primitive {
 	public:
-		SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
+		SpherePrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs, std::unordered_map<std::string, MediumInterface> &medium_interfaces);
 	};
 
 	class QuadPrimitive : public Primitive {
 	public:
-		QuadPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs);
+		QuadPrimitive(const JsonObject &json, std::unordered_map<std::string, std::shared_ptr<BxDF>> &bsdfs, std::unordered_map<std::string, MediumInterface> &medium_interfaces);
 	};
 
 	class PrimitiveGroup : public Primitive {

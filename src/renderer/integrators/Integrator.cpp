@@ -12,7 +12,7 @@ namespace Homura {
 		if (sampler_type == "uniform")
 			;//_sampler = std::unique_ptr<UniformSampler>(new UniformSampler(json));
 		else if (sampler_type == "stratified")
-			_sampler = std::unique_ptr<StratifiedSampler>(new StratifiedSampler(sampler_json));
+			_sampler = std::make_shared<StratifiedSampler>(sampler_json);
 		else
 			std::cerr << "NOT_IMPLEMENTED_ERROR: Sampler [" << sampler_type << "] not implemented." << std::endl;
 	}
@@ -72,10 +72,10 @@ namespace Homura {
 		_scene->_cam->_film->writeColorBuffer(fn);
 	}
 
-	Vec3f SamplerIntegrator::evaluateDirect(const IntersectInfo &isect_info) const {
+	Vec3f SamplerIntegrator::evaluateDirect(const IntersectInfo &isect_info, std::shared_ptr<PixelSampler> sampler) const {
 		Vec3f L(0.0f);
 		for (auto light : _scene->_emitters) {
-			L += light->getEmitter()->evalDirect(_scene, isect_info, _sampler->get2D());
+			L += light->getEmitter()->evalDirect(_scene, isect_info, _sampler);
 		}
 		//std::cout << L << std::endl;
 		return L;

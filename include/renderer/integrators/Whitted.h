@@ -9,7 +9,7 @@ namespace Homura {
 		Whitted(std::shared_ptr<Scene> sc, const JsonObject &json);
 		~Whitted();
 
-		Vec3f Li(const Ray &r, std::unique_ptr<PixelSampler> sampler) const override;
+		Vec3f Li(const Ray &r, std::shared_ptr<PixelSampler> sampler) const override;
 
 	private:
 		const int _max_depth;

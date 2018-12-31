@@ -4,6 +4,7 @@
 #include "renderer/emitters/Emitter.h"
 #include "renderer/bxdfs/Lambert.h"
 #include "renderer/bxdfs/Fresnel.h"
+#include "renderer/medium/Medium.h"
 
 #define USE_BVH 1
 
@@ -40,14 +41,41 @@ namespace Homura {
 			}
 		}
 
+		if (auto media = scene_document["medium"]) {
+			for (unsigned i = 0; i < media.size(); i++) {
+				JsonObject medium = media[i];
+				std::string name = medium["name"].getString();
+				std::string type = medium["type"].getString();
+				if (type == "homogeneous")
+					_media[name] = std::make_shared<HomogeneousMedium>
+						(medium["sigma_a"].getVec3(), medium["sigma_s"].getVec3(), medium["g"].getFloat());
+			}
+		}
+
+		if (auto medium_interfaces = scene_document["medium_interface"]) {
+			for (unsigned i = 0; i < medium_interfaces.size(); i++) {
+				JsonObject mi = medium_interfaces[i];
+				std::string name = mi["name"].getString();
+
+				std::string inside_key = mi["inside"].getString();
+				std::shared_ptr<Medium> inside =
+					(_media.find(inside_key) != _media.end()) ? (_media[inside_key]) : (nullptr);
+				std::string outside_key = mi["outside"].getString();
+				std::shared_ptr<Medium> outside =
+					(_media.find(outside_key) != _media.end()) ? (_media[outside_key]) : (nullptr);
+
+				_medium_interfaces[name] = MediumInterface(inside, outside);
+			}
+		}
+
 		if (auto primitives = scene_document["primitives"]) {
             for (unsigned i = 0; i < primitives.size(); i++) {
 				JsonObject primitive = primitives[i];
 				auto type = primitive["type"].getString();
 				if (type == "obj")
-					_primitives.push_back(std::make_shared<TriangleMeshPrimitive>(primitive, _bxdfs));
+					_primitives.push_back(std::make_shared<TriangleMeshPrimitive>(primitive, _bxdfs, _medium_interfaces));
 				else if (type == "sphere" || type == "quad")
-					_primitives.push_back(std::make_shared<Primitive>(primitive, _bxdfs));
+					_primitives.push_back(std::make_shared<Primitive>(primitive, _bxdfs, _medium_interfaces));
 			}
 		}
 

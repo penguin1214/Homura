@@ -33,8 +33,8 @@ namespace Homura {
 		Sampler::startPixel(p);
 	}
 
-	std::unique_ptr<PixelSampler> StratifiedSampler::clone(const int &seed) const {
-		auto cloned = std::unique_ptr<PixelSampler>(new StratifiedSampler(*this));
+	std::shared_ptr<PixelSampler> StratifiedSampler::clone(const int &seed) const {
+		auto cloned = std::make_shared<StratifiedSampler>(*this);
 		cloned->resetSeed(seed);
 		return cloned;
 	}

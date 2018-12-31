@@ -40,6 +40,10 @@ namespace Homura {
 			bi = Vec3f(b, sign + n.y()*n.y()*a, -n.y());
 		}
 	};
+
+	inline Vec3f sphericalDirection(const float &sin_theta, const float &cos_theta, const float phi, const Vec3f &x, const Vec3f &y, const Vec3f z) {
+		return (sin_theta*std::cos(phi)*x + sin_theta * std::sin(phi)*y + cos_theta * z);
+	}
 }
 #endif	// !HOMURA_COORDINATE_SYSTEM_H_
 

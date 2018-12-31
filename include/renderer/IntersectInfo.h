@@ -3,10 +3,12 @@
 
 #include "core/math/Geometry.h"
 #include "renderer/Ray.h"
+#include "renderer/medium/Medium.h"
 
 namespace Homura {
 	class Primitive;
 	class BSDF;
+	class PhaseFunction;
 	class ProjectiveSensor;
 	class Emitter;
 	enum TransportMode :short;
@@ -22,6 +24,7 @@ namespace Homura {
 		//float _etaI = 1.f;	// everytime rays inter a medium(transmission), update _etaI.
 		std::shared_ptr<Primitive> _primitive;
 		std::shared_ptr<BSDF> _bsdf;
+		MediumInterface _medium_interface;
 		struct strct_shading {
 			Vec3f _n;
 			Vec3f _tangent;
@@ -40,6 +43,23 @@ namespace Homura {
 		Vec3f Le(const Vec3f &wi) const;
 		Ray spawnRay(const Vec3f &wi) const;
 		Ray spawnRayTo(const IntersectInfo &other) const;
+
+		bool isSurfaceIntersect() const { return _normal != Vec3f(); }
+
+		std::shared_ptr<Medium> getMedium(const Vec3f &wi) const {
+			return (wi.dot(_normal) > 0.f) ? (_medium_interface._outside) : (_medium_interface._inside);
+		}
+
+		std::shared_ptr<Medium> getMedium() const {
+			return _medium_interface._inside;
+		}
+	};
+
+	/// TODO
+	struct MediumIntersectInfo : public IntersectInfo {
+		bool isValid() const { return _phase != nullptr; }
+
+		std::shared_ptr<PhaseFunction> _phase;
 	};
 
 	struct EndpointInfo : public IntersectInfo {

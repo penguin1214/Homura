@@ -33,7 +33,7 @@ namespace Homura {
 	}
 
 	Ray IntersectInfo::spawnRay(const Vec3f &wi) const {
-		return Ray(_p + ((_normal.dot(wi)>0.f) ? (_normal*1e-5):(-_normal*1e-5) ), wi);
+		return Ray(_p + ((_normal.dot(wi)>0.f) ? (_normal*1e-5):(-_normal*1e-5) ), wi, 0.f, INFINITY, getMedium(wi));
 	}
 
 	Ray IntersectInfo::spawnRayTo(const IntersectInfo &other) const {

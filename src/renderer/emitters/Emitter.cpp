@@ -1,6 +1,7 @@
 #include "renderer/emitters/Emitter.h"
 #include "core/Common.h"
 #include "renderer/bxdfs/BxDF.h"
+#include "renderer/phase/PhaseFunction.h"
 #include "renderer/Scene.h"
 #include "core/math/CoordinateSystem.h"
 #include <fstream>
@@ -10,13 +11,33 @@ namespace Homura {
 	/*
 	@param isect_info: isect to be  cast by emitter
 	*/
-	Vec3f Emitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, const Point2f &u) {
+	Vec3f Emitter::evalDirect(std::shared_ptr<Scene> scene, const IntersectInfo &isect_info, std::shared_ptr<PixelSampler> sampler) {
 		Vec3f wi;
-		float light_pdf;
+		float light_pdf = 0.f, scatter_pdf = 0.f;
 		VisibilityTester vt;
-		Vec3f Li_sampled = sample_Li(isect_info, wi, light_pdf, vt, u);
-		Vec3f f = isect_info._bsdf->f(isect_info._wo, wi)*std::abs(isect_info._shading._n.dot(wi));
-		return (vt.unoccluded(*scene, shared_from_this())) ? (f*Li_sampled) / light_pdf : Vec3f(0.f);
+		Vec3f Li_sampled = sample_Li(isect_info, wi, light_pdf, vt, sampler->get2D());
+		if (light_pdf > 1e-6 && Li_sampled.max() > 1e-6) {
+			Vec3f f;
+			if (isect_info.isSurfaceIntersect()) {
+				f = isect_info._bsdf->f(isect_info._wo, wi);
+				f *= std::abs(isect_info._shading._n.dot(wi));
+				scatter_pdf = isect_info._bsdf->Pdf(isect_info._wo, wi);	/// TODO: needed?
+			}
+			else {
+				const MediumIntersectInfo &mi = static_cast<const MediumIntersectInfo&>(isect_info);
+				scatter_pdf = mi._phase->p(mi._wo, wi);
+				f = Vec3f(scatter_pdf);
+			}
+
+			if (f.max() > 1e-6) {
+				Li_sampled *= vt.Tr(scene, shared_from_this(), sampler);
+			}
+			return f * Li_sampled / light_pdf;
+		}
+		else
+			return Vec3f(0.f);
+		//return (vt.unoccluded(*scene, shared_from_this())) ? (f*Li_sampled) / light_pdf : Vec3f(0.f);
+		/// TODO: MIS
 	}
 
 	bool Emitter::isType(EmitterFlags flag) const {
@@ -126,9 +147,11 @@ namespace Homura {
 	Vec3f DiffuseAreaEmitter::sample_Li(const IntersectInfo &isect_info, Vec3f &wi, float &pdf, VisibilityTester &vt, const Point2f &u) const {
 		IntersectInfo isect_emitter = _shape->sample(u);
 		wi = (isect_emitter._p - isect_info._p).normalized();
+		/// TODO: medium interface?
 		pdf = Pdf();
 		vt = VisibilityTester(isect_info, isect_emitter);
-		return L(isect_emitter, -wi) * std::abs(_shape->normal(isect_emitter).dot(-wi)) / (isect_emitter._p - isect_info._p).squareLength();
+		//return L(isect_emitter, -wi) * std::abs(_shape->normal(isect_emitter).dot(-wi)) / (isect_emitter._p - isect_info._p).squareLength();
+		return L(isect_emitter, -wi) / (isect_emitter._p - isect_info._p).squareLength();	/// TODO: need check
 	}
 
 	Vec3f DiffuseAreaEmitter::sample_Le(const Point2f &u1, const Point2f &u2, Ray &ray, Vec3f &normal, float &pdf_pos, float &pdf_dir) const {
@@ -196,9 +219,9 @@ namespace Homura {
 		return !(scene.intersectP(_I1.spawnRayTo(_I2), evalemitter));
 	}
 
-	Vec3f VisibilityTester::Tr(const Scene &scene, Sampler &sampler) const {
+	Vec3f VisibilityTester::Tr(std::shared_ptr<Scene> scene, std::shared_ptr<Emitter> evalemitter, std::shared_ptr<PixelSampler> sampler) const {
 		/// TODO
-		return Vec3f(1.f);
+		return unoccluded(*scene, evalemitter);
 	}
 
 }

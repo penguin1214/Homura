@@ -13,6 +13,7 @@
 
 namespace Homura {
 	class VisibilityTester;
+	class Medium;
 
 	struct SensorSample {
 		Vec2f _p_film;
@@ -44,6 +45,7 @@ namespace Homura {
 	class Sensor {
 	public:
         std::unique_ptr<Film> _film;
+		std::shared_ptr<Medium> _medium;	// can specify a medium camera lies in.	/// TODO: init
     protected:
 		Point3f _p;
         Mat4f _cam2world;   // TODO: Animated Transform

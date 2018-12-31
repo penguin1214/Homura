@@ -7,7 +7,7 @@ namespace Homura {
 	Whitted::Whitted(std::shared_ptr<Scene> sc, const JsonObject &json)
 		: SamplerIntegrator(sc, json), _max_depth(json["max_depth"].getInt()) {}
 
-	Vec3f Whitted::Li(const Ray &r, std::unique_ptr<PixelSampler> sampler) const {
+	Vec3f Whitted::Li(const Ray &r, std::shared_ptr<PixelSampler> sampler) const {
 		Vec3f L(0.0f);
 		// intersection
 		IntersectInfo isect_info;

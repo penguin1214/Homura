@@ -24,6 +24,8 @@ namespace Homura {
 		r._o = Point3f(0.0f) * _cam2world;
         r._d = Vec3f(Point3f(p_cam) * _cam2world).normalized();
 
+		r._medium = _medium;
+
         return 1.0f;
     }
 
