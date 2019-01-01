@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      200,
-      200
+      400,
+      400
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -80,13 +80,20 @@
       "eta": 1.33
     }
   ],
+  "phase_function": [
+    {
+      "name": "Fog",
+      "type": "HG",
+      "g": 0.5
+    }
+  ],
   "medium": [
     {
       "name": "Fog",
       "type": "homogeneous",
-      "sigma_a": [ 0.5, 0.5, 0.5 ],
-      "sigma_s": [ 0.0, 0.0, 0.0 ],
-      "g": 0
+      "sigma_a": [ 2, 2, 2 ],
+      "sigma_s": [ 10, 10, 10 ],
+      "phase": "Fog"
     }
   ],
   "medium_interface": [
@@ -150,12 +157,12 @@
           "translate": [ 0, 0, 0 ],
           "scale": [ 1, 1, 1 ]
         },
-        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/short_box.obj"
+        "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj"
       },
       "material": {
-        "bsdf": ["Glass"]
+        "bsdf": []
       },
-      //"medium_interface": "Air-Fog"
+      "medium_interface": "Air-Fog"
     },
     {
       "type": "obj",
@@ -281,13 +288,13 @@
   "integrator": {
     "type": "path_trace",
     "subpath": 10,
-    "max_depth": 3,
-    "rr_bounce": 2,
+    "max_depth": 20,
+    "rr_bounce": 25,
     "sampler": {
       "type": "stratified",
       "jitter": true,
-      "spp": 1,
-      "ndim": 4
+      "spp": 64,
+      "ndim": 0
     }
   },
   "renderer": {

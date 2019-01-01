@@ -26,12 +26,12 @@ namespace Homura {
 		float invH = 1.f / _scene->_cam->_film->height();
 
 //#pragma omp parallel for
-#define DBG 0
+#define DBG 1
 #if DBG
-		int xx = 200;
-		int yy = 270;
-		int x_region = 50;
-		int y_region = 20;
+		int xx = 215;
+		int yy = 80;
+		int x_region = 90;
+		int y_region = 80;
 		float inv_region = 1.f / float(y_region);
 		for (int y = yy; y < yy + y_region; y++) {
 			fprintf(stderr, "\r Rendering %5.2f%%\n", (y - yy + 1)*inv_region);

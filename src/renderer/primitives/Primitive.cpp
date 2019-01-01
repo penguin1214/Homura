@@ -33,6 +33,7 @@ namespace Homura {
 		}
 
 		if (auto mi = json["medium_interface"]) {
+			std::string name = mi.getString();
 			_medium_interface = MediumInterface(medium_interfaces[mi.getString()]);
 		}
 	}

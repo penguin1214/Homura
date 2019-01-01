@@ -32,9 +32,10 @@ namespace Homura {
 		} _shading;
 		Vec3f _dpdu, _dpdv;
 
-		IntersectInfo() = default;
+		IntersectInfo() {}
 		IntersectInfo(const IntersectInfo &origin);
 		IntersectInfo(const Point3f p);
+		IntersectInfo(const Point3f &p, const Vec3f &wo) : _p(p), _wo(wo) {}
 		IntersectInfo(const Point3f &p, const Vec3f &wo, const float &t, const Vec3f &normal, const TransportMode &mode, std::shared_ptr<Primitive> prim, std::shared_ptr<BSDF> bsdf,
 			const strct_shading &shad, const Vec3f &dpdu, const Vec3f &dpdv) :
 			_p(p), _wo(wo), _t(t), _normal(normal), _transport_mode(mode), _primitive(prim), _bsdf(bsdf), _shading(shad), _dpdu(dpdu), _dpdv(dpdv) {}
@@ -57,6 +58,9 @@ namespace Homura {
 
 	/// TODO
 	struct MediumIntersectInfo : public IntersectInfo {
+		MediumIntersectInfo() : _phase(nullptr) {}
+		MediumIntersectInfo(const Point3f &p, const Vec3f &wo, std::shared_ptr<PhaseFunction> phase) : IntersectInfo(p, wo), _phase(phase) {}
+
 		bool isValid() const { return _phase != nullptr; }
 
 		std::shared_ptr<PhaseFunction> _phase;

@@ -20,7 +20,7 @@ namespace Homura {
 	public:
 		static const unsigned size = Size;    // Each class template instantiation has its own copy of any static data members.
 
-		Vector() = default;
+		Vector() :_v(std::array<ElementType, Size>()) {}
 
 		Vector(const ElementType a) {
 			for (unsigned i = 0; i < Size; i++) _v[i] = a;

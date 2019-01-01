@@ -41,6 +41,16 @@ namespace Homura {
 			}
 		}
 
+		if (auto phases = scene_document["phase_function"]) {
+			for (unsigned i = 0; i < phases.size(); i++) {
+				JsonObject phase = phases[i];
+				std::string type = phase["type"].getString();
+				std::string name = phase["name"].getString();
+				if (type == "HG")
+					_phase_funcs[name] = std::make_shared<HenyeyGreenstein>(phase);
+			}
+		}
+
 		if (auto media = scene_document["medium"]) {
 			for (unsigned i = 0; i < media.size(); i++) {
 				JsonObject medium = media[i];
@@ -48,7 +58,7 @@ namespace Homura {
 				std::string type = medium["type"].getString();
 				if (type == "homogeneous")
 					_media[name] = std::make_shared<HomogeneousMedium>
-						(medium["sigma_a"].getVec3(), medium["sigma_s"].getVec3(), medium["g"].getFloat());
+						(medium["sigma_a"].getVec3(), medium["sigma_s"].getVec3(), _phase_funcs[medium["phase"].getString()]);
 			}
 		}
 

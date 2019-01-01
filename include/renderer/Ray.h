@@ -5,7 +5,8 @@
 
 namespace Homura {
 	class Medium;
-	struct Ray {
+	class Ray {
+	public:
     	Point3f _o;
 		Vec3f _d;
         float _time;
@@ -25,7 +26,7 @@ namespace Homura {
 	};
 
     // TODO
-    struct RayDifferential : public Ray {};
+    class RayDifferential : public Ray {};
 }
 
 #endif // !HOMURA_RAY_H_

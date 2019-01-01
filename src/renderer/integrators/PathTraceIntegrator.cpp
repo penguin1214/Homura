@@ -16,10 +16,6 @@ namespace Homura {
 		int depth = 0;
 		Ray ray(r);	ray.setPrimary(true);
 
-		//ray._o = Point3f(-0.644, 0.844, -0.511);
-		//ray._d = Vec3f(0.4895, 0.7608, 0.4262);
-		//bool intersect = _scene->_bvh->intersectP(ray, _scene->_emitters[0]->getEmitter());
-
 		bool specular_bounce = false;
 
 		while (depth < _max_depth) {
@@ -31,14 +27,13 @@ namespace Homura {
 				break;
 
 			MediumIntersectInfo mi;
-			if (ray._medium)
+			if (ray._medium) {
 				throughput *= ray._medium->sample(ray, sampler, mi);
+			}
 			if (throughput.max() < 1e-6)
 				break;
 			//std::cout << "ray: " << ray._o << "->" << ray._d << std::endl;
 			//std::cout << "hit point: " << isect_info._p << std::endl;
-
-
 			//std::cout << "point: " << isect_info._p << std::endl;
 			//std::cout << "Ng: " << isect_info._normal << std::endl;
 			//std::cout << "Ns: " << isect_info._shading._n << std::endl;
@@ -47,14 +42,14 @@ namespace Homura {
 			if (mi.isValid()) {
 				// trace ray in medium
 				// compute direct illumination
-					// sample a light
+				// sample a light
 				L += throughput * evaluateDirect(mi, sampler);
 				// sample phase function
 				Vec3f wi;
 				Vec3f wo = -ray._d;
 				mi._phase->sample_p(wo, wi, sampler->get2D());
 				// sample meidum
-				ray = mi.spawnRay(wi);	/// TODO: override!
+				ray = mi.spawnRay(wi);
 				specular_bounce = false;
 			}
 			else {

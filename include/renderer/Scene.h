@@ -4,6 +4,7 @@
 #include "sensors/Orthographic.h"
 #include "Ray.h"
 #include "renderer/bxdfs/BxDF.h"
+#include "renderer/phase/PhaseFunction.h"
 #include "primitives/Primitive.h"
 #include "core/io/JsonDocument.h"
 #include "accelerators/accelerator.h"
@@ -19,6 +20,7 @@ namespace Homura {
 	public:
 		std::shared_ptr<ProjectiveSensor> _cam;
 		std::unordered_map<std::string, std::shared_ptr<BxDF>> _bxdfs;
+		std::unordered_map < std::string, std::shared_ptr<PhaseFunction>> _phase_funcs;
 		std::unordered_map<std::string, std::shared_ptr<Medium>> _media;
 		std::unordered_map<std::string, MediumInterface> _medium_interfaces;
 		std::vector<std::shared_ptr<Primitive>> _primitives;
