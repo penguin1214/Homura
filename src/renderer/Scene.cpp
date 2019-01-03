@@ -4,6 +4,7 @@
 #include "renderer/emitters/Emitter.h"
 #include "renderer/bxdfs/Lambert.h"
 #include "renderer/bxdfs/Fresnel.h"
+#include "renderer/bxdfs/Microfacet.h"
 #include "renderer/medium/Medium.h"
 
 #define USE_BVH 1
@@ -38,6 +39,8 @@ namespace Homura {
 					_bxdfs[name] = std::make_shared<FresnelSpecularTransmission>(bxdf["T"].getVec3(), bxdf["eta"].getFloat(), name);
 				else if (type == "specular")
 					_bxdfs[name] = std::make_shared<FresnelSpecular>(bxdf["R"].getVec3(), bxdf["T"].getVec3(), bxdf["eta"].getFloat(), name);
+				else if (type == "microfacet")
+					_bxdfs[name] = std::make_shared<MicrofacetReflection>(bxdf);
 			}
 		}
 
