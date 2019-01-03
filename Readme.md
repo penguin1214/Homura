@@ -13,7 +13,7 @@
 ![bdpt_no_mis](figs/bdpt_no_mis.jpg)
 
 > Path traced glass teapot
-![pt_glass](figs/path_tracing_teapot) (note noisy causitcs)
+![pt_glass](figs/path_tracing_teapot.jpg) (note noisy causitcs)
 
 > Cornell box original (400x400, 64spp)
 
