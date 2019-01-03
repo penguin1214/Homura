@@ -1,5 +1,9 @@
 # Current results
 
+> Volume path tracing
+
+![volume](figs/homo_fog.jpg)
+
 > BDPT rendered glass teaport in Cornell box w/ MIS
 
 ![bdpt_mis](figs/bdpt_mis.jpg)
