@@ -37,7 +37,7 @@ namespace Homura {
 			const float a = -1.0f / (sign + n.z());
 			const float b = n.x()*n.y()*a;
 			t = Vec3f(1.0f + sign * n.x()*n.x()*a, sign*b, -sign * n.x());
-			bi = Vec3f(b, sign + n.y()*n.y()*a, -n.y());
+			bi = n.cross(t);
 		}
 	};
 

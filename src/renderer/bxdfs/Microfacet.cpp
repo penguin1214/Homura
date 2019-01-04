@@ -16,6 +16,7 @@ namespace Homura {
 		float cos2_phi = cos_phi * cos_phi;
 		float sin2_phi = 1.f - cos2_phi;
 		float a2 = _alpha * _alpha;
+
 		return std::exp(-tan2 * (cos2_phi / a2 + sin2_phi / a2)) /
 			(PI * a2 * cos4);
 	}
@@ -47,7 +48,7 @@ namespace Homura {
 		float cos_theta = 1.f / std::sqrt(1.f + tan2theta);
 		float sin_theta = std::sqrt(std::max(0.f, 1.f - cos_theta * cos_theta));
 
-		Vec3f wh = sphericalDirection(sin_theta, cos_theta, phi, Vec3f(1,0,0), Vec3f(0,0,1), Vec3f(0,1,0));	/// TODO: check
+		Vec3f wh = sphericalDirection(sin_theta, cos_theta, phi, Vec3f(1,0,0), Vec3f(0,1,0), Vec3f(0,0,1));	/// TODO: check
 		return (wo.z()*wh.z() > 0.f) ? (wh) : (-wh);
 	}
 
@@ -83,8 +84,8 @@ namespace Homura {
 			return Vec3f(0.f);
 
 		Vec3f wh = _distribution->sample_wh(wo, sample);
-		wi = Vec3f(-wo.x(), -wo.y(), wo.z());
-		if (!(wo.z() * wo.y() > 0))
+		wi = -wo + 2 * wo.dot(wh) * wh;
+		if (!(wo.z() * wi.z() > 0))
 			return Vec3f(0.f);
 		
 		pdf = _distribution->Pdf(wo, wh) / (4.f * wo.dot(wh));	/// TODO: check

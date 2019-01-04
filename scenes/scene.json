@@ -2,8 +2,8 @@
   "sensor": {
     "type": "perspective",
     "resolution": [
-      400,
-      400
+      300,
+      300
     ],
     "fov": 19.5,
     "screen_window": 2.0,
@@ -75,9 +75,18 @@
     {
       "name": "Glass",
       "type": "specular",
-      "R": [ 1, 1, 1 ],
+      "R": [ 0.8, 0.8, 0.8 ],
       "T": [ 1, 1, 1 ],
       "eta": 1.33
+    },
+    {
+      "name": "Glossy",
+      "type": "microfacet",
+      "R": [ 1, 1, 1 ],
+      "distribution": {
+        "type": "Beckmann",
+        "alpha": 0.5,
+      }
     }
   ],
   "phase_function": [
@@ -160,9 +169,9 @@
         "path": "C:/Users/Jingl/Code/Scenes/obj/cornell_box/bunny.obj"
       },
       "material": {
-        "bsdf": []
+        "bsdf": ["Glossy"]
       },
-      "medium_interface": "Air-Fog"
+      //"medium_interface": "Air-Fog"
     },
     {
       "type": "obj",
@@ -288,7 +297,7 @@
   "integrator": {
     "type": "path_trace",
     "subpath": 10,
-    "max_depth": 20,
+    "max_depth": 10,
     "rr_bounce": 25,
     "sampler": {
       "type": "stratified",

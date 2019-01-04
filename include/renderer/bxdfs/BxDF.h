@@ -103,14 +103,14 @@ namespace Homura {
 
 		Vec3f world2local(const Vec3f &v) const {
 			return Vec3f(
-				_ts.dot(v),
 				_bs.dot(v),
+				_ts.dot(v),
 				_ns.dot(v)
 			);
 		}
 
 		Vec3f local2world(const Vec3f &v) const {
-			return _ts * v.x() + _bs*v.y() + _ns * v.z();
+			return _bs * v.x() + _ts*v.y() + _ns * v.z();
 		}
 
 		void prepareForRender(const IntersectInfo &isect_info) {

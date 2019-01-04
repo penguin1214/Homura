@@ -1,5 +1,9 @@
 # Current results
 
+> Microfacet BRDF
+
+![microfacet](figs/microfacet.jpg)
+
 > Volume path tracing
 
 ![volume](figs/homo_fog.jpg)
