@@ -24,9 +24,10 @@ namespace Homura {
 	void SamplerIntegrator::render() {
 		float Li_weight = 1.0f / _sampler->_spp;
 		float invH = 1.f / _scene->_cam->_film->height();
-
-//#pragma omp parallel for
-#define DBG 1
+#pragma omp parallel
+{
+#pragma omp for
+#define DBG 0
 #if DBG
 		int xx = 215;
 		int yy = 80;
@@ -56,6 +57,7 @@ namespace Homura {
 				} while (_sampler->startNextSample());
 			}
 		}
+}
 #define DBG_OUT 0
 #if DBG && DBG_OUT
 		std::cout << "\n===============Summary================" << std::endl;
